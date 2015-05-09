@@ -40,12 +40,7 @@ public class Series<T> {
         visitor.f().run();
       };
 
-      try {
-        task.accept(taskHandler);
-      }
-      catch (Exception e) {
-        handler.handle(new DefaultFutureResult(e));
-      }
+      task.accept(taskHandler);
     });
 
     visitor.f().run();

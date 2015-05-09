@@ -1,7 +1,7 @@
 # vertx-async
 
 vertx-async is a [Vert.x](http://vertx.io/) module that provides helper methods for common async patterns.
-It helps avoid call back hell and is based on the API of the popular [async](https://www.npmjs.com/package/async)
+It helps avoid call back hell and is inspired by the API of the popular [async](https://www.npmjs.com/package/async)
 node.js module.
 
 # Using
