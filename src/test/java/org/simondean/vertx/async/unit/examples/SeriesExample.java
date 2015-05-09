@@ -1,7 +1,7 @@
 package org.simondean.vertx.async.unit.examples;
 
 import org.simondean.vertx.async.Async;
-import org.vertx.java.core.AsyncResult;
+import org.simondean.vertx.async.DefaultAsyncResult;
 import org.vertx.java.core.AsyncResultHandler;
 import org.vertx.java.core.impl.DefaultFutureResult;
 
@@ -19,7 +19,7 @@ public class SeriesExample {
     Async.<String>series()
       .task(taskHandler -> {
         String result = getSomeResult();
-        taskHandler.handle((AsyncResult<String>) new DefaultFutureResult(result));
+        taskHandler.handle(DefaultAsyncResult.succeed(result));
       })
       .task(taskHandler -> {
         someAsyncMethodThatTakesAHandler(taskHandler);

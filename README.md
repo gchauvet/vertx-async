@@ -34,7 +34,7 @@ public void seriesExample(AsyncResultHandler<List<String>> handler) {
   Async.<String>series()
     .task(taskHandler -> {
       String result = getSomeResult();
-      taskHandler.handle((AsyncResult<String>) new DefaultFutureResult(result));
+      taskHandler.handle(DefaultAsyncResult.succeed(result));
     })
     .task(taskHandler -> {
       someAsyncMethodThatTakesAHandler(taskHandler);
