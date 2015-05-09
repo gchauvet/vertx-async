@@ -23,11 +23,11 @@ The patterns are all available as static methods on the `org.simondean.vertx.asy
 ## Series
 
 ``` java
-public void doSomething(AsyncResultHandler<List<Object>> handler) {
-  Async.series<Object>()
+public void seriesExample(AsyncResultHandler<List<String>> handler) {
+  Async.<String>series()
     .task(taskHandler -> {
-      Object result = getSomeResult();
-      taskHandler.handle(new DefaultFutureResult(result));
+      String result = getSomeResult();
+      taskHandler.handle((AsyncResult<String>) new DefaultFutureResult(result));
     })
     .task(taskHandler -> {
       someAsyncMethodThatTakesAHandler(taskHandler);
@@ -38,7 +38,10 @@ public void doSomething(AsyncResultHandler<List<Object>> handler) {
         return;
       }
 
-      handler.handle(new DefaultFutureResult(result.result()));
+      List<String> resultList = result.result();
+      doSomethingWithTheResults(resultList);
+
+      handler.handle(new DefaultFutureResult(resultList));
     });
-  }
+}
 ```
