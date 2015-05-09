@@ -1,12 +1,9 @@
 package org.simondean.vertx.async.unit.examples;
 
 import org.simondean.vertx.async.Async;
-import org.simondean.vertx.async.Series;
 import org.vertx.java.core.AsyncResult;
 import org.vertx.java.core.AsyncResultHandler;
-import org.vertx.java.core.Handler;
 import org.vertx.java.core.impl.DefaultFutureResult;
-import org.vertx.java.core.json.JsonObject;
 
 import java.util.List;
 

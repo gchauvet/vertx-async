@@ -2,14 +2,12 @@ package org.simondean.vertx.async.unit;
 
 import org.junit.Test;
 import org.simondean.vertx.async.Series;
-import org.simondean.vertx.async.unit.fakes.FakeErrorThrowingTask;
 import org.simondean.vertx.async.unit.fakes.FakeFailingTask;
 import org.simondean.vertx.async.unit.fakes.FakeSuccessfulTask;
-import org.simondean.vertx.async.unit.fakes.FakeTask;
 
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class SeriesTest {
   @Test
