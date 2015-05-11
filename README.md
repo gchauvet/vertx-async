@@ -12,7 +12,7 @@ The module is available on Maven Central:
 <dependency>
   <groupId>org.simondean.vertx</groupId>
   <artifactId>vertx-async</artifactId>
-  <version>0.1.0</version>
+  <version>0.1.1</version>
   <scope>provided</scope>
 </dependency>
 ```
@@ -20,7 +20,7 @@ The module is available on Maven Central:
 The module then needs to be added to the includes field of your mod.json:
 
 ``` json
-  "includes": "org.simondean.vertx~vertx-async~0.1.0"
+  "includes": "org.simondean.vertx~vertx-async~0.1.1"
 ```
 
 The patterns are all available as static methods on the `org.simondean.vertx.async.Async` class.
