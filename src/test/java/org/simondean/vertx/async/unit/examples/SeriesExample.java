@@ -26,14 +26,14 @@ public class SeriesExample {
       })
       .run(result -> {
         if (result.failed()) {
-          handler.handle(new DefaultFutureResult(result.cause()));
+          handler.handle(DefaultAsyncResult.fail(result.cause()));
           return;
         }
 
         List<String> resultList = result.result();
         doSomethingWithTheResults(resultList);
 
-        handler.handle(new DefaultFutureResult(resultList));
+        handler.handle(DefaultAsyncResult.succeed(resultList));
       });
   }
 

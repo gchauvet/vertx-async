@@ -27,6 +27,10 @@ public class DefaultAsyncResult<T> implements AsyncResult<T> {
     return new DefaultAsyncResult<>(cause, null);
   }
 
+  public static <T> AsyncResult<T> fail(AsyncResult<?> result) {
+    return fail(result.cause());
+  }
+
   @Override
   public T result() {
     return result;
