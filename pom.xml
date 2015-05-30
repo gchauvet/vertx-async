@@ -6,7 +6,7 @@
   <groupId>org.simondean.vertx</groupId>
   <artifactId>vertx-async</artifactId>
   <packaging>jar</packaging>
-  <version>0.1.1</version>
+  <version>0.1.2</version>
   <name>vertx-async</name>
   <description>Async helpers for Vert.x</description>
   <url>https://github.com/simondean/vertx-async</url>
