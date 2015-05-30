@@ -6,18 +6,18 @@ import org.vertx.java.core.AsyncResultHandler;
 
 import java.util.function.BiConsumer;
 
-public class ChildWaterfall<T, R> implements Waterfall<R> {
+public class NestedWaterfall<T, R> implements Waterfall<R> {
   private final Waterfall<T> parentWaterfall;
   private BiConsumer<T, AsyncResultHandler<R>> task;
 
-  public ChildWaterfall(Waterfall<T> parentWaterfall, BiConsumer<T, AsyncResultHandler<R>> task) {
+  public NestedWaterfall(Waterfall<T> parentWaterfall, BiConsumer<T, AsyncResultHandler<R>> task) {
     this.parentWaterfall = parentWaterfall;
     this.task = task;
   }
 
   @Override
   public <S> Waterfall<S> task(BiConsumer<R, AsyncResultHandler<S>> task) {
-    return new ChildWaterfall<>(this, task);
+    return new NestedWaterfall<>(this, task);
   }
 
   @Override

@@ -2,6 +2,7 @@ package org.simondean.vertx.async.unit;
 
 import org.junit.Test;
 import org.simondean.vertx.async.Series;
+import org.simondean.vertx.async.internal.SeriesImpl;
 import org.simondean.vertx.async.unit.fakes.FakeFailingTask;
 import org.simondean.vertx.async.unit.fakes.FakeSuccessfulTask;
 
@@ -12,7 +13,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class SeriesTest {
   @Test
   public void itStillExecutesWhenThereAreNoTasks() {
-    Series<Object> series = new Series<>();
+    Series<Object> series = new SeriesImpl<>();
 
     series.run(result -> {
       assertThat(result).isNotNull();
@@ -25,7 +26,7 @@ public class SeriesTest {
 
   @Test
   public void itExecutesOneTask() {
-    Series<Object> series = new Series<>();
+    Series<Object> series = new SeriesImpl<>();
 
     FakeSuccessfulTask<Object> task1 = new FakeSuccessfulTask<>("Task 1");
 
@@ -44,7 +45,7 @@ public class SeriesTest {
 
   @Test
   public void itExecutesTwoTasks() {
-    Series<Object> series = new Series<>();
+    Series<Object> series = new SeriesImpl<>();
 
     FakeSuccessfulTask<Object> task1 = new FakeSuccessfulTask<>("Task 1");
     FakeSuccessfulTask<Object> task2 = new FakeSuccessfulTask<>("Task 2");
@@ -66,7 +67,7 @@ public class SeriesTest {
 
   @Test
   public void itFailsWhenATaskFails() {
-    Series<Object> series = new Series<>();
+    Series<Object> series = new SeriesImpl<>();
 
     FakeFailingTask<Object> task1 = new FakeFailingTask<>(new Throwable("Failed"));
 
@@ -84,7 +85,7 @@ public class SeriesTest {
 
   @Test
   public void itExecutesNoMoreTasksWhenATaskFails() {
-    Series<Object> series = new Series<>();
+    Series<Object> series = new SeriesImpl<>();
 
     FakeFailingTask<Object> task1 = new FakeFailingTask<>(new Throwable("Failed"));
     series.task(task1);

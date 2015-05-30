@@ -4,6 +4,6 @@ import org.vertx.java.core.AsyncResultHandler;
 
 import java.util.function.Consumer;
 
-public interface WaterfallBuilder {
-  public <T> Waterfall<T> task(Consumer<AsyncResultHandler<T>> task) ;
+public interface EmptyWaterfall {
+  public <R> Waterfall<R> task(Consumer<AsyncResultHandler<R>> task);
 }

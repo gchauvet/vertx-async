@@ -1,8 +1,8 @@
 package org.simondean.vertx.async.unit;
 
 import org.junit.Test;
-import org.simondean.vertx.async.WaterfallBuilder;
-import org.simondean.vertx.async.internal.WaterfallBuilderImpl;
+import org.simondean.vertx.async.EmptyWaterfall;
+import org.simondean.vertx.async.internal.EmptyWaterfallImpl;
 import org.simondean.vertx.async.unit.fakes.FakeFailingConsumerTask;
 import org.simondean.vertx.async.unit.fakes.FakeFailingTask;
 import org.simondean.vertx.async.unit.fakes.FakeSuccessfulConsumerTask;
@@ -13,11 +13,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class WaterfallTest {
   @Test
   public void itExecutesOneTask() {
-    WaterfallBuilder waterfallBuilder = new WaterfallBuilderImpl();
+    EmptyWaterfall waterfall = new EmptyWaterfallImpl();
 
     FakeSuccessfulTask<String> task1 = new FakeSuccessfulTask<>("Task 1");
     
-    waterfallBuilder
+    waterfall
       .task(task1)
       .run(result -> {
         assertThat(task1.runCount()).isEqualTo(1);
@@ -32,12 +32,12 @@ public class WaterfallTest {
 
   @Test
   public void itExecutesTwoTasks() {
-    WaterfallBuilder waterfallBuilder = new WaterfallBuilderImpl();
+    EmptyWaterfall waterfall = new EmptyWaterfallImpl();
 
     FakeSuccessfulTask<String> task1 = new FakeSuccessfulTask<>("Task 1");
     FakeSuccessfulConsumerTask<String, Integer> task2 = new FakeSuccessfulConsumerTask<>(2);
 
-    waterfallBuilder
+    waterfall
       .task(task1)
       .task(task2)
       .run(result -> {
@@ -55,11 +55,11 @@ public class WaterfallTest {
 
   @Test
   public void itFailsWhenATaskFails() {
-    WaterfallBuilder waterfallBuilder = new WaterfallBuilderImpl();
+    EmptyWaterfall waterfall = new EmptyWaterfallImpl();
 
     FakeFailingTask<String> task1 = new FakeFailingTask<>(new Throwable("Failed"));
 
-    waterfallBuilder
+    waterfall
       .task(task1)
       .run(result -> {
         assertThat(task1.runCount()).isEqualTo(1);
@@ -73,12 +73,12 @@ public class WaterfallTest {
 
   @Test
   public void itExecutesNoMoreTasksWhenATaskFails() {
-    WaterfallBuilder waterfallBuilder = new WaterfallBuilderImpl();
+    EmptyWaterfall waterfall = new EmptyWaterfallImpl();
 
     FakeFailingTask<String> task1 = new FakeFailingTask<>(new Throwable("Failed"));
     FakeSuccessfulConsumerTask<String, Integer> task2 = new FakeSuccessfulConsumerTask<>(2);
 
-    waterfallBuilder
+    waterfall
       .task(task1)
       .task(task2)
       .run(result -> {
@@ -94,12 +94,12 @@ public class WaterfallTest {
 
   @Test
   public void itFailsWhenAConsumerTaskFails() {
-    WaterfallBuilder waterfallBuilder = new WaterfallBuilderImpl();
+    EmptyWaterfall waterfall = new EmptyWaterfallImpl();
 
     FakeSuccessfulTask<String> task1 = new FakeSuccessfulTask<>("Task 1");
     FakeFailingConsumerTask<String, Integer> task2 = new FakeFailingConsumerTask<>(new Throwable("Failed"));
 
-    waterfallBuilder
+    waterfall
       .task(task1)
       .task(task2)
       .run(result -> {
@@ -116,13 +116,13 @@ public class WaterfallTest {
 
   @Test
   public void itExecutesNoMoreTasksWhenAConsumerTaskFails() {
-    WaterfallBuilder waterfallBuilder = new WaterfallBuilderImpl();
+    EmptyWaterfall waterfall = new EmptyWaterfallImpl();
 
     FakeSuccessfulTask<String> task1 = new FakeSuccessfulTask<>("Task 1");
     FakeFailingConsumerTask<String, Integer> task2 = new FakeFailingConsumerTask<>(new Throwable("Failed"));
     FakeSuccessfulConsumerTask<Integer, String> task3 = new FakeSuccessfulConsumerTask<>("Task 3");
 
-    waterfallBuilder
+    waterfall
       .task(task1)
       .task(task2)
       .task(task3)
