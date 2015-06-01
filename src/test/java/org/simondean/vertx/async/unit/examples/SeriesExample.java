@@ -7,7 +7,7 @@ import org.vertx.java.core.impl.DefaultFutureResult;
 
 import java.util.List;
 
-public class SeriesExample {
+public class SeriesExample extends BaseExample {
   private final boolean succeed;
   private List<String> results;
 
@@ -26,7 +26,7 @@ public class SeriesExample {
       })
       .run(result -> {
         if (result.failed()) {
-          handler.handle(DefaultAsyncResult.fail(result.cause()));
+          handler.handle(DefaultAsyncResult.fail(result));
           return;
         }
 
@@ -42,12 +42,12 @@ public class SeriesExample {
   }
 
   private void someAsyncMethodThatTakesAHandler(AsyncResultHandler<String> handler) {
-    if (succeed) {
-      handler.handle(new DefaultFutureResult<>("Async result"));
-    }
-    else {
+    if (!succeed) {
       handler.handle(new DefaultFutureResult<>(new Exception("Fail")));
+      return;
     }
+
+    handler.handle(new DefaultFutureResult<>("Async result"));
   }
 
   private void doSomethingWithTheResults(List<String> results) {

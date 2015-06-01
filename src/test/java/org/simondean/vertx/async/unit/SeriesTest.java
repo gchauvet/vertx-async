@@ -1,10 +1,9 @@
 package org.simondean.vertx.async.unit;
 
 import org.junit.Test;
-import org.simondean.vertx.async.Series;
-import org.simondean.vertx.async.internal.SeriesImpl;
-import org.simondean.vertx.async.unit.fakes.FakeFailingTask;
-import org.simondean.vertx.async.unit.fakes.FakeSuccessfulTask;
+import org.simondean.vertx.async.Async;
+import org.simondean.vertx.async.unit.fakes.FakeFailingAsyncSupplier;
+import org.simondean.vertx.async.unit.fakes.FakeSuccessfulAsyncSupplier;
 
 import java.util.List;
 
@@ -13,24 +12,21 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class SeriesTest {
   @Test
   public void itStillExecutesWhenThereAreNoTasks() {
-    Series<Object> series = new SeriesImpl<>();
-
-    series.run(result -> {
-      assertThat(result).isNotNull();
-      assertThat(result.succeeded()).isTrue();
-      List<Object> resultList = result.result();
-      assertThat(resultList).isNotNull();
-      assertThat(resultList).isEmpty();
-    });
+    Async.series()
+      .run(result -> {
+        assertThat(result).isNotNull();
+        assertThat(result.succeeded()).isTrue();
+        List<Object> resultList = result.result();
+        assertThat(resultList).isNotNull();
+        assertThat(resultList).isEmpty();
+      });
   }
 
   @Test
   public void itExecutesOneTask() {
-    Series<Object> series = new SeriesImpl<>();
+    FakeSuccessfulAsyncSupplier<Object> task1 = new FakeSuccessfulAsyncSupplier<>("Task 1");
 
-    FakeSuccessfulTask<Object> task1 = new FakeSuccessfulTask<>("Task 1");
-
-    series
+    Async.series()
       .task(task1)
       .run(result -> {
         assertThat(task1.runCount()).isEqualTo(1);
@@ -45,12 +41,10 @@ public class SeriesTest {
 
   @Test
   public void itExecutesTwoTasks() {
-    Series<Object> series = new SeriesImpl<>();
+    FakeSuccessfulAsyncSupplier<Object> task1 = new FakeSuccessfulAsyncSupplier<>("Task 1");
+    FakeSuccessfulAsyncSupplier<Object> task2 = new FakeSuccessfulAsyncSupplier<>("Task 2");
 
-    FakeSuccessfulTask<Object> task1 = new FakeSuccessfulTask<>("Task 1");
-    FakeSuccessfulTask<Object> task2 = new FakeSuccessfulTask<>("Task 2");
-
-    series
+    Async.series()
       .task(task1)
       .task(task2)
       .run(result -> {
@@ -67,11 +61,9 @@ public class SeriesTest {
 
   @Test
   public void itFailsWhenATaskFails() {
-    Series<Object> series = new SeriesImpl<>();
+    FakeFailingAsyncSupplier<Object> task1 = new FakeFailingAsyncSupplier<>(new Throwable("Failed"));
 
-    FakeFailingTask<Object> task1 = new FakeFailingTask<>(new Throwable("Failed"));
-
-    series
+    Async.series()
       .task(task1)
       .run(result -> {
         assertThat(task1.runCount()).isEqualTo(1);
@@ -85,20 +77,19 @@ public class SeriesTest {
 
   @Test
   public void itExecutesNoMoreTasksWhenATaskFails() {
-    Series<Object> series = new SeriesImpl<>();
+    FakeFailingAsyncSupplier<Object> task1 = new FakeFailingAsyncSupplier<>(new Throwable("Failed"));
+    FakeSuccessfulAsyncSupplier<Object> task2 = new FakeSuccessfulAsyncSupplier<>("Task 2");
 
-    FakeFailingTask<Object> task1 = new FakeFailingTask<>(new Throwable("Failed"));
-    series.task(task1);
-    FakeSuccessfulTask<Object> task2 = new FakeSuccessfulTask<>("Task 2");
-    series.task(task2);
-
-    series.run(result -> {
-      assertThat(result).isNotNull();
-      assertThat(result.succeeded()).isFalse();
-      assertThat(result.cause()).isEqualTo(task1.cause());
-      assertThat(result.result()).isNull();
-      assertThat(task1.runCount()).isEqualTo(1);
-      assertThat(task2.runCount()).isEqualTo(0);
-    });
+    Async.series()
+      .task(task1)
+      .task(task2)
+      .run(result -> {
+        assertThat(result).isNotNull();
+        assertThat(result.succeeded()).isFalse();
+        assertThat(result.cause()).isEqualTo(task1.cause());
+        assertThat(result.result()).isNull();
+        assertThat(task1.runCount()).isEqualTo(1);
+        assertThat(task2.runCount()).isEqualTo(0);
+      });
   }
 }

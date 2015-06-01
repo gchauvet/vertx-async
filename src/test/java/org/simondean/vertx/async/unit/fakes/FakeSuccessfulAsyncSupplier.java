@@ -3,10 +3,10 @@ package org.simondean.vertx.async.unit.fakes;
 import org.vertx.java.core.AsyncResultHandler;
 import org.vertx.java.core.impl.DefaultFutureResult;
 
-public class FakeSuccessfulTask<T> extends FakeTask<T> {
+public class FakeSuccessfulAsyncSupplier<T> extends FakeAsyncSupplier<T> {
   private final T result;
 
-  public FakeSuccessfulTask(T result) {
+  public FakeSuccessfulAsyncSupplier(T result) {
     this.result = result;
   }
 

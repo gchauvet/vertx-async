@@ -2,15 +2,16 @@ package org.simondean.vertx.async.unit.fakes;
 
 import org.vertx.java.core.AsyncResultHandler;
 
-public class FakeErrorThrowingTask<T> extends FakeTask<T> {
+public class FakeErrorThrowingAsyncFunction<T, R> extends FakeAsyncFunction<T, R> {
   private final Error cause;
 
-  public FakeErrorThrowingTask(Error cause) {
+  public FakeErrorThrowingAsyncFunction(Error cause) {
     this.cause = cause;
   }
 
   @Override
-  public void accept(AsyncResultHandler<T> handler) {
+  public void accept(T value, AsyncResultHandler<R> handler) {
+    addConsumedValue(value);
     incrementRunCount();
     throw cause;
   }

@@ -5,7 +5,7 @@ import org.simondean.vertx.async.DefaultAsyncResult;
 import org.vertx.java.core.AsyncResultHandler;
 import org.vertx.java.core.impl.DefaultFutureResult;
 
-public class WaterfallExample {
+public class WaterfallExample extends BaseExample {
   private final boolean succeed;
   private Integer result;
 
