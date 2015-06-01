@@ -8,5 +8,4 @@ public interface Waterfall<T> {
   public <R> Waterfall<R> task(BiConsumer<T, AsyncResultHandler<R>> task);
 
   public void run(AsyncResultHandler<T> handler);
-
 }
