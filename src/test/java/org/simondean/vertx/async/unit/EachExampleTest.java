@@ -20,7 +20,7 @@ public class EachExampleTest {
       assertThat(result.result()).isNull();
       List<String> items = example.items();
       assertThat(items).isNotNull();
-      assertThat(items).containsExactly("One", "Two", "Three");
+      assertThat(items).containsExactly("one", "two", "three");
     });
   }
 

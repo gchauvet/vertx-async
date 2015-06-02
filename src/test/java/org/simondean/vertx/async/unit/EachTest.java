@@ -16,15 +16,21 @@ public class EachTest {
 
     FakeFailingAsyncFunction<String, Void> each = new FakeFailingAsyncFunction<>(new Throwable("Failed"));
 
+    ObjectWrapper<Boolean> handlerCalled = new ObjectWrapper<>(false);
+
     Async.iterable(items)
       .each(each)
       .run(new FakeVertx(), result -> {
+        handlerCalled.setObject(true);
+
         assertThat(result).isNotNull();
         assertThat(result.succeeded()).isTrue();
         assertThat(result.result()).isNull();
 
         assertThat(each.runCount()).isEqualTo(0);
       });
+
+    assertThat(handlerCalled.getObject()).isTrue();
   }
 
   @Test
@@ -34,9 +40,13 @@ public class EachTest {
 
     FakeSuccessfulAsyncFunction<String, Void> each = new FakeSuccessfulAsyncFunction<>(null);
 
+    ObjectWrapper<Boolean> handlerCalled = new ObjectWrapper<>(false);
+
     Async.iterable(items)
       .each(each)
       .run(new FakeVertx(), result -> {
+        handlerCalled.setObject(true);
+
         assertThat(result).isNotNull();
         assertThat(result.succeeded()).isTrue();
         assertThat(result.result()).isNull();
@@ -44,6 +54,8 @@ public class EachTest {
         assertThat(each.runCount()).isEqualTo(1);
         assertThat(each.consumedValues()).containsExactly("One");
       });
+
+    assertThat(handlerCalled.getObject()).isTrue();
   }
 
   @Test
@@ -54,9 +66,13 @@ public class EachTest {
 
     FakeSuccessfulAsyncFunction<String, Void> each = new FakeSuccessfulAsyncFunction<>(null);
 
+    ObjectWrapper<Boolean> handlerCalled = new ObjectWrapper<>(false);
+
     Async.iterable(items)
       .each(each)
       .run(new FakeVertx(), result -> {
+        handlerCalled.setObject(true);
+
         assertThat(result).isNotNull();
         assertThat(result.succeeded()).isTrue();
         assertThat(result.result()).isNull();
@@ -64,6 +80,8 @@ public class EachTest {
         assertThat(each.runCount()).isEqualTo(2);
         assertThat(each.consumedValues()).containsExactly("One", "Two");
       });
+
+    assertThat(handlerCalled.getObject()).isTrue();
   }
 
   @Test
@@ -73,9 +91,13 @@ public class EachTest {
 
     FakeFailingAsyncFunction<String, Void> each = new FakeFailingAsyncFunction<>(new Throwable("Failed"));
 
+    ObjectWrapper<Boolean> handlerCalled = new ObjectWrapper<>(false);
+
     Async.iterable(items)
       .each(each)
       .run(new FakeVertx(), result -> {
+        handlerCalled.setObject(true);
+
         assertThat(result).isNotNull();
         assertThat(result.succeeded()).isFalse();
         assertThat(result.cause()).isEqualTo(each.cause());
@@ -84,6 +106,8 @@ public class EachTest {
         assertThat(each.runCount()).isEqualTo(1);
         assertThat(each.consumedValues()).containsExactlyElementsOf(items);
       });
+
+    assertThat(handlerCalled.getObject()).isTrue();
   }
 
   @Test
@@ -95,9 +119,13 @@ public class EachTest {
     FakeFailingAsyncFunction<String, Void> each = new FakeFailingAsyncFunction<>(new Throwable("Failed"));
     ObjectWrapper<Integer> resultCount = new ObjectWrapper<>(0);
 
+    ObjectWrapper<Boolean> handlerCalled = new ObjectWrapper<>(false);
+
     Async.iterable(items)
       .each(each)
       .run(new FakeVertx(), result -> {
+        handlerCalled.setObject(true);
+
         assertThat(result).isNotNull();
         assertThat(result.succeeded()).isFalse();
         assertThat(result.cause()).isEqualTo(each.cause());
@@ -107,5 +135,7 @@ public class EachTest {
 
         assertThat(resultCount.getObject().intValue()).isEqualTo(1);
       });
+
+    assertThat(handlerCalled.getObject()).isTrue();
   }
 }

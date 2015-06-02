@@ -6,7 +6,7 @@ import org.simondean.vertx.async.ObjectWrapper;
 import org.vertx.java.core.AsyncResultHandler;
 import org.vertx.java.core.Vertx;
 
-import java.util.Iterator;
+import java.util.ArrayList;
 import java.util.function.BiConsumer;
 
 public class EachBuilderImpl<T> implements EachBuilder {
@@ -21,22 +21,38 @@ public class EachBuilderImpl<T> implements EachBuilder {
   @Override
   public void run(Vertx vertx, AsyncResultHandler<Void> handler) {
     final ObjectWrapper<Boolean> failed = new ObjectWrapper<>(false);
+    final ObjectWrapper<Integer> finishedCount = new ObjectWrapper<>(0);
 
-    for (Iterator<T> iterator = iterable.iterator(); iterator.hasNext();) {
-      vertx.runOnContext(aVoid -> {
-        each.accept(iterator.next(), result -> {
-          if (result.failed()) {
-            if (failed.getObject().booleanValue() == false) {
-              handler.handle(DefaultAsyncResult.fail(result));
-              failed.setObject(true);
-            }
+    ArrayList<T> items = new ArrayList<T>();
 
-            return;
+    for (T item : iterable) {
+      items.add(item);
+    }
+
+    if (items.size() == 0) {
+      handler.handle(DefaultAsyncResult.succeed());
+      return;
+    }
+
+    for (T item : items) {
+      vertx.runOnContext(aVoid -> each.accept(item, result -> {
+        finishedCount.setObject(finishedCount.getObject() + 1);
+
+        if (result.failed()) {
+          if (!failed.getObject()) {
+            handler.handle(DefaultAsyncResult.fail(result));
+            failed.setObject(true);
           }
-        });
-      });
 
-      if (failed.getObject().booleanValue() == true) {
+          return;
+        }
+
+        if (finishedCount.getObject() == items.size()) {
+          handler.handle(DefaultAsyncResult.succeed());
+        }
+      }));
+
+      if (failed.getObject()) {
         return;
       }
     }
