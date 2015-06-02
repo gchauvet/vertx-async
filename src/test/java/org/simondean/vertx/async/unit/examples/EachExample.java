@@ -29,7 +29,7 @@ public class EachExample extends BaseExample {
 
   private void doSomethingWithItem(String item, AsyncResultHandler<Void> handler) {
     if (!succeed) {
-      handler.handle(new DefaultFutureResult<>(new Exception("Fail")));
+      handler.handle(DefaultAsyncResult.fail(new Exception("Fail")));
       return;
     }
 

@@ -43,11 +43,11 @@ public class SeriesExample extends BaseExample {
 
   private void someAsyncMethodThatTakesAHandler(AsyncResultHandler<String> handler) {
     if (!succeed) {
-      handler.handle(new DefaultFutureResult<>(new Exception("Fail")));
+      handler.handle(DefaultAsyncResult.fail(new Exception("Fail")));
       return;
     }
 
-    handler.handle(new DefaultFutureResult<>("Async result"));
+    handler.handle(DefaultAsyncResult.succeed("Async result"));
   }
 
   private void doSomethingWithTheResults(List<String> results) {

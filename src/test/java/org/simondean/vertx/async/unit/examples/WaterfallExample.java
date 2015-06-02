@@ -40,12 +40,12 @@ public class WaterfallExample extends BaseExample {
   }
 
   private void someAsyncMethodThatTakesAResultAndHandler(String result, AsyncResultHandler<Integer> handler) {
-    if (succeed) {
-      handler.handle(new DefaultFutureResult<>(Integer.parseInt(result)));
+    if (!succeed) {
+      handler.handle(DefaultAsyncResult.fail(new Exception("Fail")));
+      return;
     }
-    else {
-      handler.handle(new DefaultFutureResult<>(new Exception("Fail")));
-    }
+
+    handler.handle(DefaultAsyncResult.succeed(Integer.parseInt(result)));
   }
 
   private void doSomethingWithTheResults(Integer result) {

@@ -1,5 +1,6 @@
 package org.simondean.vertx.async.unit.fakes;
 
+import org.simondean.vertx.async.DefaultAsyncResult;
 import org.vertx.java.core.AsyncResultHandler;
 import org.vertx.java.core.impl.DefaultFutureResult;
 
@@ -13,7 +14,7 @@ public class FakeSuccessfulAsyncSupplier<T> extends FakeAsyncSupplier<T> {
   @Override
   public void accept(AsyncResultHandler<T> handler) {
     incrementRunCount();
-    handler.handle(new DefaultFutureResult(result));
+    handler.handle(DefaultAsyncResult.succeed(result));
   }
 
   public T result() {

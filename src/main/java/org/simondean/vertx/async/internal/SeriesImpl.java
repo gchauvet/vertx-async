@@ -1,6 +1,7 @@
 
 package org.simondean.vertx.async.internal;
 
+import org.simondean.vertx.async.DefaultAsyncResult;
 import org.simondean.vertx.async.FunctionWrapper;
 import org.simondean.vertx.async.Series;
 import org.vertx.java.core.AsyncResultHandler;
@@ -28,7 +29,7 @@ public class SeriesImpl<T> implements Series<T> {
     FunctionWrapper<Runnable> visitor = new FunctionWrapper<>();
     visitor.wrap(() -> {
       if (!iterator.hasNext()) {
-        handler.handle(new DefaultFutureResult(results));
+        handler.handle(DefaultAsyncResult.succeed(results));
         return;
       }
 
@@ -36,7 +37,7 @@ public class SeriesImpl<T> implements Series<T> {
 
       AsyncResultHandler<T> taskHandler = (result) -> {
         if (result.failed()) {
-          handler.handle(new DefaultFutureResult(result.cause()));
+          handler.handle(DefaultAsyncResult.fail(result));
           return;
         }
 
