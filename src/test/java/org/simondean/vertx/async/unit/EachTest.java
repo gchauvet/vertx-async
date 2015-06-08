@@ -16,12 +16,12 @@ public class EachTest {
 
     FakeFailingAsyncFunction<String, Void> each = new FakeFailingAsyncFunction<>(new Throwable("Failed"));
 
-    ObjectWrapper<Boolean> handlerCalled = new ObjectWrapper<>(false);
+    ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
 
     Async.iterable(items)
       .each(each)
       .run(new FakeVertx(), result -> {
-        handlerCalled.setObject(true);
+        handlerCallCount.setObject(handlerCallCount.getObject() + 1);
 
         assertThat(result).isNotNull();
         assertThat(result.succeeded()).isTrue();
@@ -30,7 +30,7 @@ public class EachTest {
         assertThat(each.runCount()).isEqualTo(0);
       });
 
-    assertThat(handlerCalled.getObject()).isTrue();
+    assertThat(handlerCallCount.getObject()).isEqualTo(1);
   }
 
   @Test
@@ -40,12 +40,12 @@ public class EachTest {
 
     FakeSuccessfulAsyncFunction<String, Void> each = new FakeSuccessfulAsyncFunction<>(null);
 
-    ObjectWrapper<Boolean> handlerCalled = new ObjectWrapper<>(false);
+    ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
 
     Async.iterable(items)
       .each(each)
       .run(new FakeVertx(), result -> {
-        handlerCalled.setObject(true);
+        handlerCallCount.setObject(handlerCallCount.getObject() + 1);
 
         assertThat(result).isNotNull();
         assertThat(result.succeeded()).isTrue();
@@ -55,7 +55,7 @@ public class EachTest {
         assertThat(each.consumedValues()).containsExactly("One");
       });
 
-    assertThat(handlerCalled.getObject()).isTrue();
+    assertThat(handlerCallCount.getObject()).isEqualTo(1);
   }
 
   @Test
@@ -66,12 +66,12 @@ public class EachTest {
 
     FakeSuccessfulAsyncFunction<String, Void> each = new FakeSuccessfulAsyncFunction<>(null);
 
-    ObjectWrapper<Boolean> handlerCalled = new ObjectWrapper<>(false);
+    ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
 
     Async.iterable(items)
       .each(each)
       .run(new FakeVertx(), result -> {
-        handlerCalled.setObject(true);
+        handlerCallCount.setObject(handlerCallCount.getObject() + 1);
 
         assertThat(result).isNotNull();
         assertThat(result.succeeded()).isTrue();
@@ -81,7 +81,7 @@ public class EachTest {
         assertThat(each.consumedValues()).containsExactly("One", "Two");
       });
 
-    assertThat(handlerCalled.getObject()).isTrue();
+    assertThat(handlerCallCount.getObject()).isEqualTo(1);
   }
 
   @Test
@@ -91,12 +91,12 @@ public class EachTest {
 
     FakeFailingAsyncFunction<String, Void> each = new FakeFailingAsyncFunction<>(new Throwable("Failed"));
 
-    ObjectWrapper<Boolean> handlerCalled = new ObjectWrapper<>(false);
+    ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
 
     Async.iterable(items)
       .each(each)
       .run(new FakeVertx(), result -> {
-        handlerCalled.setObject(true);
+        handlerCallCount.setObject(handlerCallCount.getObject() + 1);
 
         assertThat(result).isNotNull();
         assertThat(result.succeeded()).isFalse();
@@ -107,7 +107,7 @@ public class EachTest {
         assertThat(each.consumedValues()).containsExactlyElementsOf(items);
       });
 
-    assertThat(handlerCalled.getObject()).isTrue();
+    assertThat(handlerCallCount.getObject()).isEqualTo(1);
   }
 
   @Test
@@ -119,12 +119,12 @@ public class EachTest {
     FakeFailingAsyncFunction<String, Void> each = new FakeFailingAsyncFunction<>(new Throwable("Failed"));
     ObjectWrapper<Integer> resultCount = new ObjectWrapper<>(0);
 
-    ObjectWrapper<Boolean> handlerCalled = new ObjectWrapper<>(false);
+    ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
 
     Async.iterable(items)
       .each(each)
       .run(new FakeVertx(), result -> {
-        handlerCalled.setObject(true);
+        handlerCallCount.setObject(handlerCallCount.getObject() + 1);
 
         assertThat(result).isNotNull();
         assertThat(result.succeeded()).isFalse();
@@ -136,6 +136,6 @@ public class EachTest {
         assertThat(resultCount.getObject().intValue()).isEqualTo(1);
       });
 
-    assertThat(handlerCalled.getObject()).isTrue();
+    assertThat(handlerCallCount.getObject()).isEqualTo(1);
   }
 }

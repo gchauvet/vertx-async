@@ -15,12 +15,12 @@ public class WaterfallTest {
   public void itExecutesOneTask() {
     FakeSuccessfulAsyncSupplier<String> task1 = new FakeSuccessfulAsyncSupplier<>("Task 1");
 
-    ObjectWrapper<Boolean> handlerCalled = new ObjectWrapper<>(false);
+    ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
 
     Async.waterfall()
       .task(task1)
       .run(result -> {
-        handlerCalled.setObject(true);
+        handlerCallCount.setObject(handlerCallCount.getObject() + 1);
 
         assertThat(task1.runCount()).isEqualTo(1);
 
@@ -37,13 +37,13 @@ public class WaterfallTest {
     FakeSuccessfulAsyncSupplier<String> task1 = new FakeSuccessfulAsyncSupplier<>("Task 1");
     FakeSuccessfulAsyncFunction<String, Integer> task2 = new FakeSuccessfulAsyncFunction<>(2);
 
-    ObjectWrapper<Boolean> handlerCalled = new ObjectWrapper<>(false);
+    ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
 
     Async.waterfall()
       .task(task1)
       .task(task2)
       .run(result -> {
-        handlerCalled.setObject(true);
+        handlerCallCount.setObject(handlerCallCount.getObject() + 1);
 
         assertThat(task1.runCount()).isEqualTo(1);
         assertThat(task2.consumedValue()).isEqualTo(task1.result());
@@ -56,19 +56,19 @@ public class WaterfallTest {
         assertThat(resultValue).isEqualTo(task2.result());
       });
 
-    assertThat(handlerCalled.getObject()).isTrue();
+    assertThat(handlerCallCount.getObject()).isEqualTo(1);
   }
 
   @Test
   public void itFailsWhenATaskFails() {
     FakeFailingAsyncSupplier<String> task1 = new FakeFailingAsyncSupplier<>(new Throwable("Failed"));
 
-    ObjectWrapper<Boolean> handlerCalled = new ObjectWrapper<>(false);
+    ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
 
     Async.waterfall()
       .task(task1)
       .run(result -> {
-        handlerCalled.setObject(true);
+        handlerCallCount.setObject(handlerCallCount.getObject() + 1);
 
         assertThat(task1.runCount()).isEqualTo(1);
 
@@ -78,7 +78,7 @@ public class WaterfallTest {
         assertThat(result.result()).isNull();
       });
 
-    assertThat(handlerCalled.getObject()).isTrue();
+    assertThat(handlerCallCount.getObject()).isEqualTo(1);
   }
 
   @Test
@@ -86,13 +86,13 @@ public class WaterfallTest {
     FakeFailingAsyncSupplier<String> task1 = new FakeFailingAsyncSupplier<>(new Throwable("Failed"));
     FakeSuccessfulAsyncFunction<String, Integer> task2 = new FakeSuccessfulAsyncFunction<>(2);
 
-    ObjectWrapper<Boolean> handlerCalled = new ObjectWrapper<>(false);
+    ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
 
     Async.waterfall()
       .task(task1)
       .task(task2)
       .run(result -> {
-        handlerCalled.setObject(true);
+        handlerCallCount.setObject(handlerCallCount.getObject() + 1);
 
         assertThat(task1.runCount()).isEqualTo(1);
         assertThat(task2.runCount()).isEqualTo(0);
@@ -103,7 +103,7 @@ public class WaterfallTest {
         assertThat(result.result()).isNull();
       });
 
-    assertThat(handlerCalled.getObject()).isTrue();
+    assertThat(handlerCallCount.getObject()).isEqualTo(1);
   }
 
   @Test
@@ -111,13 +111,13 @@ public class WaterfallTest {
     FakeSuccessfulAsyncSupplier<String> task1 = new FakeSuccessfulAsyncSupplier<>("Task 1");
     FakeFailingAsyncFunction<String, Integer> task2 = new FakeFailingAsyncFunction<>(new Throwable("Failed"));
 
-    ObjectWrapper<Boolean> handlerCalled = new ObjectWrapper<>(false);
+    ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
 
     Async.waterfall()
       .task(task1)
       .task(task2)
       .run(result -> {
-        handlerCalled.setObject(true);
+        handlerCallCount.setObject(handlerCallCount.getObject() + 1);
 
         assertThat(task1.runCount()).isEqualTo(1);
         assertThat(task2.consumedValue()).isEqualTo(task1.result());
@@ -129,7 +129,7 @@ public class WaterfallTest {
         assertThat(result.result()).isNull();
       });
 
-    assertThat(handlerCalled.getObject()).isTrue();
+    assertThat(handlerCallCount.getObject()).isEqualTo(1);
   }
 
   @Test
@@ -138,14 +138,14 @@ public class WaterfallTest {
     FakeFailingAsyncFunction<String, Integer> task2 = new FakeFailingAsyncFunction<>(new Throwable("Failed"));
     FakeSuccessfulAsyncFunction<Integer, String> task3 = new FakeSuccessfulAsyncFunction<>("Task 3");
 
-    ObjectWrapper<Boolean> handlerCalled = new ObjectWrapper<>(false);
+    ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
 
     Async.waterfall()
       .task(task1)
       .task(task2)
       .task(task3)
       .run(result -> {
-        handlerCalled.setObject(true);
+        handlerCallCount.setObject(handlerCallCount.getObject() + 1);
 
         assertThat(task1.runCount()).isEqualTo(1);
         assertThat(task2.consumedValue()).isEqualTo(task1.result());
@@ -158,6 +158,6 @@ public class WaterfallTest {
         assertThat(result.result()).isNull();
       });
 
-    assertThat(handlerCalled.getObject()).isTrue();
+    assertThat(handlerCallCount.getObject()).isEqualTo(1);
   }
 }

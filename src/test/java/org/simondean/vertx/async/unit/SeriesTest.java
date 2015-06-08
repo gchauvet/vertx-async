@@ -13,11 +13,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class SeriesTest {
   @Test
   public void itStillExecutesWhenThereAreNoTasks() {
-    ObjectWrapper<Boolean> handlerCalled = new ObjectWrapper<>(false);
+    ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
 
     Async.series()
       .run(result -> {
-        handlerCalled.setObject(true);
+        handlerCallCount.setObject(handlerCallCount.getObject() + 1);
 
         assertThat(result).isNotNull();
         assertThat(result.succeeded()).isTrue();
@@ -26,19 +26,19 @@ public class SeriesTest {
         assertThat(resultList).isEmpty();
       });
 
-    assertThat(handlerCalled.getObject()).isTrue();
+    assertThat(handlerCallCount.getObject()).isEqualTo(1);
   }
 
   @Test
   public void itExecutesOneTask() {
     FakeSuccessfulAsyncSupplier<Object> task1 = new FakeSuccessfulAsyncSupplier<>("Task 1");
 
-    ObjectWrapper<Boolean> handlerCalled = new ObjectWrapper<>(false);
+    ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
 
     Async.series()
       .task(task1)
       .run(result -> {
-        handlerCalled.setObject(true);
+        handlerCallCount.setObject(handlerCallCount.getObject() + 1);
 
         assertThat(task1.runCount()).isEqualTo(1);
 
@@ -49,7 +49,7 @@ public class SeriesTest {
         assertThat(resultList).containsExactly(task1.result());
       });
 
-    assertThat(handlerCalled.getObject()).isTrue();
+    assertThat(handlerCallCount.getObject()).isEqualTo(1);
   }
 
   @Test
@@ -57,13 +57,13 @@ public class SeriesTest {
     FakeSuccessfulAsyncSupplier<Object> task1 = new FakeSuccessfulAsyncSupplier<>("Task 1");
     FakeSuccessfulAsyncSupplier<Object> task2 = new FakeSuccessfulAsyncSupplier<>("Task 2");
 
-    ObjectWrapper<Boolean> handlerCalled = new ObjectWrapper<>(false);
+    ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
 
     Async.series()
       .task(task1)
       .task(task2)
       .run(result -> {
-        handlerCalled.setObject(true);
+        handlerCallCount.setObject(handlerCallCount.getObject() + 1);
 
         assertThat(task1.runCount()).isEqualTo(1);
         assertThat(task2.runCount()).isEqualTo(1);
@@ -75,19 +75,19 @@ public class SeriesTest {
         assertThat(resultList).containsExactly(task1.result(), task2.result());
       });
 
-    assertThat(handlerCalled.getObject()).isTrue();
+    assertThat(handlerCallCount.getObject()).isEqualTo(1);
   }
 
   @Test
   public void itFailsWhenATaskFails() {
     FakeFailingAsyncSupplier<Object> task1 = new FakeFailingAsyncSupplier<>(new Throwable("Failed"));
 
-    ObjectWrapper<Boolean> handlerCalled = new ObjectWrapper<>(false);
+    ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
 
     Async.series()
       .task(task1)
       .run(result -> {
-        handlerCalled.setObject(true);
+        handlerCallCount.setObject(handlerCallCount.getObject() + 1);
 
         assertThat(task1.runCount()).isEqualTo(1);
 
@@ -97,7 +97,7 @@ public class SeriesTest {
         assertThat(result.result()).isNull();
       });
 
-    assertThat(handlerCalled.getObject()).isTrue();
+    assertThat(handlerCallCount.getObject()).isEqualTo(1);
   }
 
   @Test
@@ -105,13 +105,13 @@ public class SeriesTest {
     FakeFailingAsyncSupplier<Object> task1 = new FakeFailingAsyncSupplier<>(new Throwable("Failed"));
     FakeSuccessfulAsyncSupplier<Object> task2 = new FakeSuccessfulAsyncSupplier<>("Task 2");
 
-    ObjectWrapper<Boolean> handlerCalled = new ObjectWrapper<>(false);
+    ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
 
     Async.series()
       .task(task1)
       .task(task2)
       .run(result -> {
-        handlerCalled.setObject(true);
+        handlerCallCount.setObject(handlerCallCount.getObject() + 1);
 
         assertThat(result).isNotNull();
         assertThat(result.succeeded()).isFalse();
@@ -121,6 +121,6 @@ public class SeriesTest {
         assertThat(task2.runCount()).isEqualTo(0);
       });
 
-    assertThat(handlerCalled.getObject()).isTrue();
+    assertThat(handlerCallCount.getObject()).isEqualTo(1);
   }
 }

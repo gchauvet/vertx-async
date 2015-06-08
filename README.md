@@ -20,7 +20,7 @@ The module is available on Maven Central:
 The module then needs to be added to the includes field of your mod.json:
 
 ``` json
-  "includes": "org.simondean.vertx~vertx-async~0.1.4"
+  "includes": "org.simondean.vertx~vertx-async~0.1.5"
 ```
 
 The patterns are all available as static methods on the `org.simondean.vertx.async.Async` class.
@@ -90,5 +90,29 @@ The patterns are all available as static methods on the `org.simondean.vertx.asy
         doSomethingWithItem(item, eachHandler);
       })
       .run(vertx, handler);
+  }
+```
+
+### Retry
+
+``` java
+  public void retryExample(AsyncResultHandler<String> handler) {
+    Async.retry()
+      .<String>task(taskHandler -> {
+        someAsyncMethodThatTakesAHandler(taskHandler);
+      })
+      .times(5)
+      .run(result -> {
+        if (result.failed()) {
+          handler.handle(DefaultAsyncResult.fail(result));
+          return;
+        }
+
+        String resultValue = result.result();
+
+        doSomethingWithTheResults(resultValue);
+
+        handler.handle(DefaultAsyncResult.succeed(resultValue));
+      });
   }
 ```
