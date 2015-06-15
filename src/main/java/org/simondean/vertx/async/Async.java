@@ -1,9 +1,6 @@
 package org.simondean.vertx.async;
 
-import org.simondean.vertx.async.internal.RetryBuilderImpl;
-import org.simondean.vertx.async.internal.WaterfallBuilderImpl;
-import org.simondean.vertx.async.internal.IterableBuilderImpl;
-import org.simondean.vertx.async.internal.SeriesImpl;
+import org.simondean.vertx.async.internal.*;
 
 public final class Async {
   private Async() {}
@@ -22,5 +19,9 @@ public final class Async {
 
   public static RetryBuilder retry() {
     return new RetryBuilderImpl();
+  }
+
+  public static ForeverBuilder forever() {
+    return new ForeverBuilderImpl();
   }
 }

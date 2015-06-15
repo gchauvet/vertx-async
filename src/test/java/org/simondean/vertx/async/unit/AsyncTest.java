@@ -33,4 +33,10 @@ public class AsyncTest {
     RetryBuilder retryBuilder = Async.retry();
     assertThat(retryBuilder).isNotNull();
   }
+
+  @Test
+  public void itCreatesANewForever() {
+    ForeverBuilder foreverBuilder = Async.forever();
+    assertThat(foreverBuilder).isNotNull();
+  }
 }
