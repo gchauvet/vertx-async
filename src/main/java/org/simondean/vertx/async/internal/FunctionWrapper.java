@@ -1,6 +1,6 @@
-package org.simondean.vertx.async;
+package org.simondean.vertx.async.internal;
 
-public class FunctionWrapper<T> {
+final class FunctionWrapper<T> {
 
     private T f;
 

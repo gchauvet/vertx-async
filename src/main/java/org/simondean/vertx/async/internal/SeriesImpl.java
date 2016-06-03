@@ -7,7 +7,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.function.Consumer;
 import org.simondean.vertx.async.DefaultAsyncResult;
-import org.simondean.vertx.async.FunctionWrapper;
 import org.simondean.vertx.async.Series;
 
 public class SeriesImpl<T> implements Series<T> {

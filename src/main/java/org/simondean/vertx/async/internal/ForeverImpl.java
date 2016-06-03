@@ -3,7 +3,6 @@ package org.simondean.vertx.async.internal;
 import io.vertx.core.AsyncResult;
 import org.simondean.vertx.async.DefaultAsyncResult;
 import org.simondean.vertx.async.Forever;
-import org.simondean.vertx.async.FunctionWrapper;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 

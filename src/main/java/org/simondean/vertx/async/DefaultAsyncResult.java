@@ -4,8 +4,8 @@ import io.vertx.core.AsyncResult;
 
 public class DefaultAsyncResult<T> implements AsyncResult<T> {
 
-    private Throwable cause;
-    private T result;
+    private final Throwable cause;
+    private final T result;
 
     public DefaultAsyncResult(Throwable cause, T result) {
         this.cause = cause;

@@ -1,8 +1,8 @@
-package org.simondean.vertx.async.unit;
+package org.simondean.vertx.async;
 
 import java.util.Arrays;
 import org.junit.Test;
-import org.simondean.vertx.async.unit.examples.SeriesExample;
+import org.simondean.vertx.async.examples.SeriesExample;
 
 import java.util.List;
 

@@ -1,14 +1,14 @@
-package org.simondean.vertx.async.unit;
+package org.simondean.vertx.async;
 
 import org.junit.Test;
-import org.simondean.vertx.async.Async;
-import org.simondean.vertx.async.ObjectWrapper;
-import org.simondean.vertx.async.unit.fakes.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 
 import static org.junit.Assert.*;
+import org.simondean.vertx.async.fakes.FakeFailingAsyncFunction;
+import org.simondean.vertx.async.fakes.FakeSuccessfulAsyncFunction;
+import org.simondean.vertx.async.fakes.FakeVertx;
 
 public class EachTest {
 

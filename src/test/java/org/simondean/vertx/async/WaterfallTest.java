@@ -1,12 +1,12 @@
-package org.simondean.vertx.async.unit;
+package org.simondean.vertx.async;
 
 import org.junit.Test;
 import org.simondean.vertx.async.Async;
 import org.simondean.vertx.async.ObjectWrapper;
-import org.simondean.vertx.async.unit.fakes.FakeFailingAsyncFunction;
-import org.simondean.vertx.async.unit.fakes.FakeFailingAsyncSupplier;
-import org.simondean.vertx.async.unit.fakes.FakeSuccessfulAsyncFunction;
-import org.simondean.vertx.async.unit.fakes.FakeSuccessfulAsyncSupplier;
+import org.simondean.vertx.async.fakes.FakeFailingAsyncFunction;
+import org.simondean.vertx.async.fakes.FakeFailingAsyncSupplier;
+import org.simondean.vertx.async.fakes.FakeSuccessfulAsyncFunction;
+import org.simondean.vertx.async.fakes.FakeSuccessfulAsyncSupplier;
 
 import static org.junit.Assert.*;
 

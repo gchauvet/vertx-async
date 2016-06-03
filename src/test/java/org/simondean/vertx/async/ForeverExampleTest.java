@@ -1,7 +1,7 @@
-package org.simondean.vertx.async.unit;
+package org.simondean.vertx.async;
 
 import org.junit.Test;
-import org.simondean.vertx.async.unit.examples.ForeverExample;
+import org.simondean.vertx.async.examples.ForeverExample;
 
 import static org.junit.Assert.*;
 

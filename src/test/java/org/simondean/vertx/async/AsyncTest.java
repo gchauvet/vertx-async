@@ -1,4 +1,4 @@
-package org.simondean.vertx.async.unit;
+package org.simondean.vertx.async;
 
 import org.junit.Test;
 import org.simondean.vertx.async.*;

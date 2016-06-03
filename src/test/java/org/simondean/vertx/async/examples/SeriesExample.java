@@ -1,4 +1,4 @@
-package org.simondean.vertx.async.unit.examples;
+package org.simondean.vertx.async.examples;
 
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;

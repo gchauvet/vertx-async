@@ -1,11 +1,11 @@
-package org.simondean.vertx.async.unit;
+package org.simondean.vertx.async;
 
 import java.util.Arrays;
 import org.junit.Test;
 import org.simondean.vertx.async.Async;
 import org.simondean.vertx.async.ObjectWrapper;
-import org.simondean.vertx.async.unit.fakes.FakeFailingAsyncSupplier;
-import org.simondean.vertx.async.unit.fakes.FakeSuccessfulAsyncSupplier;
+import org.simondean.vertx.async.fakes.FakeFailingAsyncSupplier;
+import org.simondean.vertx.async.fakes.FakeSuccessfulAsyncSupplier;
 
 import java.util.List;
 

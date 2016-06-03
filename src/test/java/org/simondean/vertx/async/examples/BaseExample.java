@@ -1,6 +1,6 @@
-package org.simondean.vertx.async.unit.examples;
+package org.simondean.vertx.async.examples;
 
-import org.simondean.vertx.async.unit.fakes.FakeVertx;
+import org.simondean.vertx.async.fakes.FakeVertx;
 import io.vertx.core.Vertx;
 
 public class BaseExample {

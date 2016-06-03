@@ -1,4 +1,4 @@
-package org.simondean.vertx.async.unit.fakes;
+package org.simondean.vertx.async.fakes;
 
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;

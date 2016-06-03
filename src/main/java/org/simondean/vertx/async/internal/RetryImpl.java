@@ -2,7 +2,6 @@ package org.simondean.vertx.async.internal;
 
 import io.vertx.core.AsyncResult;
 import org.simondean.vertx.async.DefaultAsyncResult;
-import org.simondean.vertx.async.FunctionWrapper;
 import org.simondean.vertx.async.ObjectWrapper;
 import org.simondean.vertx.async.Retry;
 import io.vertx.core.Handler;
