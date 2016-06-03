@@ -23,6 +23,12 @@
             <organization>simondean</organization>
             <organizationUrl>https://github.com/simondean</organizationUrl>
         </developer>
+        <developer>
+            <name>Guillaume Chauvet</name>
+            <email>gchauvet@zatarox.com</email>
+            <organization>gchauvet</organization>
+            <organizationUrl>http://github.com/gchauvet</organizationUrl>
+        </developer>
     </developers>
     <scm>
         <connection>scm:git:https://github.com/simondean/vertx-async.git</connection>
