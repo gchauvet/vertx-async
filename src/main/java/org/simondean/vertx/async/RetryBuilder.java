@@ -6,5 +6,6 @@ import io.vertx.core.Handler;
 import java.util.function.Consumer;
 
 public interface RetryBuilder {
-  <T> RetryTimesBuilder<T> task(Consumer<Handler<AsyncResult<T>>> task);
+
+    <T> RetryTimesBuilder<T> task(Consumer<Handler<AsyncResult<T>>> task);
 }

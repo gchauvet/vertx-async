@@ -2,7 +2,7 @@ package org.simondean.vertx.async;
 
 import io.vertx.core.AsyncResult;
 
-public class DefaultAsyncResult<T>  implements AsyncResult<T>  {
+public class DefaultAsyncResult<T> implements AsyncResult<T> {
 
     private Throwable cause;
     private T result;
@@ -12,7 +12,7 @@ public class DefaultAsyncResult<T>  implements AsyncResult<T>  {
         this.result = result;
     }
 
-    public static <T> AsyncResult<T>  succeed(T result) {
+    public static <T> AsyncResult<T> succeed(T result) {
         return new DefaultAsyncResult<>(null, result);
     }
 
@@ -20,7 +20,7 @@ public class DefaultAsyncResult<T>  implements AsyncResult<T>  {
         return succeed(null);
     }
 
-    public static <T> AsyncResult<T>  fail(Throwable cause) {
+    public static <T> AsyncResult<T> fail(Throwable cause) {
         if (cause == null) {
             throw new IllegalArgumentException("cause argument cannot be null");
         }
@@ -28,7 +28,7 @@ public class DefaultAsyncResult<T>  implements AsyncResult<T>  {
         return new DefaultAsyncResult<>(cause, null);
     }
 
-    public static <T> AsyncResult<T>  fail(AsyncResult<?> result) {
+    public static <T> AsyncResult<T> fail(AsyncResult<?> result) {
         return fail(result.cause());
     }
 

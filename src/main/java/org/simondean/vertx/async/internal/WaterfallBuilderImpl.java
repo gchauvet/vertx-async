@@ -8,8 +8,9 @@ import io.vertx.core.Handler;
 import java.util.function.Consumer;
 
 public class WaterfallBuilderImpl implements WaterfallBuilder {
-  @Override
-  public <T> Waterfall<T> task(Consumer<Handler<AsyncResult<T>>> task) {
-    return new DefaultWaterfall<>(task);
-  }
+
+    @Override
+    public <T> Waterfall<T> task(Consumer<Handler<AsyncResult<T>>> task) {
+        return new DefaultWaterfall<>(task);
+    }
 }

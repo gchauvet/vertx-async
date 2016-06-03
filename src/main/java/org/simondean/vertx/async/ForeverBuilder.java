@@ -6,5 +6,6 @@ import io.vertx.core.Handler;
 import java.util.function.Consumer;
 
 public interface ForeverBuilder {
-  Forever task(Consumer<Handler<AsyncResult<Void>>> task);
+
+    Forever task(Consumer<Handler<AsyncResult<Void>>> task);
 }

@@ -34,7 +34,7 @@ public class SeriesImpl<T> implements Series<T> {
 
             Consumer<Handler<AsyncResult<T>>> task = iterator.next();
 
-            Handler<AsyncResult<T>>  taskHandler = (result) -> {
+            Handler<AsyncResult<T>> taskHandler = (result) -> {
                 if (result.failed()) {
                     handler.handle(DefaultAsyncResult.fail(result));
                     return;

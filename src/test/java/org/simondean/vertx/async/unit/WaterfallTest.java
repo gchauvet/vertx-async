@@ -11,153 +11,154 @@ import org.simondean.vertx.async.unit.fakes.FakeSuccessfulAsyncSupplier;
 import static org.junit.Assert.*;
 
 public class WaterfallTest {
-  @Test
-  public void itExecutesOneTask() {
-    FakeSuccessfulAsyncSupplier<String> task1 = new FakeSuccessfulAsyncSupplier<>("Task 1");
 
-    ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
+    @Test
+    public void itExecutesOneTask() {
+        FakeSuccessfulAsyncSupplier<String> task1 = new FakeSuccessfulAsyncSupplier<>("Task 1");
 
-    Async.waterfall()
-      .task(task1)
-      .run(result -> {
-        handlerCallCount.setObject(handlerCallCount.getObject() + 1);
+        ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
 
-        assertEquals(1, task1.runCount());
+        Async.waterfall()
+                .task(task1)
+                .run(result -> {
+                    handlerCallCount.setObject(handlerCallCount.getObject() + 1);
 
-        assertNotNull(result);
-        assertTrue(result.succeeded());
-        String resultValue = result.result();
-        assertNotNull(resultValue);
-        assertEquals(task1.result(), resultValue);
-      });
-  }
+                    assertEquals(1, task1.runCount());
 
-  @Test
-  public void itExecutesTwoTasks() {
-    FakeSuccessfulAsyncSupplier<String> task1 = new FakeSuccessfulAsyncSupplier<>("Task 1");
-    FakeSuccessfulAsyncFunction<String, Integer> task2 = new FakeSuccessfulAsyncFunction<>(2);
+                    assertNotNull(result);
+                    assertTrue(result.succeeded());
+                    String resultValue = result.result();
+                    assertNotNull(resultValue);
+                    assertEquals(task1.result(), resultValue);
+                });
+    }
 
-    ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
+    @Test
+    public void itExecutesTwoTasks() {
+        FakeSuccessfulAsyncSupplier<String> task1 = new FakeSuccessfulAsyncSupplier<>("Task 1");
+        FakeSuccessfulAsyncFunction<String, Integer> task2 = new FakeSuccessfulAsyncFunction<>(2);
 
-    Async.waterfall()
-      .task(task1)
-      .task(task2)
-      .run(result -> {
-        handlerCallCount.setObject(handlerCallCount.getObject() + 1);
+        ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
 
-        assertEquals(1, task1.runCount());
-        assertEquals(task1.result(), task2.consumedValue());
-        assertEquals(1, task2.runCount());
+        Async.waterfall()
+                .task(task1)
+                .task(task2)
+                .run(result -> {
+                    handlerCallCount.setObject(handlerCallCount.getObject() + 1);
 
-        assertNotNull(result);
-        assertTrue(result.succeeded());
-        Integer resultValue = result.result();
-        assertNotNull(resultValue);
-        assertEquals(task2.result(), resultValue);
-      });
+                    assertEquals(1, task1.runCount());
+                    assertEquals(task1.result(), task2.consumedValue());
+                    assertEquals(1, task2.runCount());
 
-    assertEquals(1, (int) handlerCallCount.getObject());
-  }
+                    assertNotNull(result);
+                    assertTrue(result.succeeded());
+                    Integer resultValue = result.result();
+                    assertNotNull(resultValue);
+                    assertEquals(task2.result(), resultValue);
+                });
 
-  @Test
-  public void itFailsWhenATaskFails() {
-    FakeFailingAsyncSupplier<String> task1 = new FakeFailingAsyncSupplier<>(new Throwable("Failed"));
+        assertEquals(1, (int) handlerCallCount.getObject());
+    }
 
-    ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
+    @Test
+    public void itFailsWhenATaskFails() {
+        FakeFailingAsyncSupplier<String> task1 = new FakeFailingAsyncSupplier<>(new Throwable("Failed"));
 
-    Async.waterfall()
-      .task(task1)
-      .run(result -> {
-        handlerCallCount.setObject(handlerCallCount.getObject() + 1);
+        ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
 
-        assertEquals(1, (int) task1.runCount());
+        Async.waterfall()
+                .task(task1)
+                .run(result -> {
+                    handlerCallCount.setObject(handlerCallCount.getObject() + 1);
 
-        assertNotNull(result);
-        assertFalse(result.succeeded());
-        assertEquals(task1.cause(), result.cause());
-        assertNull(result.result());
-      });
+                    assertEquals(1, (int) task1.runCount());
 
-    assertEquals(1, (int) handlerCallCount.getObject());
-  }
+                    assertNotNull(result);
+                    assertFalse(result.succeeded());
+                    assertEquals(task1.cause(), result.cause());
+                    assertNull(result.result());
+                });
 
-  @Test
-  public void itExecutesNoMoreTasksWhenATaskFails() {
-    FakeFailingAsyncSupplier<String> task1 = new FakeFailingAsyncSupplier<>(new Throwable("Failed"));
-    FakeSuccessfulAsyncFunction<String, Integer> task2 = new FakeSuccessfulAsyncFunction<>(2);
+        assertEquals(1, (int) handlerCallCount.getObject());
+    }
 
-    ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
+    @Test
+    public void itExecutesNoMoreTasksWhenATaskFails() {
+        FakeFailingAsyncSupplier<String> task1 = new FakeFailingAsyncSupplier<>(new Throwable("Failed"));
+        FakeSuccessfulAsyncFunction<String, Integer> task2 = new FakeSuccessfulAsyncFunction<>(2);
 
-    Async.waterfall()
-      .task(task1)
-      .task(task2)
-      .run(result -> {
-        handlerCallCount.setObject(handlerCallCount.getObject() + 1);
+        ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
 
-        assertEquals(1, (int) task1.runCount());
-        assertEquals(0, task2.runCount());
+        Async.waterfall()
+                .task(task1)
+                .task(task2)
+                .run(result -> {
+                    handlerCallCount.setObject(handlerCallCount.getObject() + 1);
 
-        assertNotNull(result);
-        assertFalse(result.succeeded());
-        assertEquals(task1.cause(), result.cause());
-        assertNull(result.result());
-      });
+                    assertEquals(1, (int) task1.runCount());
+                    assertEquals(0, task2.runCount());
 
-    assertEquals(1, (int) handlerCallCount.getObject());
-  }
+                    assertNotNull(result);
+                    assertFalse(result.succeeded());
+                    assertEquals(task1.cause(), result.cause());
+                    assertNull(result.result());
+                });
 
-  @Test
-  public void itFailsWhenAConsumerTaskFails() {
-    FakeSuccessfulAsyncSupplier<String> task1 = new FakeSuccessfulAsyncSupplier<>("Task 1");
-    FakeFailingAsyncFunction<String, Integer> task2 = new FakeFailingAsyncFunction<>(new Throwable("Failed"));
+        assertEquals(1, (int) handlerCallCount.getObject());
+    }
 
-    ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
+    @Test
+    public void itFailsWhenAConsumerTaskFails() {
+        FakeSuccessfulAsyncSupplier<String> task1 = new FakeSuccessfulAsyncSupplier<>("Task 1");
+        FakeFailingAsyncFunction<String, Integer> task2 = new FakeFailingAsyncFunction<>(new Throwable("Failed"));
 
-    Async.waterfall()
-      .task(task1)
-      .task(task2)
-      .run(result -> {
-        handlerCallCount.setObject(handlerCallCount.getObject() + 1);
+        ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
 
-        assertEquals(1, (int) task1.runCount());
-        assertEquals(task1.result(), task2.consumedValue());
-        assertEquals(1, task2.runCount());
+        Async.waterfall()
+                .task(task1)
+                .task(task2)
+                .run(result -> {
+                    handlerCallCount.setObject(handlerCallCount.getObject() + 1);
 
-        assertNotNull(result);
-        assertFalse(result.succeeded());
-        assertEquals(task2.cause(), result.cause());
-        assertNull(result.result());
-      });
+                    assertEquals(1, (int) task1.runCount());
+                    assertEquals(task1.result(), task2.consumedValue());
+                    assertEquals(1, task2.runCount());
 
-    assertEquals(1, (int) handlerCallCount.getObject());
-  }
+                    assertNotNull(result);
+                    assertFalse(result.succeeded());
+                    assertEquals(task2.cause(), result.cause());
+                    assertNull(result.result());
+                });
 
-  @Test
-  public void itExecutesNoMoreTasksWhenAConsumerTaskFails() {
-    FakeSuccessfulAsyncSupplier<String> task1 = new FakeSuccessfulAsyncSupplier<>("Task 1");
-    FakeFailingAsyncFunction<String, Integer> task2 = new FakeFailingAsyncFunction<>(new Throwable("Failed"));
-    FakeSuccessfulAsyncFunction<Integer, String> task3 = new FakeSuccessfulAsyncFunction<>("Task 3");
+        assertEquals(1, (int) handlerCallCount.getObject());
+    }
 
-    ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
+    @Test
+    public void itExecutesNoMoreTasksWhenAConsumerTaskFails() {
+        FakeSuccessfulAsyncSupplier<String> task1 = new FakeSuccessfulAsyncSupplier<>("Task 1");
+        FakeFailingAsyncFunction<String, Integer> task2 = new FakeFailingAsyncFunction<>(new Throwable("Failed"));
+        FakeSuccessfulAsyncFunction<Integer, String> task3 = new FakeSuccessfulAsyncFunction<>("Task 3");
 
-    Async.waterfall()
-      .task(task1)
-      .task(task2)
-      .task(task3)
-      .run(result -> {
-        handlerCallCount.setObject(handlerCallCount.getObject() + 1);
+        ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
 
-        assertEquals(1, (int) task1.runCount());
-        assertEquals(task1.result(), task2.consumedValue());
-        assertEquals(1, task2.runCount());
-        assertEquals(0, task3.runCount());
+        Async.waterfall()
+                .task(task1)
+                .task(task2)
+                .task(task3)
+                .run(result -> {
+                    handlerCallCount.setObject(handlerCallCount.getObject() + 1);
 
-        assertNotNull(result);
-        assertFalse(result.succeeded());
-        assertEquals(task2.cause(), result.cause());
-        assertNull(result.result());
-      });
+                    assertEquals(1, (int) task1.runCount());
+                    assertEquals(task1.result(), task2.consumedValue());
+                    assertEquals(1, task2.runCount());
+                    assertEquals(0, task3.runCount());
 
-    assertEquals(1, (int) handlerCallCount.getObject());
-  }
+                    assertNotNull(result);
+                    assertFalse(result.succeeded());
+                    assertEquals(task2.cause(), result.cause());
+                    assertNull(result.result());
+                });
+
+        assertEquals(1, (int) handlerCallCount.getObject());
+    }
 }

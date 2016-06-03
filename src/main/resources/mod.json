@@ -1,14 +1,12 @@
 {
-  "description":"Async helpers for Vert.x",
-  "licenses": ["MIT"],
-  "author": "Simon Dean",
-
-  "developers": [],
-  "keywords": [
-    "async",
-    "vert.x"
-  ],
-  "homepage": "https://github.com/simondean/vertx-async",
-
-  "auto-redeploy": true
+    "description": "Async helpers for Vert.x",
+    "licenses": ["MIT"],
+    "author": "Simon Dean",
+    "developers": [],
+    "keywords": [
+        "async",
+        "vert.x"
+    ],
+    "homepage": "https://github.com/simondean/vertx-async",
+    "auto-redeploy": true
 }

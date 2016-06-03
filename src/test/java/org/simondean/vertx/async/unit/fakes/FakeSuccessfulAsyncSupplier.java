@@ -21,7 +21,7 @@ public class FakeSuccessfulAsyncSupplier<T> extends FakeAsyncSupplier<T> {
     }
 
     @Override
-    public void accept(Handler<AsyncResult<T>>  handler) {
+    public void accept(Handler<AsyncResult<T>> handler) {
         incrementRunCount();
 
         if (runCount() > failureCount) {

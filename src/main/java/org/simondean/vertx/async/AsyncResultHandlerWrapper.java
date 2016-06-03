@@ -11,7 +11,7 @@ public class AsyncResultHandlerWrapper<T, R> implements Handler<AsyncResult<R>> 
         this.handler = handler;
     }
 
-    public static <T, R> Handler<AsyncResult<R>> wrap(Handler<AsyncResult<T>>  handler) {
+    public static <T, R> Handler<AsyncResult<R>> wrap(Handler<AsyncResult<T>> handler) {
         return new AsyncResultHandlerWrapper<>(handler);
     }
 

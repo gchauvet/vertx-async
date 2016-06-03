@@ -11,132 +11,133 @@ import java.util.Arrays;
 import static org.junit.Assert.*;
 
 public class EachTest {
-  @Test
-  public void itStillExecutesWhenThereAreNoItems() {
-    ArrayList<String> items = new ArrayList<>();
 
-    FakeFailingAsyncFunction<String, Void> each = new FakeFailingAsyncFunction<>(new Throwable("Failed"));
+    @Test
+    public void itStillExecutesWhenThereAreNoItems() {
+        ArrayList<String> items = new ArrayList<>();
 
-    ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
+        FakeFailingAsyncFunction<String, Void> each = new FakeFailingAsyncFunction<>(new Throwable("Failed"));
 
-    Async.iterable(items)
-      .each(each)
-      .run(new FakeVertx(), result -> {
-        handlerCallCount.setObject(handlerCallCount.getObject() + 1);
+        ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
 
-        assertNotNull(result);
-        assertTrue(result.succeeded());
-        assertNull(result.result());
+        Async.iterable(items)
+                .each(each)
+                .run(new FakeVertx(), result -> {
+                    handlerCallCount.setObject(handlerCallCount.getObject() + 1);
 
-        assertEquals(0, each.runCount());
-      });
+                    assertNotNull(result);
+                    assertTrue(result.succeeded());
+                    assertNull(result.result());
 
-    assertEquals(1, (int) handlerCallCount.getObject());
-  }
+                    assertEquals(0, each.runCount());
+                });
 
-  @Test
-  public void itExecutesForOneItem() {
-    ArrayList<String> items = new ArrayList<>();
-    items.add("One");
+        assertEquals(1, (int) handlerCallCount.getObject());
+    }
 
-    FakeSuccessfulAsyncFunction<String, Void> each = new FakeSuccessfulAsyncFunction<>(null);
+    @Test
+    public void itExecutesForOneItem() {
+        ArrayList<String> items = new ArrayList<>();
+        items.add("One");
 
-    ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
+        FakeSuccessfulAsyncFunction<String, Void> each = new FakeSuccessfulAsyncFunction<>(null);
 
-    Async.iterable(items)
-      .each(each)
-      .run(new FakeVertx(), result -> {
-        handlerCallCount.setObject(handlerCallCount.getObject() + 1);
+        ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
 
-        assertNotNull(result);
-        assertTrue(result.succeeded());
-        assertNull(result.result());
+        Async.iterable(items)
+                .each(each)
+                .run(new FakeVertx(), result -> {
+                    handlerCallCount.setObject(handlerCallCount.getObject() + 1);
 
-        assertEquals(1, each.runCount());
-        assertTrue(each.consumedValues().containsAll(Arrays.asList("One")));
-      });
+                    assertNotNull(result);
+                    assertTrue(result.succeeded());
+                    assertNull(result.result());
 
-    assertEquals(1, (int) handlerCallCount.getObject());
-  }
+                    assertEquals(1, each.runCount());
+                    assertTrue(each.consumedValues().containsAll(Arrays.asList("One")));
+                });
 
-  @Test
-  public void itExecutesForTwoItems() {
-    ArrayList<String> items = new ArrayList<>();
-    items.add("One");
-    items.add("Two");
+        assertEquals(1, (int) handlerCallCount.getObject());
+    }
 
-    FakeSuccessfulAsyncFunction<String, Void> each = new FakeSuccessfulAsyncFunction<>(null);
+    @Test
+    public void itExecutesForTwoItems() {
+        ArrayList<String> items = new ArrayList<>();
+        items.add("One");
+        items.add("Two");
 
-    ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
+        FakeSuccessfulAsyncFunction<String, Void> each = new FakeSuccessfulAsyncFunction<>(null);
 
-    Async.iterable(items)
-      .each(each)
-      .run(new FakeVertx(), result -> {
-        handlerCallCount.setObject(handlerCallCount.getObject() + 1);
+        ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
 
-        assertNotNull(result);
-        assertTrue(result.succeeded());
-        assertNull(result.result());
+        Async.iterable(items)
+                .each(each)
+                .run(new FakeVertx(), result -> {
+                    handlerCallCount.setObject(handlerCallCount.getObject() + 1);
 
-        assertEquals(2, each.runCount());
-        assertTrue(each.consumedValues().containsAll(Arrays.asList("One", "Two")));
-      });
+                    assertNotNull(result);
+                    assertTrue(result.succeeded());
+                    assertNull(result.result());
 
-    assertEquals(1, (int) handlerCallCount.getObject());
-  }
+                    assertEquals(2, each.runCount());
+                    assertTrue(each.consumedValues().containsAll(Arrays.asList("One", "Two")));
+                });
 
-  @Test
-  public void itFailsWhenAnItemFails() {
-    ArrayList<String> items = new ArrayList<>();
-    items.add("One");
+        assertEquals(1, (int) handlerCallCount.getObject());
+    }
 
-    FakeFailingAsyncFunction<String, Void> each = new FakeFailingAsyncFunction<>(new Throwable("Failed"));
+    @Test
+    public void itFailsWhenAnItemFails() {
+        ArrayList<String> items = new ArrayList<>();
+        items.add("One");
 
-    ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
+        FakeFailingAsyncFunction<String, Void> each = new FakeFailingAsyncFunction<>(new Throwable("Failed"));
 
-    Async.iterable(items)
-      .each(each)
-      .run(new FakeVertx(), result -> {
-        handlerCallCount.setObject(handlerCallCount.getObject() + 1);
+        ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
 
-        assertNotNull(result);
-        assertFalse(result.succeeded());
-        assertEquals(each.cause(), result.cause());
-        assertNull(result.result());
+        Async.iterable(items)
+                .each(each)
+                .run(new FakeVertx(), result -> {
+                    handlerCallCount.setObject(handlerCallCount.getObject() + 1);
 
-        assertEquals(1, each.runCount());
-        assertTrue(each.consumedValues().containsAll(items));
-      });
+                    assertNotNull(result);
+                    assertFalse(result.succeeded());
+                    assertEquals(each.cause(), result.cause());
+                    assertNull(result.result());
 
-    assertEquals(1, (int) handlerCallCount.getObject());
-  }
+                    assertEquals(1, each.runCount());
+                    assertTrue(each.consumedValues().containsAll(items));
+                });
 
-  @Test
-  public void itFailsNoMoreThanOnce() {
-    ArrayList<String> items = new ArrayList<>();
-    items.add("One");
-    items.add("Two");
+        assertEquals(1, (int) handlerCallCount.getObject());
+    }
 
-    FakeFailingAsyncFunction<String, Void> each = new FakeFailingAsyncFunction<>(new Throwable("Failed"));
-    ObjectWrapper<Integer> resultCount = new ObjectWrapper<>(0);
+    @Test
+    public void itFailsNoMoreThanOnce() {
+        ArrayList<String> items = new ArrayList<>();
+        items.add("One");
+        items.add("Two");
 
-    ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
+        FakeFailingAsyncFunction<String, Void> each = new FakeFailingAsyncFunction<>(new Throwable("Failed"));
+        ObjectWrapper<Integer> resultCount = new ObjectWrapper<>(0);
 
-    Async.iterable(items)
-      .each(each)
-      .run(new FakeVertx(), result -> {
-        handlerCallCount.setObject(handlerCallCount.getObject() + 1);
+        ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
 
-        assertNotNull(result);
-        assertFalse(result.succeeded());
-        assertEquals(each.cause(), result.cause());
-        assertNull(result.result());
+        Async.iterable(items)
+                .each(each)
+                .run(new FakeVertx(), result -> {
+                    handlerCallCount.setObject(handlerCallCount.getObject() + 1);
 
-        resultCount.setObject(resultCount.getObject() + 1);
+                    assertNotNull(result);
+                    assertFalse(result.succeeded());
+                    assertEquals(each.cause(), result.cause());
+                    assertNull(result.result());
 
-        assertEquals(1, resultCount.getObject().intValue());
-      });
+                    resultCount.setObject(resultCount.getObject() + 1);
 
-    assertEquals(1, (int) handlerCallCount.getObject());
-  }
+                    assertEquals(1, resultCount.getObject().intValue());
+                });
+
+        assertEquals(1, (int) handlerCallCount.getObject());
+    }
 }

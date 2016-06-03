@@ -9,25 +9,26 @@ import org.simondean.vertx.async.unit.fakes.FakeVertx;
 import static org.junit.Assert.*;
 
 public class ForeverTest {
-  @Test
-  public void itExecutesTheTaskUntilItFails() {
-    FakeFailingAsyncSupplier<Void> task1 = new FakeFailingAsyncSupplier<>(2, null, new Throwable("Failed"));
 
-    ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
+    @Test
+    public void itExecutesTheTaskUntilItFails() {
+        FakeFailingAsyncSupplier<Void> task1 = new FakeFailingAsyncSupplier<>(2, null, new Throwable("Failed"));
 
-    Async.forever()
-      .task(task1)
-      .run(new FakeVertx(), result -> {
-        handlerCallCount.setObject(handlerCallCount.getObject() + 1);
+        ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
 
-        assertEquals(3, task1.runCount());
+        Async.forever()
+                .task(task1)
+                .run(new FakeVertx(), result -> {
+                    handlerCallCount.setObject(handlerCallCount.getObject() + 1);
 
-        assertNotNull(result);
-        assertFalse(result.succeeded());
-        Object resultValue = result.result();
-        assertNull(resultValue);
-      });
+                    assertEquals(3, task1.runCount());
 
-    assertEquals(1, (int) handlerCallCount.getObject());
-  }
+                    assertNotNull(result);
+                    assertFalse(result.succeeded());
+                    Object resultValue = result.result();
+                    assertNull(resultValue);
+                });
+
+        assertEquals(1, (int) handlerCallCount.getObject());
+    }
 }

@@ -8,8 +8,9 @@ import io.vertx.core.Handler;
 import java.util.function.Consumer;
 
 public class ForeverBuilderImpl implements ForeverBuilder {
-  @Override
-  public Forever task(Consumer<Handler<AsyncResult<Void>>> task) {
-    return new ForeverImpl(task);
-  }
+
+    @Override
+    public Forever task(Consumer<Handler<AsyncResult<Void>>> task) {
+        return new ForeverImpl(task);
+    }
 }

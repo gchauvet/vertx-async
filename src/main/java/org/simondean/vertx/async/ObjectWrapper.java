@@ -1,20 +1,21 @@
 package org.simondean.vertx.async;
 
 public class ObjectWrapper<T> {
-  private T object;
 
-  public ObjectWrapper() {
-  }
+    private T object;
 
-  public ObjectWrapper(T object) {
-    this.object = object;
-  }
+    public ObjectWrapper() {
+    }
 
-  public void setObject(T object) {
-    this.object = object;
-  }
+    public ObjectWrapper(T object) {
+        this.object = object;
+    }
 
-  public T getObject() {
-    return object;
-  }
+    public void setObject(T object) {
+        this.object = object;
+    }
+
+    public T getObject() {
+        return object;
+    }
 }

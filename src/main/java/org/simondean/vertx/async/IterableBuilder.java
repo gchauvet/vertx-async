@@ -6,5 +6,6 @@ import io.vertx.core.Handler;
 import java.util.function.BiConsumer;
 
 public interface IterableBuilder<T> {
-  EachBuilder each(BiConsumer<T, Handler<AsyncResult<Void>>> each);
+
+    EachBuilder each(BiConsumer<T, Handler<AsyncResult<Void>>> each);
 }
