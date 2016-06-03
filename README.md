@@ -10,16 +10,16 @@ The module is available on Maven Central:
 
 ``` xml
 <dependency>
-  <groupId>org.simondean.vertx</groupId>
-  <artifactId>vertx-async</artifactId>
-  <version>0.2.0</version>
+  <groupId>io.zatarox.vertx</groupId>
+  <artifactId>async</artifactId>
+  <version>0.1.0-SNAPSHOT</version>
 </dependency>
 ```
 
 The module then needs to be added to the includes field of your mod.json:
 
 ``` json
-  "includes": "org.simondean.vertx~vertx-async~0.2.0"
+  "includes": "io.zatarox.vertx~async~0.1.0-SNAPSHOT"
 ```
 
 The patterns are all available as static methods on the `org.simondean.vertx.async.Async` class.
