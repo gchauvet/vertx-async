@@ -1,8 +1,9 @@
 package org.simondean.vertx.async.internal;
 
+import io.vertx.core.AsyncResult;
 import org.simondean.vertx.async.EachBuilder;
 import org.simondean.vertx.async.IterableBuilder;
-import org.vertx.java.core.AsyncResultHandler;
+import io.vertx.core.Handler;
 
 import java.util.function.BiConsumer;
 
@@ -14,7 +15,7 @@ public class IterableBuilderImpl<T> implements IterableBuilder<T> {
   }
 
   @Override
-  public EachBuilder each(BiConsumer<T, AsyncResultHandler<Void>> each) {
+  public EachBuilder each(BiConsumer<T, Handler<AsyncResult<Void>>> each) {
     return new EachBuilderImpl(iterable, each);
   }
 }

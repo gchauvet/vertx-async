@@ -8,7 +8,7 @@ import org.simondean.vertx.async.unit.fakes.FakeFailingAsyncSupplier;
 import org.simondean.vertx.async.unit.fakes.FakeSuccessfulAsyncFunction;
 import org.simondean.vertx.async.unit.fakes.FakeSuccessfulAsyncSupplier;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.*;
 
 public class WaterfallTest {
   @Test
@@ -22,13 +22,13 @@ public class WaterfallTest {
       .run(result -> {
         handlerCallCount.setObject(handlerCallCount.getObject() + 1);
 
-        assertThat(task1.runCount()).isEqualTo(1);
+        assertEquals(1, task1.runCount());
 
-        assertThat(result).isNotNull();
-        assertThat(result.succeeded()).isTrue();
+        assertNotNull(result);
+        assertTrue(result.succeeded());
         String resultValue = result.result();
-        assertThat(resultValue).isNotNull();
-        assertThat(resultValue).isEqualTo(task1.result());
+        assertNotNull(resultValue);
+        assertEquals(task1.result(), resultValue);
       });
   }
 
@@ -45,18 +45,18 @@ public class WaterfallTest {
       .run(result -> {
         handlerCallCount.setObject(handlerCallCount.getObject() + 1);
 
-        assertThat(task1.runCount()).isEqualTo(1);
-        assertThat(task2.consumedValue()).isEqualTo(task1.result());
-        assertThat(task2.runCount()).isEqualTo(1);
+        assertEquals(1, task1.runCount());
+        assertEquals(task1.result(), task2.consumedValue());
+        assertEquals(1, task2.runCount());
 
-        assertThat(result).isNotNull();
-        assertThat(result.succeeded()).isTrue();
+        assertNotNull(result);
+        assertTrue(result.succeeded());
         Integer resultValue = result.result();
-        assertThat(resultValue).isNotNull();
-        assertThat(resultValue).isEqualTo(task2.result());
+        assertNotNull(resultValue);
+        assertEquals(task2.result(), resultValue);
       });
 
-    assertThat(handlerCallCount.getObject()).isEqualTo(1);
+    assertEquals(1, (int) handlerCallCount.getObject());
   }
 
   @Test
@@ -70,15 +70,15 @@ public class WaterfallTest {
       .run(result -> {
         handlerCallCount.setObject(handlerCallCount.getObject() + 1);
 
-        assertThat(task1.runCount()).isEqualTo(1);
+        assertEquals(1, (int) task1.runCount());
 
-        assertThat(result).isNotNull();
-        assertThat(result.succeeded()).isFalse();
-        assertThat(result.cause()).isEqualTo(task1.cause());
-        assertThat(result.result()).isNull();
+        assertNotNull(result);
+        assertFalse(result.succeeded());
+        assertEquals(task1.cause(), result.cause());
+        assertNull(result.result());
       });
 
-    assertThat(handlerCallCount.getObject()).isEqualTo(1);
+    assertEquals(1, (int) handlerCallCount.getObject());
   }
 
   @Test
@@ -94,16 +94,16 @@ public class WaterfallTest {
       .run(result -> {
         handlerCallCount.setObject(handlerCallCount.getObject() + 1);
 
-        assertThat(task1.runCount()).isEqualTo(1);
-        assertThat(task2.runCount()).isEqualTo(0);
+        assertEquals(1, (int) task1.runCount());
+        assertEquals(0, task2.runCount());
 
-        assertThat(result).isNotNull();
-        assertThat(result.succeeded()).isFalse();
-        assertThat(result.cause()).isEqualTo(task1.cause());
-        assertThat(result.result()).isNull();
+        assertNotNull(result);
+        assertFalse(result.succeeded());
+        assertEquals(task1.cause(), result.cause());
+        assertNull(result.result());
       });
 
-    assertThat(handlerCallCount.getObject()).isEqualTo(1);
+    assertEquals(1, (int) handlerCallCount.getObject());
   }
 
   @Test
@@ -119,17 +119,17 @@ public class WaterfallTest {
       .run(result -> {
         handlerCallCount.setObject(handlerCallCount.getObject() + 1);
 
-        assertThat(task1.runCount()).isEqualTo(1);
-        assertThat(task2.consumedValue()).isEqualTo(task1.result());
-        assertThat(task2.runCount()).isEqualTo(1);
+        assertEquals(1, (int) task1.runCount());
+        assertEquals(task1.result(), task2.consumedValue());
+        assertEquals(1, task2.runCount());
 
-        assertThat(result).isNotNull();
-        assertThat(result.succeeded()).isFalse();
-        assertThat(result.cause()).isEqualTo(task2.cause());
-        assertThat(result.result()).isNull();
+        assertNotNull(result);
+        assertFalse(result.succeeded());
+        assertEquals(task2.cause(), result.cause());
+        assertNull(result.result());
       });
 
-    assertThat(handlerCallCount.getObject()).isEqualTo(1);
+    assertEquals(1, (int) handlerCallCount.getObject());
   }
 
   @Test
@@ -147,17 +147,17 @@ public class WaterfallTest {
       .run(result -> {
         handlerCallCount.setObject(handlerCallCount.getObject() + 1);
 
-        assertThat(task1.runCount()).isEqualTo(1);
-        assertThat(task2.consumedValue()).isEqualTo(task1.result());
-        assertThat(task2.runCount()).isEqualTo(1);
-        assertThat(task3.runCount()).isEqualTo(0);
+        assertEquals(1, (int) task1.runCount());
+        assertEquals(task1.result(), task2.consumedValue());
+        assertEquals(1, task2.runCount());
+        assertEquals(0, task3.runCount());
 
-        assertThat(result).isNotNull();
-        assertThat(result.succeeded()).isFalse();
-        assertThat(result.cause()).isEqualTo(task2.cause());
-        assertThat(result.result()).isNull();
+        assertNotNull(result);
+        assertFalse(result.succeeded());
+        assertEquals(task2.cause(), result.cause());
+        assertNull(result.result());
       });
 
-    assertThat(handlerCallCount.getObject()).isEqualTo(1);
+    assertEquals(1, (int) handlerCallCount.getObject());
   }
 }

@@ -1,41 +1,42 @@
 package org.simondean.vertx.async.unit;
 
+import java.util.Arrays;
 import org.junit.Test;
 import org.simondean.vertx.async.unit.examples.EachExample;
-import org.simondean.vertx.async.unit.examples.SeriesExample;
 
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.*;
 
 public class EachExampleTest {
-  @Test
-  public void itHandlesSuccess() {
-    EachExample example = new EachExample(true);
 
-    example.eachExample(result -> {
-      assertThat(result).isNotNull();
-      assertThat(result.succeeded()).isTrue();
+    @Test
+    public void itHandlesSuccess() {
+        EachExample example = new EachExample(true);
 
-      assertThat(result.result()).isNull();
-      List<String> items = example.items();
-      assertThat(items).isNotNull();
-      assertThat(items).containsExactly("one", "two", "three");
-    });
-  }
+        example.eachExample(result -> {
+            assertNotNull(result);
+            assertTrue(result.succeeded());
 
-  @Test
-  public void itHandlesFailure() {
-    EachExample example = new EachExample(false);
+            assertNull(result.result());
+            List<String> items = example.items();
+            assertNotNull(items);
+            assertTrue(items.containsAll(Arrays.asList("one", "two", "three")));
+        });
+    }
 
-    example.eachExample(result -> {
-      assertThat(result).isNotNull();
-      assertThat(result.succeeded()).isFalse();
+    @Test
+    public void itHandlesFailure() {
+        EachExample example = new EachExample(false);
 
-      assertThat(result.result()).isNull();
-      List<String> items = example.items();
-      assertThat(items).isNotNull();
-      assertThat(items).isEmpty();
-    });
-  }
+        example.eachExample(result -> {
+            assertNotNull(result);
+            assertFalse(result.succeeded());
+
+            assertNull(result.result());
+            List<String> items = example.items();
+            assertNotNull(items);
+            assertTrue(items.isEmpty());
+        });
+    }
 }

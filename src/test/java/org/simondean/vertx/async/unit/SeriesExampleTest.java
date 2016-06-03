@@ -1,11 +1,12 @@
 package org.simondean.vertx.async.unit;
 
+import java.util.Arrays;
 import org.junit.Test;
 import org.simondean.vertx.async.unit.examples.SeriesExample;
 
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.*;
 
 public class SeriesExampleTest {
   @Test
@@ -13,15 +14,15 @@ public class SeriesExampleTest {
     SeriesExample example = new SeriesExample(true);
 
     example.seriesExample(result -> {
-      assertThat(result).isNotNull();
-      assertThat(result.succeeded()).isTrue();
+      assertNotNull(result);
+      assertTrue(result.succeeded());
 
       List<String> resultsFromHandler = result.result();
-      assertThat(resultsFromHandler).isNotNull();
-      assertThat(resultsFromHandler).containsExactly("Result", "Async result");
+      assertNotNull(resultsFromHandler);
+      assertTrue(resultsFromHandler.containsAll(Arrays.asList("Result", "Async result")));
       List<String> resultsFromExample = example.results();
-      assertThat(resultsFromExample).isNotNull();
-      assertThat(resultsFromExample).containsExactly("Result", "Async result");
+      assertNotNull(resultsFromExample);
+      assertTrue(resultsFromExample.containsAll(Arrays.asList("Result", "Async result")));
     });
   }
 
@@ -30,13 +31,13 @@ public class SeriesExampleTest {
     SeriesExample example = new SeriesExample(false);
 
     example.seriesExample(result -> {
-      assertThat(result).isNotNull();
-      assertThat(result.succeeded()).isFalse();
+      assertNotNull(result);
+      assertFalse(result.succeeded());
 
       List<String> resultsFromHandler = result.result();
-      assertThat(resultsFromHandler).isNull();
+      assertNull(resultsFromHandler);
       List<String> resultsFromExample = example.results();
-      assertThat(resultsFromExample).isNull();
+      assertNull(resultsFromExample);
     });
   }
 }

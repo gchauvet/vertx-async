@@ -1,53 +1,54 @@
 package org.simondean.vertx.async;
 
-import org.vertx.java.core.AsyncResult;
+import io.vertx.core.AsyncResult;
 
-public class DefaultAsyncResult<T> implements AsyncResult<T> {
-  private Throwable cause;
-  private T result;
+public class DefaultAsyncResult<T>  implements AsyncResult<T>  {
 
-  public DefaultAsyncResult(Throwable cause, T result) {
-    this.cause = cause;
-    this.result = result;
-  }
+    private Throwable cause;
+    private T result;
 
-  public static <T> AsyncResult<T> succeed(T result) {
-    return new DefaultAsyncResult<>(null, result);
-  }
-
-  public static AsyncResult<Void> succeed() {
-    return succeed(null);
-  }
-
-  public static <T> AsyncResult<T> fail(Throwable cause) {
-    if (cause == null) {
-      throw new IllegalArgumentException("cause argument cannot be null");
+    public DefaultAsyncResult(Throwable cause, T result) {
+        this.cause = cause;
+        this.result = result;
     }
 
-    return new DefaultAsyncResult<>(cause, null);
-  }
+    public static <T> AsyncResult<T>  succeed(T result) {
+        return new DefaultAsyncResult<>(null, result);
+    }
 
-  public static <T> AsyncResult<T> fail(AsyncResult<?> result) {
-    return fail(result.cause());
-  }
+    public static AsyncResult<Void> succeed() {
+        return succeed(null);
+    }
 
-  @Override
-  public T result() {
-    return result;
-  }
+    public static <T> AsyncResult<T>  fail(Throwable cause) {
+        if (cause == null) {
+            throw new IllegalArgumentException("cause argument cannot be null");
+        }
 
-  @Override
-  public Throwable cause() {
-    return cause;
-  }
+        return new DefaultAsyncResult<>(cause, null);
+    }
 
-  @Override
-  public boolean succeeded() {
-    return cause == null;
-  }
+    public static <T> AsyncResult<T>  fail(AsyncResult<?> result) {
+        return fail(result.cause());
+    }
 
-  @Override
-  public boolean failed() {
-    return cause != null;
-  }
+    @Override
+    public T result() {
+        return result;
+    }
+
+    @Override
+    public Throwable cause() {
+        return cause;
+    }
+
+    @Override
+    public boolean succeeded() {
+        return cause == null;
+    }
+
+    @Override
+    public boolean failed() {
+        return cause != null;
+    }
 }

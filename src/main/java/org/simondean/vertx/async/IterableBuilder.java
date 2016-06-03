@@ -1,9 +1,10 @@
 package org.simondean.vertx.async;
 
-import org.vertx.java.core.AsyncResultHandler;
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
 
 import java.util.function.BiConsumer;
 
 public interface IterableBuilder<T> {
-  EachBuilder each(BiConsumer<T, AsyncResultHandler<Void>> each);
+  EachBuilder each(BiConsumer<T, Handler<AsyncResult<Void>>> each);
 }

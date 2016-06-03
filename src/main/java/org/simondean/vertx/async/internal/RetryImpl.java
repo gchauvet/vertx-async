@@ -1,24 +1,25 @@
 package org.simondean.vertx.async.internal;
 
+import io.vertx.core.AsyncResult;
 import org.simondean.vertx.async.DefaultAsyncResult;
 import org.simondean.vertx.async.FunctionWrapper;
 import org.simondean.vertx.async.ObjectWrapper;
 import org.simondean.vertx.async.Retry;
-import org.vertx.java.core.AsyncResultHandler;
+import io.vertx.core.Handler;
 
 import java.util.function.Consumer;
 
 public class RetryImpl<T> implements Retry<T> {
-  private final Consumer<AsyncResultHandler<T>> task;
+  private final Consumer<Handler<AsyncResult<T>>> task;
   private final int times;
 
-  public RetryImpl(Consumer<AsyncResultHandler<T>> task, int times) {
+  public RetryImpl(Consumer<Handler<AsyncResult<T>>> task, int times) {
     this.task = task;
     this.times = times;
   }
 
   @Override
-  public void run(AsyncResultHandler<T> handler) {
+  public void run(Handler<AsyncResult<T>>  handler) {
     ObjectWrapper<Integer> count = new ObjectWrapper<>(0);
 
     FunctionWrapper<Runnable> visitor = new FunctionWrapper<>();

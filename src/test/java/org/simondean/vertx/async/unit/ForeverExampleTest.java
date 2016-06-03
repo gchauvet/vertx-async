@@ -3,7 +3,7 @@ package org.simondean.vertx.async.unit;
 import org.junit.Test;
 import org.simondean.vertx.async.unit.examples.ForeverExample;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.*;
 
 public class ForeverExampleTest {
   @Test
@@ -11,11 +11,11 @@ public class ForeverExampleTest {
     ForeverExample example = new ForeverExample();
 
     example.foreverExample(result -> {
-      assertThat(result).isNotNull();
-      assertThat(result.succeeded()).isFalse();
+      assertNotNull(result);
+      assertFalse(result.succeeded());
 
       String resultFromHandler = result.result();
-      assertThat(resultFromHandler).isNull();
+      assertNull(resultFromHandler);
     });
   }
 }

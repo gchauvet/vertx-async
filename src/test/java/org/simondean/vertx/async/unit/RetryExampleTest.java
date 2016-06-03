@@ -3,7 +3,7 @@ package org.simondean.vertx.async.unit;
 import org.junit.Test;
 import org.simondean.vertx.async.unit.examples.RetryExample;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.*;
 
 public class RetryExampleTest {
   @Test
@@ -11,15 +11,15 @@ public class RetryExampleTest {
     RetryExample example = new RetryExample(true);
 
     example.retryExample(result -> {
-      assertThat(result).isNotNull();
-      assertThat(result.succeeded()).isTrue();
+      assertNotNull(result);
+      assertTrue(result.succeeded());
 
       String resultFromHandler = result.result();
-      assertThat(resultFromHandler).isNotNull();
-      assertThat(resultFromHandler).isEqualTo("Async result");
+      assertNotNull(resultFromHandler);
+      assertEquals("Async result", resultFromHandler);
       String resultFromExample = example.result();
-      assertThat(resultFromExample).isNotNull();
-      assertThat(resultFromExample).isEqualTo("Async result");
+      assertNotNull(resultFromExample);
+      assertEquals("Async result", resultFromExample);
     });
   }
 
@@ -28,13 +28,13 @@ public class RetryExampleTest {
     RetryExample example = new RetryExample(false);
 
     example.retryExample(result -> {
-      assertThat(result).isNotNull();
-      assertThat(result.succeeded()).isFalse();
+      assertNotNull(result);
+      assertFalse(result.succeeded());
 
       String resultFromHandler = result.result();
-      assertThat(resultFromHandler).isNull();
+      assertNull(resultFromHandler);
       String resultFromExample = example.result();
-      assertThat(resultFromExample).isNull();
+      assertNull(resultFromExample);
     });
   }
 }

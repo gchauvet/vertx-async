@@ -1,5 +1,6 @@
 package org.simondean.vertx.async.unit;
 
+import java.util.Arrays;
 import org.junit.Test;
 import org.simondean.vertx.async.Async;
 import org.simondean.vertx.async.ObjectWrapper;
@@ -8,7 +9,7 @@ import org.simondean.vertx.async.unit.fakes.FakeSuccessfulAsyncSupplier;
 
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.*;
 
 public class SeriesTest {
   @Test
@@ -19,14 +20,14 @@ public class SeriesTest {
       .run(result -> {
         handlerCallCount.setObject(handlerCallCount.getObject() + 1);
 
-        assertThat(result).isNotNull();
-        assertThat(result.succeeded()).isTrue();
+        assertNotNull(result);
+        assertTrue(result.succeeded());
         List<Object> resultList = result.result();
-        assertThat(resultList).isNotNull();
-        assertThat(resultList).isEmpty();
+        assertNotNull(resultList);
+        assertTrue(resultList.isEmpty());
       });
 
-    assertThat(handlerCallCount.getObject()).isEqualTo(1);
+    assertEquals(1, (int) handlerCallCount.getObject());
   }
 
   @Test
@@ -40,16 +41,16 @@ public class SeriesTest {
       .run(result -> {
         handlerCallCount.setObject(handlerCallCount.getObject() + 1);
 
-        assertThat(task1.runCount()).isEqualTo(1);
+        assertEquals(1, task1.runCount());
 
-        assertThat(result).isNotNull();
-        assertThat(result.succeeded()).isTrue();
+        assertNotNull(result);
+        assertTrue(result.succeeded());
         List<Object> resultList = result.result();
-        assertThat(resultList).isNotNull();
-        assertThat(resultList).containsExactly(task1.result());
+        assertNotNull(resultList);
+        assertTrue(resultList.containsAll(Arrays.asList(task1.result())));
       });
 
-    assertThat(handlerCallCount.getObject()).isEqualTo(1);
+    assertEquals(1, (int) handlerCallCount.getObject());
   }
 
   @Test
@@ -65,17 +66,17 @@ public class SeriesTest {
       .run(result -> {
         handlerCallCount.setObject(handlerCallCount.getObject() + 1);
 
-        assertThat(task1.runCount()).isEqualTo(1);
-        assertThat(task2.runCount()).isEqualTo(1);
+        assertEquals(1, task1.runCount());
+        assertEquals(1, task2.runCount());
 
-        assertThat(result).isNotNull();
-        assertThat(result.succeeded()).isTrue();
+        assertNotNull(result);
+        assertTrue(result.succeeded());
         List<Object> resultList = result.result();
-        assertThat(resultList).isNotNull();
-        assertThat(resultList).containsExactly(task1.result(), task2.result());
+        assertNotNull(resultList);
+        assertTrue(resultList.containsAll(Arrays.asList(task1.result(), task2.result())));
       });
 
-    assertThat(handlerCallCount.getObject()).isEqualTo(1);
+    assertEquals(1, (int) handlerCallCount.getObject());
   }
 
   @Test
@@ -89,15 +90,15 @@ public class SeriesTest {
       .run(result -> {
         handlerCallCount.setObject(handlerCallCount.getObject() + 1);
 
-        assertThat(task1.runCount()).isEqualTo(1);
+        assertEquals(1, task1.runCount());
 
-        assertThat(result).isNotNull();
-        assertThat(result.succeeded()).isFalse();
-        assertThat(result.cause()).isEqualTo(task1.cause());
-        assertThat(result.result()).isNull();
+        assertNotNull(result);
+        assertFalse(result.succeeded());
+        assertEquals(task1.cause(), result.cause());
+        assertNull(result.result());
       });
 
-    assertThat(handlerCallCount.getObject()).isEqualTo(1);
+    assertEquals(1, (int) handlerCallCount.getObject());
   }
 
   @Test
@@ -113,14 +114,14 @@ public class SeriesTest {
       .run(result -> {
         handlerCallCount.setObject(handlerCallCount.getObject() + 1);
 
-        assertThat(result).isNotNull();
-        assertThat(result.succeeded()).isFalse();
-        assertThat(result.cause()).isEqualTo(task1.cause());
-        assertThat(result.result()).isNull();
-        assertThat(task1.runCount()).isEqualTo(1);
-        assertThat(task2.runCount()).isEqualTo(0);
+        assertNotNull(result);
+        assertFalse(result.succeeded());
+        assertEquals(task1.cause(), result.cause());
+        assertNull(result.result());
+        assertEquals(1, (int) task1.runCount());
+        assertEquals(0, (int) task2.runCount());
       });
 
-    assertThat(handlerCallCount.getObject()).isEqualTo(1);
+    assertEquals(1, (int) handlerCallCount.getObject());
   }
 }

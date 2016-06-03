@@ -1,12 +1,13 @@
 package org.simondean.vertx.async.unit.fakes;
 
-import org.vertx.java.core.AsyncResultHandler;
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiConsumer;
 
-public abstract class FakeAsyncFunction<T, R> implements BiConsumer<T, AsyncResultHandler<R>> {
+public abstract class FakeAsyncFunction<T, R> implements BiConsumer<T, Handler<AsyncResult<R>>> {
   private ArrayList<T> consumedValues = new ArrayList<>();
   private int runCount = 0;
 

@@ -6,8 +6,9 @@ import org.simondean.vertx.async.ObjectWrapper;
 import org.simondean.vertx.async.unit.fakes.*;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.*;
 
 public class EachTest {
   @Test
@@ -23,14 +24,14 @@ public class EachTest {
       .run(new FakeVertx(), result -> {
         handlerCallCount.setObject(handlerCallCount.getObject() + 1);
 
-        assertThat(result).isNotNull();
-        assertThat(result.succeeded()).isTrue();
-        assertThat(result.result()).isNull();
+        assertNotNull(result);
+        assertTrue(result.succeeded());
+        assertNull(result.result());
 
-        assertThat(each.runCount()).isEqualTo(0);
+        assertEquals(0, each.runCount());
       });
 
-    assertThat(handlerCallCount.getObject()).isEqualTo(1);
+    assertEquals(1, (int) handlerCallCount.getObject());
   }
 
   @Test
@@ -47,15 +48,15 @@ public class EachTest {
       .run(new FakeVertx(), result -> {
         handlerCallCount.setObject(handlerCallCount.getObject() + 1);
 
-        assertThat(result).isNotNull();
-        assertThat(result.succeeded()).isTrue();
-        assertThat(result.result()).isNull();
+        assertNotNull(result);
+        assertTrue(result.succeeded());
+        assertNull(result.result());
 
-        assertThat(each.runCount()).isEqualTo(1);
-        assertThat(each.consumedValues()).containsExactly("One");
+        assertEquals(1, each.runCount());
+        assertTrue(each.consumedValues().containsAll(Arrays.asList("One")));
       });
 
-    assertThat(handlerCallCount.getObject()).isEqualTo(1);
+    assertEquals(1, (int) handlerCallCount.getObject());
   }
 
   @Test
@@ -73,15 +74,15 @@ public class EachTest {
       .run(new FakeVertx(), result -> {
         handlerCallCount.setObject(handlerCallCount.getObject() + 1);
 
-        assertThat(result).isNotNull();
-        assertThat(result.succeeded()).isTrue();
-        assertThat(result.result()).isNull();
+        assertNotNull(result);
+        assertTrue(result.succeeded());
+        assertNull(result.result());
 
-        assertThat(each.runCount()).isEqualTo(2);
-        assertThat(each.consumedValues()).containsExactly("One", "Two");
+        assertEquals(2, each.runCount());
+        assertTrue(each.consumedValues().containsAll(Arrays.asList("One", "Two")));
       });
 
-    assertThat(handlerCallCount.getObject()).isEqualTo(1);
+    assertEquals(1, (int) handlerCallCount.getObject());
   }
 
   @Test
@@ -98,16 +99,16 @@ public class EachTest {
       .run(new FakeVertx(), result -> {
         handlerCallCount.setObject(handlerCallCount.getObject() + 1);
 
-        assertThat(result).isNotNull();
-        assertThat(result.succeeded()).isFalse();
-        assertThat(result.cause()).isEqualTo(each.cause());
-        assertThat(result.result()).isNull();
+        assertNotNull(result);
+        assertFalse(result.succeeded());
+        assertEquals(each.cause(), result.cause());
+        assertNull(result.result());
 
-        assertThat(each.runCount()).isEqualTo(1);
-        assertThat(each.consumedValues()).containsExactlyElementsOf(items);
+        assertEquals(1, each.runCount());
+        assertTrue(each.consumedValues().containsAll(items));
       });
 
-    assertThat(handlerCallCount.getObject()).isEqualTo(1);
+    assertEquals(1, (int) handlerCallCount.getObject());
   }
 
   @Test
@@ -126,16 +127,16 @@ public class EachTest {
       .run(new FakeVertx(), result -> {
         handlerCallCount.setObject(handlerCallCount.getObject() + 1);
 
-        assertThat(result).isNotNull();
-        assertThat(result.succeeded()).isFalse();
-        assertThat(result.cause()).isEqualTo(each.cause());
-        assertThat(result.result()).isNull();
+        assertNotNull(result);
+        assertFalse(result.succeeded());
+        assertEquals(each.cause(), result.cause());
+        assertNull(result.result());
 
-        resultCount.setObject(resultCount.getObject().intValue() + 1);
+        resultCount.setObject(resultCount.getObject() + 1);
 
-        assertThat(resultCount.getObject().intValue()).isEqualTo(1);
+        assertEquals(1, resultCount.getObject().intValue());
       });
 
-    assertThat(handlerCallCount.getObject()).isEqualTo(1);
+    assertEquals(1, (int) handlerCallCount.getObject());
   }
 }

@@ -6,37 +6,37 @@ import org.simondean.vertx.async.*;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.*;
 
 public class AsyncTest {
   @Test
   public void itCreatesANewSeries() {
     Series<Object> series = Async.series();
-    assertThat(series).isNotNull();
+    assertNotNull(series);
   }
 
   @Test
   public void itCreatesANewWaterfall() {
     WaterfallBuilder waterfallBuilder = Async.waterfall();
-    assertThat(waterfallBuilder).isNotNull();
+    assertNotNull(waterfallBuilder);
   }
 
   @Test
   public void itCreatesANewIterable() {
     List<String> list = Arrays.asList("One");
     IterableBuilder<String> iterableBuilder = Async.iterable(list);
-    assertThat(iterableBuilder).isNotNull();
+    assertNotNull(iterableBuilder);
   }
 
   @Test
   public void itCreatesANewRetry() {
     RetryBuilder retryBuilder = Async.retry();
-    assertThat(retryBuilder).isNotNull();
+    assertNotNull(retryBuilder);
   }
 
   @Test
   public void itCreatesANewForever() {
     ForeverBuilder foreverBuilder = Async.forever();
-    assertThat(foreverBuilder).isNotNull();
+    assertNotNull(foreverBuilder);
   }
 }

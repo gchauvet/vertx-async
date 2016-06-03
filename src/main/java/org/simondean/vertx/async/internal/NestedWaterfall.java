@@ -1,27 +1,28 @@
 package org.simondean.vertx.async.internal;
 
+import io.vertx.core.AsyncResult;
 import org.simondean.vertx.async.DefaultAsyncResult;
 import org.simondean.vertx.async.Waterfall;
-import org.vertx.java.core.AsyncResultHandler;
+import io.vertx.core.Handler;
 
 import java.util.function.BiConsumer;
 
 public class NestedWaterfall<T, R> implements Waterfall<R> {
   private final Waterfall<T> parentWaterfall;
-  private BiConsumer<T, AsyncResultHandler<R>> task;
+  private BiConsumer<T, Handler<AsyncResult<R>>> task;
 
-  public NestedWaterfall(Waterfall<T> parentWaterfall, BiConsumer<T, AsyncResultHandler<R>> task) {
+  public NestedWaterfall(Waterfall<T> parentWaterfall, BiConsumer<T, Handler<AsyncResult<R>>> task) {
     this.parentWaterfall = parentWaterfall;
     this.task = task;
   }
 
   @Override
-  public <S> Waterfall<S> task(BiConsumer<R, AsyncResultHandler<S>> task) {
+  public <S> Waterfall<S> task(BiConsumer<R, Handler<AsyncResult<S>>> task) {
     return new NestedWaterfall<>(this, task);
   }
 
   @Override
-  public void run(AsyncResultHandler<R> handler) {
+  public void run(Handler<AsyncResult<R>> handler) {
     parentWaterfall.run(result -> {
       if (result.failed()) {
         handler.handle(DefaultAsyncResult.fail(result));

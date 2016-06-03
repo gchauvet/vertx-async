@@ -1,8 +1,9 @@
 package org.simondean.vertx.async.unit.examples;
 
+import io.vertx.core.AsyncResult;
 import org.simondean.vertx.async.Async;
 import org.simondean.vertx.async.DefaultAsyncResult;
-import org.vertx.java.core.AsyncResultHandler;
+import io.vertx.core.Handler;
 
 public class RetryExample extends BaseExample {
   private final boolean succeed;
@@ -12,7 +13,7 @@ public class RetryExample extends BaseExample {
     this.succeed = succeed;
   }
 
-  public void retryExample(AsyncResultHandler<String> handler) {
+  public void retryExample(Handler<AsyncResult<String>> handler) {
     Async.retry()
       .<String>task(taskHandler -> {
         someAsyncMethodThatTakesAHandler(taskHandler);
@@ -32,7 +33,7 @@ public class RetryExample extends BaseExample {
       });
   }
 
-  private void someAsyncMethodThatTakesAHandler(AsyncResultHandler<String> handler) {
+  private void someAsyncMethodThatTakesAHandler(Handler<AsyncResult<String>> handler) {
     if (!succeed) {
       handler.handle(DefaultAsyncResult.fail(new Exception("Fail")));
       return;

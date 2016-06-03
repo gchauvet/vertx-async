@@ -1,12 +1,13 @@
 package org.simondean.vertx.async;
 
-import org.vertx.java.core.AsyncResultHandler;
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
 
 import java.util.List;
 import java.util.function.Consumer;
 
 public interface Series<T> {
-  Series<T> task(Consumer<AsyncResultHandler<T>> task);
+  Series<T> task(Consumer<Handler<AsyncResult<T>>> task);
 
-  void run(AsyncResultHandler<List<T>> handler);
+  void run(Handler<AsyncResult<List<T>>> handler);
 }

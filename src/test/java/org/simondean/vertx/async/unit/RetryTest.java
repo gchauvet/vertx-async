@@ -6,7 +6,7 @@ import org.simondean.vertx.async.ObjectWrapper;
 import org.simondean.vertx.async.unit.fakes.FakeFailingAsyncSupplier;
 import org.simondean.vertx.async.unit.fakes.FakeSuccessfulAsyncSupplier;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.*;
 
 public class RetryTest {
   @Test
@@ -21,16 +21,16 @@ public class RetryTest {
       .run(result -> {
         handlerCallCount.setObject(handlerCallCount.getObject() + 1);
 
-        assertThat(task1.runCount()).isEqualTo(1);
+        assertEquals(1, task1.runCount());
 
-        assertThat(result).isNotNull();
-        assertThat(result.succeeded()).isTrue();
+        assertNotNull(result);
+        assertTrue(result.succeeded());
         String resultValue = result.result();
-        assertThat(resultValue).isNotNull();
-        assertThat(resultValue).isEqualTo(task1.result());
+        assertNotNull(resultValue);
+        assertEquals(task1.result(), resultValue);
       });
 
-    assertThat(handlerCallCount.getObject()).isEqualTo(1);
+    assertEquals(1, (int) handlerCallCount.getObject());
   }
 
   @Test
@@ -45,16 +45,16 @@ public class RetryTest {
       .run(result -> {
         handlerCallCount.setObject(handlerCallCount.getObject() + 1);
 
-        assertThat(task1.runCount()).isEqualTo(2);
+        assertEquals(2, task1.runCount());
 
-        assertThat(result).isNotNull();
-        assertThat(result.succeeded()).isTrue();
+        assertNotNull(result);
+        assertTrue(result.succeeded());
         String resultValue = result.result();
-        assertThat(resultValue).isNotNull();
-        assertThat(resultValue).isEqualTo(task1.result());
+        assertNotNull(resultValue);
+        assertEquals(task1.result(), resultValue);
       });
 
-    assertThat(handlerCallCount.getObject()).isEqualTo(1);
+    assertEquals(1, (int) handlerCallCount.getObject());
   }
 
   @Test
@@ -69,16 +69,16 @@ public class RetryTest {
       .run(result -> {
         handlerCallCount.setObject(handlerCallCount.getObject() + 1);
 
-        assertThat(task1.runCount()).isEqualTo(3);
+        assertEquals(3, task1.runCount());
 
-        assertThat(result).isNotNull();
-        assertThat(result.succeeded()).isTrue();
+        assertNotNull(result);
+        assertTrue(result.succeeded());
         String resultValue = result.result();
-        assertThat(resultValue).isNotNull();
-        assertThat(resultValue).isEqualTo(task1.result());
+        assertNotNull(resultValue);
+        assertEquals(task1.result(), resultValue);
       });
 
-    assertThat(handlerCallCount.getObject()).isEqualTo(1);
+    assertEquals(1, (int) handlerCallCount.getObject());
   }
   @Test
   public void itFailsAfterTheRetryTimes() {
@@ -92,14 +92,14 @@ public class RetryTest {
       .run(result -> {
         handlerCallCount.setObject(handlerCallCount.getObject() + 1);
 
-        assertThat(task1.runCount()).isEqualTo(2);
+        assertEquals(2, task1.runCount());
 
-        assertThat(result).isNotNull();
-        assertThat(result.succeeded()).isFalse();
-        assertThat(result.cause()).isEqualTo(task1.cause());
-        assertThat(result.result()).isNull();
+        assertNotNull(result);
+        assertFalse(result.succeeded());
+        assertEquals(task1.cause(), result.cause());
+        assertNull(result.result());
       });
 
-    assertThat(handlerCallCount.getObject()).isEqualTo(1);
+    assertEquals(1,(int) handlerCallCount.getObject());
   }
 }

@@ -4,10 +4,9 @@ import org.junit.Test;
 import org.simondean.vertx.async.Async;
 import org.simondean.vertx.async.ObjectWrapper;
 import org.simondean.vertx.async.unit.fakes.FakeFailingAsyncSupplier;
-import org.simondean.vertx.async.unit.fakes.FakeSuccessfulAsyncSupplier;
 import org.simondean.vertx.async.unit.fakes.FakeVertx;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.*;
 
 public class ForeverTest {
   @Test
@@ -21,14 +20,14 @@ public class ForeverTest {
       .run(new FakeVertx(), result -> {
         handlerCallCount.setObject(handlerCallCount.getObject() + 1);
 
-        assertThat(task1.runCount()).isEqualTo(3);
+        assertEquals(3, task1.runCount());
 
-        assertThat(result).isNotNull();
-        assertThat(result.succeeded()).isFalse();
+        assertNotNull(result);
+        assertFalse(result.succeeded());
         Object resultValue = result.result();
-        assertThat(resultValue).isNull();
+        assertNull(resultValue);
       });
 
-    assertThat(handlerCallCount.getObject()).isEqualTo(1);
+    assertEquals(1, (int) handlerCallCount.getObject());
   }
 }

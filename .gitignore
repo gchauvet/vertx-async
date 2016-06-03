@@ -13,3 +13,4 @@ target/
 mods/
 
 *.versionsBackup
+/nb-configuration.xml

@@ -3,9 +3,8 @@ package org.simondean.vertx.async.unit;
 import org.junit.Test;
 import org.simondean.vertx.async.unit.examples.WaterfallExample;
 
-import java.util.List;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.*;
 
 public class WaterfallExampleTest {
   @Test
@@ -13,15 +12,15 @@ public class WaterfallExampleTest {
     WaterfallExample example = new WaterfallExample(true);
 
     example.waterfallExample(result -> {
-      assertThat(result).isNotNull();
-      assertThat(result.succeeded()).isTrue();
+      assertNotNull(result);
+      assertTrue(result.succeeded());
 
       Integer resultsFromHandler = result.result();
-      assertThat(resultsFromHandler).isNotNull();
-      assertThat(resultsFromHandler).isEqualTo(42);
+      assertNotNull(resultsFromHandler);
+      assertEquals(42, (int) resultsFromHandler);
       Integer resultsFromExample = example.result();
-      assertThat(resultsFromExample).isNotNull();
-      assertThat(resultsFromExample).isEqualTo(42);
+      assertNotNull(resultsFromExample);
+      assertEquals(42, (int) resultsFromExample);
     });
   }
 
@@ -30,13 +29,13 @@ public class WaterfallExampleTest {
     WaterfallExample example = new WaterfallExample(false);
 
     example.waterfallExample(result -> {
-      assertThat(result).isNotNull();
-      assertThat(result.succeeded()).isFalse();
+      assertNotNull(result);
+      assertFalse(result.succeeded());
 
       Integer resultsFromHandler = result.result();
-      assertThat(resultsFromHandler).isNull();
+      assertNull(resultsFromHandler);
       Integer resultsFromExample = example.result();
-      assertThat(resultsFromExample).isNull();
+      assertNull(resultsFromExample);
     });
   }
 }
