@@ -22,7 +22,7 @@ The module then needs to be added to the includes field of your mod.json:
   "includes": "io.zatarox.vertx~async~0.1.0-SNAPSHOT"
 ```
 
-The patterns are all available as static methods on the `org.simondean.vertx.async.Async` class.
+The patterns are all available as static methods on the `io.zatarox.vertx.async.Async` class.
 
 ## Patterns
 
