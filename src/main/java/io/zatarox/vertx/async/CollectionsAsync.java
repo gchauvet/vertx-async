@@ -26,7 +26,11 @@ package io.zatarox.vertx.async;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 public class CollectionsAsync {
 
@@ -54,6 +58,35 @@ public class CollectionsAsync {
         if (!failed.getObject()) {
             handler.handle(DefaultAsyncResult.succeed());
         }
+    }
+
+    public static <T> void series(final Vertx instance, List<Consumer<Handler<AsyncResult<T>>>> tasks, final Handler<AsyncResult<List<T>>> handler) {
+        final Iterator<Consumer<Handler<AsyncResult<T>>>> iterator = tasks.iterator();
+        final List<T> results = new ArrayList<>(tasks.size());
+
+        final Handler<Void> internal = new Handler<Void>() {
+            @Override
+            public void handle(Void event) {
+                if (!iterator.hasNext()) {
+                    handler.handle(DefaultAsyncResult.succeed(results));
+                } else {
+                    final Consumer<Handler<AsyncResult<T>>> task = iterator.next();
+
+                    final Handler<AsyncResult<T>> taskHandler = (result) -> {
+                        if (result.failed()) {
+                            handler.handle(DefaultAsyncResult.fail(result));
+                        } else {
+                            results.add(result.result());
+                            instance.runOnContext((Void) -> {
+                                instance.runOnContext(this);
+                            });
+                        }
+                    };
+                    task.accept(taskHandler);
+                }
+            }
+        };
+        instance.runOnContext(internal);
     }
 
 }

@@ -23,11 +23,7 @@
  */
 package io.zatarox.vertx.async;
 
-import io.vertx.core.AsyncResult;
-import io.vertx.core.Handler;
-import io.zatarox.vertx.async.fakes.FakeFailingAsyncFunction;
-import io.zatarox.vertx.async.fakes.FakeSuccessfulAsyncFunction;
-import io.zatarox.vertx.async.fakes.FakeVertx;
+import io.zatarox.vertx.async.fakes.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -136,6 +132,96 @@ public final class CollectionsAsyncTest {
             assertEquals(1, resultCount.getObject().intValue());
         });
 
+        assertEquals(1, (int) handlerCallCount.getObject());
+    }
+
+    @Test
+    public void itStillExecutesWhenThereAreNoTasks() {
+        final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
+
+        CollectionsAsync.series(new FakeVertx(), Arrays.asList(), result -> {
+            handlerCallCount.setObject(handlerCallCount.getObject() + 1);
+
+            assertNotNull(result);
+            assertTrue(result.succeeded());
+            List<Object> resultList = result.result();
+            assertNotNull(resultList);
+            assertTrue(resultList.isEmpty());
+        });
+        assertEquals(1, (int) handlerCallCount.getObject());
+    }
+
+    @Test
+    public void itExecutesOneTask() {
+        final FakeSuccessfulAsyncSupplier<Object> task1 = new FakeSuccessfulAsyncSupplier<>("Task 1");
+        final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
+
+        CollectionsAsync.series(new FakeVertx(), Arrays.asList(task1), result -> {
+            handlerCallCount.setObject(handlerCallCount.getObject() + 1);
+
+            assertEquals(1, task1.runCount());
+            assertNotNull(result);
+            assertTrue(result.succeeded());
+            List<Object> resultList = result.result();
+            assertNotNull(resultList);
+            assertTrue(resultList.containsAll(Arrays.asList(task1.result())));
+        });
+        assertEquals(1, (int) handlerCallCount.getObject());
+    }
+
+    @Test
+    public void itExecutesTwoTasks() {
+        final FakeSuccessfulAsyncSupplier<Object> task1 = new FakeSuccessfulAsyncSupplier<>("Task 1");
+        final FakeSuccessfulAsyncSupplier<Object> task2 = new FakeSuccessfulAsyncSupplier<>("Task 2");
+        final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
+
+        CollectionsAsync.series(new FakeVertx(), Arrays.asList(task1, task2), result -> {
+            handlerCallCount.setObject(handlerCallCount.getObject() + 1);
+
+            assertEquals(1, task1.runCount());
+            assertEquals(1, task2.runCount());
+            assertNotNull(result);
+            assertTrue(result.succeeded());
+            List<Object> resultList = result.result();
+            assertNotNull(resultList);
+            assertTrue(resultList.containsAll(Arrays.asList(task1.result(), task2.result())));
+        });
+        assertEquals(1, (int) handlerCallCount.getObject());
+    }
+
+    @Test
+    public void itFailsWhenATaskFails() {
+        final FakeFailingAsyncSupplier<Object> task1 = new FakeFailingAsyncSupplier<>(new Throwable("Failed"));
+        final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
+
+        CollectionsAsync.series(new FakeVertx(), Arrays.asList(task1), result -> {
+            handlerCallCount.setObject(handlerCallCount.getObject() + 1);
+
+            assertEquals(1, task1.runCount());
+            assertNotNull(result);
+            assertFalse(result.succeeded());
+            assertEquals(task1.cause(), result.cause());
+            assertNull(result.result());
+        });
+        assertEquals(1, (int) handlerCallCount.getObject());
+    }
+
+    @Test
+    public void itExecutesNoMoreTasksWhenATaskFails() {
+        final FakeFailingAsyncSupplier<Object> task1 = new FakeFailingAsyncSupplier<>(new Throwable("Failed"));
+        final FakeSuccessfulAsyncSupplier<Object> task2 = new FakeSuccessfulAsyncSupplier<>("Task 2");
+        final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
+
+        CollectionsAsync.series(new FakeVertx(), Arrays.asList(task1, task2), result -> {
+            handlerCallCount.setObject(handlerCallCount.getObject() + 1);
+
+            assertNotNull(result);
+            assertFalse(result.succeeded());
+            assertEquals(task1.cause(), result.cause());
+            assertNull(result.result());
+            assertEquals(1, (int) task1.runCount());
+            assertEquals(0, (int) task2.runCount());
+        });
         assertEquals(1, (int) handlerCallCount.getObject());
     }
 }

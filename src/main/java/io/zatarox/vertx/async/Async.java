@@ -6,10 +6,6 @@ public final class Async {
     private Async() {
     }
 
-    public static <T> Series<T> series() {
-        return new SeriesImpl<>();
-    }
-
     public static WaterfallBuilder waterfall() {
         return new WaterfallBuilderImpl();
     }
