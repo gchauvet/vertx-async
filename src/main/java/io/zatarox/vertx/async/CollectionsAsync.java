@@ -33,7 +33,7 @@ public class CollectionsAsync {
     private CollectionsAsync() {
     }
 
-    public static <T> void each(Vertx instance, Iterable<T> iterable, BiConsumer<T, Handler<AsyncResult<Void>>> consumer, Handler<AsyncResult<Void>> handler) {
+    public static <T> void each(final Vertx instance, final Iterable<T> iterable, final BiConsumer<T, Handler<AsyncResult<Void>>> consumer, final Handler<AsyncResult<Void>> handler) {
         final ObjectWrapper<Boolean> failed = new ObjectWrapper<>(false);
 
         for (T item : iterable) {
