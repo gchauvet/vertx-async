@@ -43,15 +43,12 @@
     </properties>
 
     <dependencies>
-        <!--Vertx provided dependencies-->
         <dependency>
             <groupId>io.vertx</groupId>
             <artifactId>vertx-core</artifactId>
             <version>3.2.1</version>
             <scope>provided</scope>
         </dependency>
-        <!--Dependencies provided by included Vert.x modules-->
-        <!--Test dependencies-->
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
@@ -59,14 +56,12 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-
     <distributionManagement>
         <snapshotRepository>
             <id>ossrh</id>
             <url>https://oss.sonatype.org/content/repositories/snapshots</url>
         </snapshotRepository>
     </distributionManagement>
-
     <profiles>
         <profile>
             <id>release</id>
