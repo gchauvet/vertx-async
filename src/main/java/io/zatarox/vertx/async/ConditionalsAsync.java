@@ -37,6 +37,7 @@ public class ConditionalsAsync {
         instance.runOnContext((Void event) -> {
             task.accept((Handler<AsyncResult<T>>) new Handler<AsyncResult<T>>() {
                 final ObjectWrapper<Integer> count = new ObjectWrapper<>(0);
+
                 @Override
                 public void handle(AsyncResult<T> result) {
                     if (result.failed()) {
@@ -55,5 +56,20 @@ public class ConditionalsAsync {
             });
         });
     }
-  
+
+    public static <T> void forever(final Vertx instance, Consumer<Handler<AsyncResult<T>>> task, final Handler<AsyncResult<T>> handler) {
+        instance.runOnContext(new Handler<Void>() {
+            @Override
+            public void handle(Void event) {
+                task.accept((result) -> {
+                    if (result.failed()) {
+                        handler.handle(DefaultAsyncResult.fail(result));
+                    } else {
+                        instance.runOnContext(this);
+                    }
+                });
+            }
+        });
+    }
+
 }

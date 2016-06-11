@@ -104,4 +104,21 @@ public final class ConditionalsTest {
 
         assertEquals(1, (int) handlerCallCount.getObject());
     }
+
+    @Test
+    public void itExecutesTheTaskUntilItFails() {
+        final FakeFailingAsyncSupplier<Void> task1 = new FakeFailingAsyncSupplier<>(2, null, new Throwable("Failed"));
+        final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
+
+        ConditionalsAsync.forever(new FakeVertx(), task1, result -> {
+            handlerCallCount.setObject(handlerCallCount.getObject() + 1);
+
+            assertEquals(3, task1.runCount());
+            assertNotNull(result);
+            assertFalse(result.succeeded());
+            Object resultValue = result.result();
+            assertNull(resultValue);
+        });
+        assertEquals(1, (int) handlerCallCount.getObject());
+    }
 }

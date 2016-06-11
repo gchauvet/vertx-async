@@ -13,9 +13,4 @@ public class AsyncTest {
         assertNotNull(waterfallBuilder);
     }
 
-    @Test
-    public void itCreatesANewForever() {
-        ForeverBuilder foreverBuilder = Async.forever();
-        assertNotNull(foreverBuilder);
-    }
 }
