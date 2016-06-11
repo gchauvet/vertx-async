@@ -34,7 +34,7 @@ import java.util.List;
 import static org.junit.Assert.*;
 import org.junit.Test;
 
-public class CollectionsAsyncTest {
+public final class CollectionsAsyncTest {
 
     @Test
     public void itStillExecutesWhenThereAreNoItems() {
