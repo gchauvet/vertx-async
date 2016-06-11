@@ -22,12 +22,6 @@ public class AsyncTest {
     }
 
     @Test
-    public void itCreatesANewRetry() {
-        RetryBuilder retryBuilder = Async.retry();
-        assertNotNull(retryBuilder);
-    }
-
-    @Test
     public void itCreatesANewForever() {
         ForeverBuilder foreverBuilder = Async.forever();
         assertNotNull(foreverBuilder);

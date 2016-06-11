@@ -14,10 +14,6 @@ public final class Async {
         return new WaterfallBuilderImpl();
     }
 
-    public static RetryBuilder retry() {
-        return new RetryBuilderImpl();
-    }
-
     public static ForeverBuilder forever() {
         return new ForeverBuilderImpl();
     }
