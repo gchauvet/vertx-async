@@ -14,10 +14,6 @@ public final class Async {
         return new WaterfallBuilderImpl();
     }
 
-    public static <T> IterableBuilder<T> iterable(Iterable<T> iterable) {
-        return new IterableBuilderImpl(iterable);
-    }
-
     public static RetryBuilder retry() {
         return new RetryBuilderImpl();
     }

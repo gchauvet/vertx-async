@@ -22,13 +22,6 @@ public class AsyncTest {
     }
 
     @Test
-    public void itCreatesANewIterable() {
-        List<String> list = Arrays.asList("One");
-        IterableBuilder<String> iterableBuilder = Async.iterable(list);
-        assertNotNull(iterableBuilder);
-    }
-
-    @Test
     public void itCreatesANewRetry() {
         RetryBuilder retryBuilder = Async.retry();
         assertNotNull(retryBuilder);
