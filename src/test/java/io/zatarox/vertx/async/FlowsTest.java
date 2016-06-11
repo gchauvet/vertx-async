@@ -29,14 +29,14 @@ import io.zatarox.vertx.async.fakes.FakeVertx;
 import static org.junit.Assert.*;
 import org.junit.Test;
 
-public final class ConditionalsTest {
+public final class FlowsTest {
 
     @Test
     public void itExecutesTheTask() {
         final FakeSuccessfulAsyncSupplier<String> task1 = new FakeSuccessfulAsyncSupplier<>("Task 1");
         final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
 
-        ConditionalsAsync.retry(new FakeVertx(), task1, 1, result -> {
+        FlowsAsync.retry(new FakeVertx(), task1, 1, result -> {
             handlerCallCount.setObject(handlerCallCount.getObject() + 1);
 
             assertEquals(1, task1.runCount());
@@ -54,7 +54,7 @@ public final class ConditionalsTest {
         final FakeSuccessfulAsyncSupplier<String> task1 = new FakeSuccessfulAsyncSupplier<>(1, new Throwable("Failed"), "Task 1");
         final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
 
-        ConditionalsAsync.retry(new FakeVertx(), task1, 1, result -> {
+        FlowsAsync.retry(new FakeVertx(), task1, 1, result -> {
             handlerCallCount.setObject(handlerCallCount.getObject() + 1);
 
             assertEquals(2, task1.runCount());
@@ -73,7 +73,7 @@ public final class ConditionalsTest {
         final FakeSuccessfulAsyncSupplier<String> task1 = new FakeSuccessfulAsyncSupplier<>(2, new Throwable("Failed"), "Task 1");
         final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
 
-        ConditionalsAsync.retry(new FakeVertx(), task1, 2, result -> {
+        FlowsAsync.retry(new FakeVertx(), task1, 2, result -> {
             handlerCallCount.setObject(handlerCallCount.getObject() + 1);
 
             assertEquals(3, task1.runCount());
@@ -92,7 +92,7 @@ public final class ConditionalsTest {
 
         ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
 
-        ConditionalsAsync.retry(new FakeVertx(), task1, 1, result -> {
+        FlowsAsync.retry(new FakeVertx(), task1, 1, result -> {
             handlerCallCount.setObject(handlerCallCount.getObject() + 1);
 
             assertEquals(2, task1.runCount());
@@ -110,7 +110,7 @@ public final class ConditionalsTest {
         final FakeFailingAsyncSupplier<Void> task1 = new FakeFailingAsyncSupplier<>(2, null, new Throwable("Failed"));
         final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
 
-        ConditionalsAsync.forever(new FakeVertx(), task1, result -> {
+        FlowsAsync.forever(new FakeVertx(), task1, result -> {
             handlerCallCount.setObject(handlerCallCount.getObject() + 1);
 
             assertEquals(3, task1.runCount());

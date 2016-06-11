@@ -28,9 +28,9 @@ import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import java.util.function.Consumer;
 
-public class ConditionalsAsync {
+public class FlowsAsync {
 
-    private ConditionalsAsync() {
+    private FlowsAsync() {
     }
 
     public static <T> void retry(final Vertx instance, Consumer<Handler<AsyncResult<T>>> task, final long times, final Handler<AsyncResult<T>> handler) {
