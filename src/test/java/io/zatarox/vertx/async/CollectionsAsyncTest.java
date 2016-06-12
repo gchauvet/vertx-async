@@ -374,4 +374,180 @@ public final class CollectionsAsyncTest {
             async.complete();
         });
     }
+    
+    @Test(timeout = 100)
+    public void rejectStillExecutesWhenThereAreNoItems(TestContext context) {
+        final List<String> items = Arrays.asList();
+        final FakeFailingAsyncFunction<String, Boolean> filter = new FakeFailingAsyncFunction<>(new Throwable("Failed"));
+        final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
+        final Async async = context.async();
+
+        CollectionsAsync.reject(rule.vertx(), items, filter, result -> {
+            handlerCallCount.setObject(handlerCallCount.getObject() + 1);
+
+            context.assertNotNull(result);
+            context.assertTrue(result.succeeded());
+            context.assertTrue(result.result().isEmpty());
+            context.assertEquals(0, filter.runCount());
+            context.assertEquals(1, (int) handlerCallCount.getObject());
+            async.complete();
+        });
+    }
+
+    @Test(timeout = 100)
+    public void rejectExecutesForOneItem(TestContext context) {
+        final List<String> items = Arrays.asList("One");
+        final FakeAsyncFunction<String, Boolean> filter = new FakeAsyncFunction<String, Boolean>() {
+            @Override
+            public void accept(String t, Handler<AsyncResult<Boolean>> u) {
+                incrementRunCount();
+                consumedValues().add(t);
+                u.handle(DefaultAsyncResult.succeed("One".equals(t)));
+            }
+        };
+        final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
+        final Async async = context.async();
+
+        CollectionsAsync.reject(rule.vertx(), items, filter, result -> {
+            handlerCallCount.setObject(handlerCallCount.getObject() + 1);
+
+            context.assertNotNull(result);
+            context.assertTrue(result.succeeded());
+            context.assertTrue(result.result().isEmpty());
+
+            context.assertEquals(1, filter.runCount());
+            context.assertEquals(1, (int) handlerCallCount.getObject());
+            async.complete();
+        });
+    }
+
+    @Test(timeout = 100)
+    public void rejectExecutesForTwoItems(TestContext context) {
+        final List<String> items = Arrays.asList("One", "Two");
+        final FakeAsyncFunction<String, Boolean> filter = new FakeAsyncFunction<String, Boolean>() {
+            @Override
+            public void accept(String t, Handler<AsyncResult<Boolean>> u) {
+                incrementRunCount();
+                consumedValues().add(t);
+                u.handle(DefaultAsyncResult.succeed("One".equals(t)));
+            }
+        };
+        final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
+        final Async async = context.async();
+
+        CollectionsAsync.reject(rule.vertx(), items, filter, result -> {
+            handlerCallCount.setObject(handlerCallCount.getObject() + 1);
+
+            context.assertNotNull(result);
+            context.assertTrue(result.succeeded());
+            context.assertTrue(1 == result.result().size());
+            context.assertTrue(result.result().containsAll(Arrays.asList("Two")));
+
+            context.assertEquals(2, filter.runCount());
+            context.assertTrue(filter.consumedValues().containsAll(Arrays.asList("One", "Two")));
+            context.assertEquals(1, (int) handlerCallCount.getObject());
+            async.complete();
+        });
+    }
+
+    @Test(timeout = 100)
+    public void rejectFailsWhenAnItemFails(TestContext context) {
+        final List<String> items = Arrays.asList("One");
+        final FakeFailingAsyncFunction<String, Boolean> filter = new FakeFailingAsyncFunction<>(new Throwable("Failed"));
+        final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
+        final Async async = context.async();
+
+        CollectionsAsync.filter(rule.vertx(), items, filter, result -> {
+            handlerCallCount.setObject(handlerCallCount.getObject() + 1);
+
+            context.assertNotNull(result);
+            context.assertFalse(result.succeeded());
+            context.assertEquals(filter.cause(), result.cause());
+            context.assertNull(result.result());
+
+            context.assertEquals(1, filter.runCount());
+            context.assertTrue(filter.consumedValues().containsAll(items));
+            context.assertEquals(1, (int) handlerCallCount.getObject());
+            async.complete();
+        });
+    }
+    
+    @Test(timeout = 100)
+    public void rejectNoItems(TestContext context) {
+        final List<String> items = Arrays.asList("One", "Two", "Three");
+        final FakeAsyncFunction<String, Boolean> filter = new FakeAsyncFunction<String, Boolean>() {
+            @Override
+            public void accept(String t, Handler<AsyncResult<Boolean>> u) {
+                incrementRunCount();
+                consumedValues().add(t);
+                u.handle(DefaultAsyncResult.succeed(false));
+            }
+        };
+        final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
+        final Async async = context.async();
+
+        CollectionsAsync.reject(rule.vertx(), items, filter, result -> {
+            handlerCallCount.setObject(handlerCallCount.getObject() + 1);
+
+            context.assertNotNull(result);
+            context.assertTrue(result.succeeded());
+            context.assertEquals(3, result.result().size());
+
+            context.assertEquals(3, filter.runCount());
+            context.assertTrue(filter.consumedValues().containsAll(Arrays.asList("One", "Two", "Three")));
+            context.assertEquals(1, (int) handlerCallCount.getObject());
+            async.complete();
+        });
+    }
+    
+    @Test(timeout = 100)
+    public void rejectKeepAllItems(TestContext context) {
+        final List<String> items = Arrays.asList("One", "Two", "Three");
+        final FakeAsyncFunction<String, Boolean> filter = new FakeAsyncFunction<String, Boolean>() {
+            @Override
+            public void accept(String t, Handler<AsyncResult<Boolean>> u) {
+                incrementRunCount();
+                consumedValues().add(t);
+                u.handle(DefaultAsyncResult.succeed(false));
+            }
+        };
+        final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
+        final Async async = context.async();
+
+        CollectionsAsync.reject(rule.vertx(), items, filter, result -> {
+            handlerCallCount.setObject(handlerCallCount.getObject() + 1);
+
+            context.assertNotNull(result);
+            context.assertTrue(result.succeeded());
+            context.assertEquals(3, result.result().size());
+
+            context.assertEquals(3, filter.runCount());
+            context.assertTrue(filter.consumedValues().containsAll(Arrays.asList("One", "Two", "Three")));
+            context.assertEquals(1, (int) handlerCallCount.getObject());
+            async.complete();
+        });
+    }
+
+    @Test(timeout = 100)
+    public void rejectFailsNoMoreThanOnce(TestContext context) {
+        final List<String> items = Arrays.asList("One", "Two");
+        final FakeFailingAsyncFunction<String, Boolean> filter = new FakeFailingAsyncFunction<>(new Throwable("Failed"));
+        final ObjectWrapper<Integer> resultCount = new ObjectWrapper<>(0);
+        final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
+        final Async async = context.async();
+
+        CollectionsAsync.reject(rule.vertx(), items, filter, result -> {
+            handlerCallCount.setObject(handlerCallCount.getObject() + 1);
+
+            context.assertNotNull(result);
+            context.assertFalse(result.succeeded());
+            context.assertEquals(filter.cause(), result.cause());
+            context.assertNull(result.result());
+
+            resultCount.setObject(resultCount.getObject() + 1);
+            context.assertEquals(1, resultCount.getObject());
+            context.assertEquals(1, (int) handlerCallCount.getObject());
+            async.complete();
+        });
+    }
 }

@@ -122,5 +122,16 @@ public final class CollectionsAsync {
             }
         }
     }
-
+    
+    public static <T> void reject(final Vertx instance, final Collection<T> iterable, final BiConsumer<T, Handler<AsyncResult<Boolean>>> consumer, final Handler<AsyncResult<Collection<T>>> handler) {
+        filter(instance, iterable, (T t, Handler<AsyncResult<Boolean>> u) -> {
+            consumer.accept(t, (Handler<AsyncResult<Boolean>>) (AsyncResult<Boolean> event) -> {
+                if(event.succeeded()) {
+                    u.handle(DefaultAsyncResult.succeed(!event.result()));
+                } else {
+                    u.handle(event);
+                }
+            });
+        }, handler);
+    }
 }
