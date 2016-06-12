@@ -27,6 +27,7 @@ import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.function.BiConsumer;
@@ -37,16 +38,20 @@ public final class CollectionsAsync {
     private CollectionsAsync() {
     }
 
-    public static <T> void each(final Vertx instance, final Iterable<T> iterable, final BiConsumer<T, Handler<AsyncResult<Void>>> consumer, final Handler<AsyncResult<Void>> handler) {
+    public static <T> void each(final Vertx instance, final Collection<T> iterable, final BiConsumer<T, Handler<AsyncResult<Void>>> consumer, final Handler<AsyncResult<Void>> handler) {
         final ObjectWrapper<Boolean> failed = new ObjectWrapper<>(false);
+        final ObjectWrapper<Integer> counter = new ObjectWrapper<>(iterable.size());
 
         for (T item : iterable) {
             instance.runOnContext(aVoid -> consumer.accept(item, result -> {
+                counter.setObject(counter.getObject() - 1);
                 if (result.failed()) {
                     if (!failed.getObject()) {
                         handler.handle(DefaultAsyncResult.fail(result));
                         failed.setObject(true);
                     }
+                } else if (counter.getObject() == 0 && !failed.getObject()) {
+                    handler.handle(DefaultAsyncResult.succeed());
                 }
             }));
 
@@ -54,13 +59,9 @@ public final class CollectionsAsync {
                 break;
             }
         }
-
-        if (!failed.getObject()) {
-            handler.handle(DefaultAsyncResult.succeed());
-        }
     }
 
-    public static <T> void series(final Vertx instance, List<Consumer<Handler<AsyncResult<T>>>> tasks, final Handler<AsyncResult<List<T>>> handler) {
+    public static <T> void series(final Vertx instance, Collection<Consumer<Handler<AsyncResult<T>>>> tasks, final Handler<AsyncResult<List<T>>> handler) {
         final Iterator<Consumer<Handler<AsyncResult<T>>>> iterator = tasks.iterator();
         final List<T> results = new ArrayList<>(tasks.size());
 
