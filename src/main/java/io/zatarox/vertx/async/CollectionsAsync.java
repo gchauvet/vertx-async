@@ -28,6 +28,7 @@ import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import java.util.*;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 public final class CollectionsAsync {
 
@@ -90,7 +91,7 @@ public final class CollectionsAsync {
             }
         }
     }
-    
+
     public static <T> void filter(final Vertx instance, final Collection<T> iterable, final BiConsumer<T, Handler<AsyncResult<Boolean>>> consumer, final Handler<AsyncResult<Collection<T>>> handler) {
         final List<T> filtered = new LinkedList<>();
         if (iterable.isEmpty()) {
@@ -107,7 +108,7 @@ public final class CollectionsAsync {
                             failed.setObject(true);
                         }
                     } else {
-                        if(result.result()) {
+                        if (result.result()) {
                             filtered.add(item);
                         }
                         if (counter.getObject() == 0 && !failed.getObject()) {
@@ -122,16 +123,39 @@ public final class CollectionsAsync {
             }
         }
     }
-    
+
     public static <T> void reject(final Vertx instance, final Collection<T> iterable, final BiConsumer<T, Handler<AsyncResult<Boolean>>> consumer, final Handler<AsyncResult<Collection<T>>> handler) {
         filter(instance, iterable, (T t, Handler<AsyncResult<Boolean>> u) -> {
             consumer.accept(t, (Handler<AsyncResult<Boolean>>) (AsyncResult<Boolean> event) -> {
-                if(event.succeeded()) {
+                if (event.succeeded()) {
                     u.handle(DefaultAsyncResult.succeed(!event.result()));
                 } else {
                     u.handle(event);
                 }
             });
         }, handler);
+    }
+
+    public static <I, O> void transform(final Vertx instance, final Collection<I> iterable, final BiConsumer<I, Handler<AsyncResult<O>>> consumer, final Handler<AsyncResult<Collection<O>>> handler) {
+        final Iterator<I> iterator = iterable.iterator();
+        final List<O> results = new ArrayList<>(iterable.size());
+
+        instance.runOnContext(new Handler<Void>() {
+            @Override
+            public void handle(Void event) {
+                if (!iterator.hasNext()) {
+                    handler.handle(DefaultAsyncResult.succeed(results));
+                } else {
+                    consumer.accept(iterator.next(), (Handler<AsyncResult<O>>) (AsyncResult<O> event1) -> {
+                        if (event1.succeeded()) {
+                            results.add(event1.result());
+                            instance.runOnContext(this);
+                        } else {
+                            handler.handle(DefaultAsyncResult.fail(event1));
+                        }
+                    });
+                }
+            }
+        });
     }
 }
