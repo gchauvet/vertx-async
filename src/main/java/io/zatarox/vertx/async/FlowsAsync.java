@@ -74,17 +74,17 @@ public final class FlowsAsync {
         });
     }
 
-    public static<A, R> void waterfall(final Vertx instance, final Iterable<BiConsumer<A, Handler<AsyncResult<R>>>> tasks, final Handler<AsyncResult<?>> handler) {
+    public static<I, O> void waterfall(final Vertx instance, final Iterable<BiConsumer<I, Handler<AsyncResult<O>>>> tasks, final Handler<AsyncResult<?>> handler) {
         instance.runOnContext(new Handler<Void>() {
-            private final Iterator<BiConsumer<A, Handler<AsyncResult<R>>>> iterator = tasks.iterator();
-            private A result = null;
+            private final Iterator<BiConsumer<I, Handler<AsyncResult<O>>>> iterator = tasks.iterator();
+            private I result = null;
 
             @Override
             public void handle(Void event) {
                 if (iterator.hasNext()) {
-                    iterator.next().accept(result, (Handler<AsyncResult<R>>) (AsyncResult<R> event1) -> {
+                    iterator.next().accept(result, (Handler<AsyncResult<O>>) (AsyncResult<O> event1) -> {
                         if (event1.succeeded()) {
-                            result = (A) event1.result();
+                            result = (I) event1.result();
                             instance.runOnContext(this);
                         } else {
                             handler.handle(DefaultAsyncResult.fail(event1));

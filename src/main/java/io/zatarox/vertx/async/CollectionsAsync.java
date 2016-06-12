@@ -26,10 +26,7 @@ package io.zatarox.vertx.async;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
@@ -39,24 +36,27 @@ public final class CollectionsAsync {
     }
 
     public static <T> void each(final Vertx instance, final Collection<T> iterable, final BiConsumer<T, Handler<AsyncResult<Void>>> consumer, final Handler<AsyncResult<Void>> handler) {
-        final ObjectWrapper<Boolean> failed = new ObjectWrapper<>(false);
-        final ObjectWrapper<Integer> counter = new ObjectWrapper<>(iterable.size());
-
-        for (T item : iterable) {
-            instance.runOnContext(aVoid -> consumer.accept(item, result -> {
-                counter.setObject(counter.getObject() - 1);
-                if (result.failed()) {
-                    if (!failed.getObject()) {
-                        handler.handle(DefaultAsyncResult.fail(result));
-                        failed.setObject(true);
+        if (iterable.isEmpty()) {
+            handler.handle(DefaultAsyncResult.succeed());
+        } else {
+            final ObjectWrapper<Boolean> failed = new ObjectWrapper<>(false);
+            final ObjectWrapper<Integer> counter = new ObjectWrapper<>(iterable.size());
+            for (T item : iterable) {
+                instance.runOnContext(aVoid -> consumer.accept(item, result -> {
+                    counter.setObject(counter.getObject() - 1);
+                    if (result.failed()) {
+                        if (!failed.getObject()) {
+                            handler.handle(DefaultAsyncResult.fail(result));
+                            failed.setObject(true);
+                        }
+                    } else if (counter.getObject() == 0 && !failed.getObject()) {
+                        handler.handle(DefaultAsyncResult.succeed());
                     }
-                } else if (counter.getObject() == 0 && !failed.getObject()) {
-                    handler.handle(DefaultAsyncResult.succeed());
-                }
-            }));
+                }));
 
-            if (failed.getObject()) {
-                break;
+                if (failed.getObject()) {
+                    break;
+                }
             }
         }
     }
@@ -88,6 +88,37 @@ public final class CollectionsAsync {
             }
         };
         instance.runOnContext(internal);
+    }
+
+    public static <I, O> void map(final Vertx instance, final Collection<I> iterable, final BiConsumer<I, Handler<AsyncResult<O>>> consumer, final Handler<AsyncResult<Collection<O>>> handler) {
+        final List<O> mapped = new LinkedList<>();
+        if (iterable.isEmpty()) {
+            handler.handle(DefaultAsyncResult.succeed(mapped));
+        } else {
+            final ObjectWrapper<Boolean> failed = new ObjectWrapper<>(false);
+            final ObjectWrapper<Integer> counter = new ObjectWrapper<>(iterable.size());
+
+            for (I item : iterable) {
+                instance.runOnContext(aVoid -> consumer.accept(item, result -> {
+                    counter.setObject(counter.getObject() - 1);
+                    if (result.failed()) {
+                        if (!failed.getObject()) {
+                            handler.handle(DefaultAsyncResult.fail(result));
+                            failed.setObject(true);
+                        }
+                    } else {
+                        mapped.add(result.result());
+                        if (counter.getObject() == 0 && !failed.getObject()) {
+                            handler.handle(DefaultAsyncResult.succeed(mapped));
+                        }
+                    }
+                }));
+
+                if (failed.getObject()) {
+                    break;
+                }
+            }
+        }
     }
 
 }
