@@ -36,7 +36,7 @@ import java.util.function.BiConsumer;
 import static org.junit.Assert.*;
 import org.junit.Test;
 
-public final class FlowsTest {
+public final class FlowsAsyncTest {
 
     @Test
     public void itExecutesTheTask() {
