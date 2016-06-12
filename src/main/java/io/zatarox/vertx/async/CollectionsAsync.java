@@ -28,7 +28,6 @@ import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import java.util.*;
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 
 public final class CollectionsAsync {
 
@@ -59,35 +58,6 @@ public final class CollectionsAsync {
                 }
             }
         }
-    }
-
-    public static <T> void series(final Vertx instance, Collection<Consumer<Handler<AsyncResult<T>>>> tasks, final Handler<AsyncResult<List<T>>> handler) {
-        final Iterator<Consumer<Handler<AsyncResult<T>>>> iterator = tasks.iterator();
-        final List<T> results = new ArrayList<>(tasks.size());
-
-        final Handler<Void> internal = new Handler<Void>() {
-            @Override
-            public void handle(Void event) {
-                if (!iterator.hasNext()) {
-                    handler.handle(DefaultAsyncResult.succeed(results));
-                } else {
-                    final Consumer<Handler<AsyncResult<T>>> task = iterator.next();
-
-                    final Handler<AsyncResult<T>> taskHandler = (result) -> {
-                        if (result.failed()) {
-                            handler.handle(DefaultAsyncResult.fail(result));
-                        } else {
-                            results.add(result.result());
-                            instance.runOnContext((Void) -> {
-                                instance.runOnContext(this);
-                            });
-                        }
-                    };
-                    task.accept(taskHandler);
-                }
-            }
-        };
-        instance.runOnContext(internal);
     }
 
     public static <I, O> void map(final Vertx instance, final Collection<I> iterable, final BiConsumer<I, Handler<AsyncResult<O>>> consumer, final Handler<AsyncResult<Collection<O>>> handler) {

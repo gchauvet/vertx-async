@@ -43,7 +43,7 @@ public final class CollectionsAsyncTest {
     public RunTestOnContext rule = new RunTestOnContext();
     
     @Test(timeout = 100)
-    public void itStillExecutesWhenThereAreNoItems(TestContext context) {
+    public void eachStillExecutesWhenThereAreNoItems(TestContext context) {
         final List<String> items = Arrays.asList();
         final FakeFailingAsyncFunction<String, Void> each = new FakeFailingAsyncFunction<>(new Throwable("Failed"));
         final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
@@ -62,7 +62,7 @@ public final class CollectionsAsyncTest {
     }
 
     @Test(timeout = 100)
-    public void itExecutesForOneItem(TestContext context) {
+    public void eachExecutesForOneItem(TestContext context) {
         final List<String> items = Arrays.asList("One");
         final FakeSuccessfulAsyncFunction<String, Void> each = new FakeSuccessfulAsyncFunction<>(null);
         final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
@@ -83,7 +83,7 @@ public final class CollectionsAsyncTest {
     }
 
     @Test(timeout = 100)
-    public void itExecutesForTwoItems(TestContext context) {
+    public void eachExecutesForTwoItems(TestContext context) {
         final List<String> items = Arrays.asList("One", "Two");
         final FakeSuccessfulAsyncFunction<String, Void> each = new FakeSuccessfulAsyncFunction<>(null);
         final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
@@ -104,7 +104,7 @@ public final class CollectionsAsyncTest {
     }
 
     @Test(timeout = 100)
-    public void itFailsWhenAnItemFails(TestContext context) {
+    public void eachFailsWhenAnItemFails(TestContext context) {
         final List<String> items = Arrays.asList("One");
         final FakeFailingAsyncFunction<String, Void> each = new FakeFailingAsyncFunction<>(new Throwable("Failed"));
         final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
@@ -126,7 +126,7 @@ public final class CollectionsAsyncTest {
     }
 
     @Test(timeout = 100)
-    public void itFailsNoMoreThanOnce(TestContext context) {
+    public void eachFailsNoMoreThanOnce(TestContext context) {
         final List<String> items = Arrays.asList("One", "Two");
         final FakeFailingAsyncFunction<String, Void> each = new FakeFailingAsyncFunction<>(new Throwable("Failed"));
         final ObjectWrapper<Integer> resultCount = new ObjectWrapper<>(0);
@@ -147,109 +147,9 @@ public final class CollectionsAsyncTest {
             async.complete();
         });
     }
-
-    @Test(timeout = 100)
-    public void itStillExecutesWhenThereAreNoTasks(TestContext context) {
-        final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
-        final Async async = context.async();
-
-        CollectionsAsync.series(rule.vertx(), Arrays.asList(), result -> {
-            handlerCallCount.setObject(handlerCallCount.getObject() + 1);
-
-            context.assertNotNull(result);
-            context.assertTrue(result.succeeded());
-            final List<Object> resultList = result.result();
-            context.assertNotNull(resultList);
-            context.assertTrue(resultList.isEmpty());
-            context.assertEquals(1, (int) handlerCallCount.getObject());
-            async.complete();
-        });
-    }
-
-    @Test(timeout = 100)
-    public void itExecutesOneTask(TestContext context) {
-        final FakeSuccessfulAsyncSupplier<Object> task1 = new FakeSuccessfulAsyncSupplier<>("Task 1");
-        final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
-        final Async async = context.async();
-
-        CollectionsAsync.series(rule.vertx(), Arrays.asList(task1), result -> {
-            handlerCallCount.setObject(handlerCallCount.getObject() + 1);
-
-            context.assertEquals(1, task1.runCount());
-            context.assertNotNull(result);
-            context.assertTrue(result.succeeded());
-            final List<Object> resultList = result.result();
-            context.assertNotNull(resultList);
-            context.assertTrue(resultList.containsAll(Arrays.asList(task1.result())));
-            context.assertEquals(1, (int) handlerCallCount.getObject());
-            async.complete();
-        });
-    }
-
-    @Test(timeout = 100)
-    public void itExecutesTwoTasks(TestContext context) {
-        final FakeSuccessfulAsyncSupplier<Object> task1 = new FakeSuccessfulAsyncSupplier<>("Task 1");
-        final FakeSuccessfulAsyncSupplier<Object> task2 = new FakeSuccessfulAsyncSupplier<>("Task 2");
-        final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
-        final Async async = context.async();
-
-        CollectionsAsync.series(rule.vertx(), Arrays.asList(task1, task2), result -> {
-            handlerCallCount.setObject(handlerCallCount.getObject() + 1);
-
-            context.assertEquals(1, task1.runCount());
-            context.assertEquals(1, task2.runCount());
-            context.assertNotNull(result);
-            context.assertTrue(result.succeeded());
-            final List<Object> resultList = result.result();
-            context.assertNotNull(resultList);
-            context.assertTrue(resultList.containsAll(Arrays.asList(task1.result(), task2.result())));
-            context.assertEquals(1, (int) handlerCallCount.getObject());
-            async.complete();
-        });
-    }
-
-    @Test(timeout = 100)
-    public void itFailsWhenATaskFails(TestContext context) {
-        final FakeFailingAsyncSupplier<Object> task1 = new FakeFailingAsyncSupplier<>(new Throwable("Failed"));
-        final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
-        final Async async = context.async();
-
-        CollectionsAsync.series(rule.vertx(), Arrays.asList(task1), result -> {
-            handlerCallCount.setObject(handlerCallCount.getObject() + 1);
-
-            context.assertEquals(1, task1.runCount());
-            context.assertNotNull(result);
-            context.assertFalse(result.succeeded());
-            context.assertEquals(task1.cause(), result.cause());
-            context.assertNull(result.result());
-            context.assertEquals(1, (int) handlerCallCount.getObject());
-            async.complete();
-        });
-    }
-
-    @Test(timeout = 100)
-    public void itExecutesNoMoreTasksWhenATaskFails(TestContext context) {
-        final FakeFailingAsyncSupplier<Object> task1 = new FakeFailingAsyncSupplier<>(new Throwable("Failed"));
-        final FakeSuccessfulAsyncSupplier<Object> task2 = new FakeSuccessfulAsyncSupplier<>("Task 2");
-        final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
-        final Async async = context.async();
-
-        CollectionsAsync.series(rule.vertx(), Arrays.asList(task1, task2), result -> {
-            handlerCallCount.setObject(handlerCallCount.getObject() + 1);
-
-            context.assertNotNull(result);
-            context.assertFalse(result.succeeded());
-            context.assertEquals(task1.cause(), result.cause());
-            context.assertNull(result.result());
-            context.assertEquals(1, (int) task1.runCount());
-            context.assertEquals(0, (int) task2.runCount());
-            context.assertEquals(1, (int) handlerCallCount.getObject());
-            async.complete();
-        });
-    }
     
     @Test(timeout = 100)
-    public void itStillExecutesWhenThereAreNoItemsToMap(TestContext context) {
+    public void mapStillExecutesWhenThereAreNoItemsToMap(TestContext context) {
         final List<Integer> items = Arrays.asList();
         final FakeAsyncFunction<Integer, Integer> each = new FakeAsyncFunction<Integer, Integer>() {
             @Override
@@ -273,7 +173,7 @@ public final class CollectionsAsyncTest {
     }
     
     @Test(timeout = 100)
-    public void itStillExecutesWhenThereAreThreeItemsToMap(TestContext context) {
+    public void mapStillExecutesWhenThereAreThreeItemsToMap(TestContext context) {
         final List<Integer> items = Arrays.asList(1, 3, 10);
         final FakeAsyncFunction<Integer, Integer> each = new FakeAsyncFunction<Integer, Integer>() {
             @Override
