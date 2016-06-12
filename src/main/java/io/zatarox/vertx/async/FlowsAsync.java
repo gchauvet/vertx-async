@@ -30,7 +30,7 @@ import java.util.Iterator;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
-public class FlowsAsync {
+public final class FlowsAsync {
 
     private FlowsAsync() {
     }
