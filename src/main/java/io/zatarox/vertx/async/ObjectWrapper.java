@@ -1,6 +1,6 @@
 package io.zatarox.vertx.async;
 
-public class ObjectWrapper<T> {
+final class ObjectWrapper<T> {
 
     private T object;
 

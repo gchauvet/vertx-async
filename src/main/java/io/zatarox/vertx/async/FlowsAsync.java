@@ -26,6 +26,8 @@ package io.zatarox.vertx.async;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
+import java.util.Iterator;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 public class FlowsAsync {
@@ -33,10 +35,10 @@ public class FlowsAsync {
     private FlowsAsync() {
     }
 
-    public static <T> void retry(final Vertx instance, Consumer<Handler<AsyncResult<T>>> task, final long times, final Handler<AsyncResult<T>> handler) {
-        instance.runOnContext((Void event) -> {
+    public static <T> void retry(final Vertx instance, final Consumer<Handler<AsyncResult<T>>> task, final long times, final Handler<AsyncResult<T>> handler) {
+        instance.runOnContext((Void) -> {
             task.accept((Handler<AsyncResult<T>>) new Handler<AsyncResult<T>>() {
-                final ObjectWrapper<Integer> count = new ObjectWrapper<>(0);
+                private final ObjectWrapper<Integer> count = new ObjectWrapper<>(0);
 
                 @Override
                 public void handle(AsyncResult<T> result) {
@@ -45,7 +47,7 @@ public class FlowsAsync {
                         if (count.getObject() > times) {
                             handler.handle(DefaultAsyncResult.fail(result));
                         } else {
-                            instance.runOnContext((Void event) -> {
+                            instance.runOnContext((Void) -> {
                                 task.accept(this);
                             });
                         }
@@ -57,7 +59,7 @@ public class FlowsAsync {
         });
     }
 
-    public static <T> void forever(final Vertx instance, Consumer<Handler<AsyncResult<T>>> task, final Handler<AsyncResult<T>> handler) {
+    public static <T> void forever(final Vertx instance, final Consumer<Handler<AsyncResult<T>>> task, final Handler<AsyncResult<T>> handler) {
         instance.runOnContext(new Handler<Void>() {
             @Override
             public void handle(Void event) {
@@ -72,4 +74,26 @@ public class FlowsAsync {
         });
     }
 
+    public static<A, R> void waterfall(final Vertx instance, final Iterable<BiConsumer<A, Handler<AsyncResult<R>>>> tasks, final Handler<AsyncResult<?>> handler) {
+        instance.runOnContext(new Handler<Void>() {
+            private final Iterator<BiConsumer<A, Handler<AsyncResult<R>>>> iterator = tasks.iterator();
+            private A result = null;
+
+            @Override
+            public void handle(Void event) {
+                if (iterator.hasNext()) {
+                    iterator.next().accept(result, (Handler<AsyncResult<R>>) (AsyncResult<R> event1) -> {
+                        if (event1.succeeded()) {
+                            result = (A) event1.result();
+                            instance.runOnContext(this);
+                        } else {
+                            handler.handle(DefaultAsyncResult.fail(event1));
+                        }
+                    });
+                } else {
+                    handler.handle(DefaultAsyncResult.succeed(result));
+                }
+            }
+        });
+    }
 }

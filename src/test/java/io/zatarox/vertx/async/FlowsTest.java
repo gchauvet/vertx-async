@@ -23,9 +23,16 @@
  */
 package io.zatarox.vertx.async;
 
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
+import io.zatarox.vertx.async.fakes.FakeFailingAsyncFunction;
 import io.zatarox.vertx.async.fakes.FakeFailingAsyncSupplier;
+import io.zatarox.vertx.async.fakes.FakeSuccessfulAsyncFunction;
 import io.zatarox.vertx.async.fakes.FakeSuccessfulAsyncSupplier;
 import io.zatarox.vertx.async.fakes.FakeVertx;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.function.BiConsumer;
 import static org.junit.Assert.*;
 import org.junit.Test;
 
@@ -121,4 +128,138 @@ public final class FlowsTest {
         });
         assertEquals(1, (int) handlerCallCount.getObject());
     }
+
+    @Test
+    public void itExecutesOneTask() {
+        final FakeSuccessfulAsyncFunction<Void, String> task1 = new FakeSuccessfulAsyncFunction<>("Task 1");
+        final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
+        final List<BiConsumer<Object, Handler<AsyncResult<Object>>>> functions = new LinkedList<>();
+        functions.add((BiConsumer) task1);
+        
+        FlowsAsync.waterfall(new FakeVertx(), functions, result -> {
+            handlerCallCount.setObject(handlerCallCount.getObject() + 1);
+
+            assertEquals(1, task1.runCount());
+            assertNotNull(result);
+            assertTrue(result.succeeded());
+            final String resultValue = (String) result.result();
+            assertNotNull(resultValue);
+            assertEquals(task1.result(), resultValue);
+        });
+    }
+
+    @Test
+    public void itExecutesTwoTasks() {
+        final FakeSuccessfulAsyncFunction<Void, String> task1 = new FakeSuccessfulAsyncFunction<>("Task 1");
+        final FakeSuccessfulAsyncFunction<String, Integer> task2 = new FakeSuccessfulAsyncFunction<>(2);
+        final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
+        final List<BiConsumer<Object, Handler<AsyncResult<Object>>>> functions = new LinkedList<>();
+        functions.add((BiConsumer) task1);
+        functions.add((BiConsumer) task2);
+        
+        FlowsAsync.waterfall(new FakeVertx(), functions, result -> {
+            handlerCallCount.setObject(handlerCallCount.getObject() + 1);
+
+            assertEquals(1, task1.runCount());
+            assertEquals(task1.result(), task2.consumedValue());
+            assertEquals(1, task2.runCount());
+            assertNotNull(result);
+            assertTrue(result.succeeded());
+            final Integer resultValue = (Integer) result.result();
+            assertNotNull(resultValue);
+            assertEquals(task2.result(), resultValue);
+        });
+        assertEquals(1, (int) handlerCallCount.getObject());
+    }
+
+    @Test
+    public void itFailsWhenATaskFails() {
+        final FakeFailingAsyncFunction<Void, String> task1 = new FakeFailingAsyncFunction<>(new Throwable("Failed"));
+        final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
+        final List<BiConsumer<Object, Handler<AsyncResult<Object>>>> functions = new LinkedList<>();
+        functions.add((BiConsumer) task1);
+
+        FlowsAsync.waterfall(new FakeVertx(), functions, result -> {
+            handlerCallCount.setObject(handlerCallCount.getObject() + 1);
+
+            assertEquals(1, (int) task1.runCount());
+            assertNotNull(result);
+            assertFalse(result.succeeded());
+            assertEquals(task1.cause(), result.cause());
+            assertNull(result.result());
+        });
+        assertEquals(1, (int) handlerCallCount.getObject());
+    }
+
+    @Test
+    public void itExecutesNoMoreTasksWhenATaskFails() {
+        final FakeFailingAsyncFunction<Void, String> task1 = new FakeFailingAsyncFunction<>(new Throwable("Failed"));
+        final FakeSuccessfulAsyncFunction<String, Integer> task2 = new FakeSuccessfulAsyncFunction<>(2);
+        final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
+        final List<BiConsumer<Object, Handler<AsyncResult<Object>>>> functions = new LinkedList<>();
+        functions.add((BiConsumer) task1);
+        functions.add((BiConsumer) task2);
+        
+        FlowsAsync.waterfall(new FakeVertx(), functions, result -> {
+            handlerCallCount.setObject(handlerCallCount.getObject() + 1);
+
+            assertEquals(1, (int) task1.runCount());
+            assertEquals(0, task2.runCount());
+            assertNotNull(result);
+            assertFalse(result.succeeded());
+            assertEquals(task1.cause(), result.cause());
+            assertNull(result.result());
+        });
+        assertEquals(1, (int) handlerCallCount.getObject());
+    }
+
+    @Test
+    public void itFailsWhenAConsumerTaskFails() {
+        final FakeSuccessfulAsyncFunction<Void, String> task1 = new FakeSuccessfulAsyncFunction<>("Task 1");
+        final FakeFailingAsyncFunction<String, Integer> task2 = new FakeFailingAsyncFunction<>(new Throwable("Failed"));
+        final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
+        final List<BiConsumer<Object, Handler<AsyncResult<Object>>>> functions = new LinkedList<>();
+        functions.add((BiConsumer) task1);
+        functions.add((BiConsumer) task2);
+        
+        FlowsAsync.waterfall(new FakeVertx(), functions, result -> {
+            handlerCallCount.setObject(handlerCallCount.getObject() + 1);
+
+            assertEquals(1, (int) task1.runCount());
+            assertEquals(task1.result(), task2.consumedValue());
+            assertEquals(1, task2.runCount());
+            assertNotNull(result);
+            assertFalse(result.succeeded());
+            assertEquals(task2.cause(), result.cause());
+            assertNull(result.result());
+        });
+        assertEquals(1, (int) handlerCallCount.getObject());
+    }
+
+    @Test
+    public void itExecutesNoMoreTasksWhenAConsumerTaskFails() {
+        final FakeSuccessfulAsyncFunction<Void, String> task1 = new FakeSuccessfulAsyncFunction<>("Task 1");
+        final FakeFailingAsyncFunction<String, Integer> task2 = new FakeFailingAsyncFunction<>(new Throwable("Failed"));
+        final FakeSuccessfulAsyncFunction<Integer, String> task3 = new FakeSuccessfulAsyncFunction<>("Task 3");
+        final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
+        final List<BiConsumer<Object, Handler<AsyncResult<Object>>>> functions = new LinkedList<>();
+        functions.add((BiConsumer) task1);
+        functions.add((BiConsumer) task2);
+        functions.add((BiConsumer) task3);
+        
+        FlowsAsync.waterfall(new FakeVertx(), functions, result -> {
+            handlerCallCount.setObject(handlerCallCount.getObject() + 1);
+
+            assertEquals(1, (int) task1.runCount());
+            assertEquals(task1.result(), task2.consumedValue());
+            assertEquals(1, task2.runCount());
+            assertEquals(0, task3.runCount());
+            assertNotNull(result);
+            assertFalse(result.succeeded());
+            assertEquals(task2.cause(), result.cause());
+            assertNull(result.result());
+        });
+        assertEquals(1, (int) handlerCallCount.getObject());
+    }
+
 }
