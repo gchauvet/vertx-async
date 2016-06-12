@@ -2,7 +2,7 @@
 
 # vertx-async
 
-vertx-async is portage of caolan/async nodejs module to [Vert.x](http://vertx.io/) module that provides helper methods for common async patterns.
+vertx-async is a portage of caolan/async nodejs module to [Vert.x](http://vertx.io/) module that provides helper methods for common async patterns.
 
 ## Using
 
