@@ -149,6 +149,124 @@ public final class CollectionsAsyncTest {
             async.complete();
         });
     }
+    
+    @Test(timeout = 100)
+    public void forEachOfStillExecutesWhenThereAreNoItems(TestContext context) {
+        final Map<String, Void> items = new HashMap<>();
+        final FakeFailingAsyncFunction<Map.Entry<String, Void>, Void> each = new FakeFailingAsyncFunction<>(new Throwable("Failed"));
+        final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
+        final Async async = context.async();
+
+        CollectionsAsync.forEachOf(rule.vertx(), items, each, result -> {
+            handlerCallCount.setObject(handlerCallCount.getObject() + 1);
+
+            context.assertNotNull(result);
+            context.assertTrue(result.succeeded());
+            context.assertNull(result.result());
+            context.assertEquals(0, each.runCount());
+            context.assertEquals(1, (int) handlerCallCount.getObject());
+            async.complete();
+        });
+    }
+
+    @Test(timeout = 100)
+    public void forEachOfExecutesForOneItem(TestContext context) {
+        final Map<String, Integer> items = new HashMap<>();
+        final FakeSuccessfulAsyncFunction<Map.Entry<String, Integer>, Void> each = new FakeSuccessfulAsyncFunction<>(null);
+        final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
+        final Async async = context.async();
+        items.put("One", 1);
+
+        CollectionsAsync.forEachOf(rule.vertx(), items, each, result -> {
+            handlerCallCount.setObject(handlerCallCount.getObject() + 1);
+
+            context.assertNotNull(result);
+            context.assertTrue(result.succeeded());
+            context.assertNull(result.result());
+
+            context.assertEquals(1, each.runCount());
+            each.consumedValues().stream().forEach((item) -> {
+                context.assertEquals(item.getValue(), items.get(item.getKey()));
+            });
+            context.assertEquals(1, (int) handlerCallCount.getObject());
+            async.complete();
+        });
+    }
+
+    @Test(timeout = 100)
+    public void forEachOfExecutesForTwoItems(TestContext context) {
+        final Map<String, Integer> items = new HashMap<>();
+        final FakeSuccessfulAsyncFunction<Map.Entry<String, Integer>, Void> each = new FakeSuccessfulAsyncFunction<>(null);
+        final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
+        final Async async = context.async();
+        items.put("One", 1);
+        items.put("Two", 2);
+        
+        CollectionsAsync.forEachOf(rule.vertx(), items, each, result -> {
+            handlerCallCount.setObject(handlerCallCount.getObject() + 1);
+
+            context.assertNotNull(result);
+            context.assertTrue(result.succeeded());
+            context.assertNull(result.result());
+
+            context.assertEquals(2, each.runCount());
+            each.consumedValues().stream().forEach((item) -> {
+                context.assertEquals(item.getValue(), items.get(item.getKey()));
+            });
+            context.assertEquals(1, (int) handlerCallCount.getObject());
+            async.complete();
+        });
+    }
+
+    @Test(timeout = 100)
+    public void forEachOfFailsWhenAnItemFails(TestContext context) {
+        final Map<String, Integer> items = new HashMap<>();
+        final FakeFailingAsyncFunction<Map.Entry<String, Integer>, Void> each = new FakeFailingAsyncFunction<>(new Throwable("Failed"));
+        final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
+        final Async async = context.async();
+        items.put("One", 1);
+
+        CollectionsAsync.forEachOf(rule.vertx(), items, each, result -> {
+            handlerCallCount.setObject(handlerCallCount.getObject() + 1);
+
+            context.assertNotNull(result);
+            context.assertFalse(result.succeeded());
+            context.assertEquals(each.cause(), result.cause());
+            context.assertNull(result.result());
+
+            context.assertEquals(1, each.runCount());
+            each.consumedValues().stream().forEach((item) -> {
+                context.assertEquals(item.getValue(), items.get(item.getKey()));
+            });
+            context.assertEquals(1, (int) handlerCallCount.getObject());
+            async.complete();
+        });
+    }
+
+    @Test(timeout = 100)
+    public void forEachOfFailsNoMoreThanOnce(TestContext context) {
+        final Map<String, Integer> items = new HashMap<>();
+        final FakeFailingAsyncFunction<Map.Entry<String, Integer>, Void> each = new FakeFailingAsyncFunction<>(new Throwable("Failed"));
+        final ObjectWrapper<Integer> resultCount = new ObjectWrapper<>(0);
+        final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
+        final Async async = context.async();
+        items.put("One", 1);
+        items.put("Two", 2);
+        
+        CollectionsAsync.forEachOf(rule.vertx(), items, each, result -> {
+            handlerCallCount.setObject(handlerCallCount.getObject() + 1);
+
+            context.assertNotNull(result);
+            context.assertFalse(result.succeeded());
+            context.assertEquals(each.cause(), result.cause());
+            context.assertNull(result.result());
+
+            resultCount.setObject(resultCount.getObject() + 1);
+            context.assertEquals(1, resultCount.getObject());
+            context.assertEquals(1, (int) handlerCallCount.getObject());
+            async.complete();
+        });
+    }
 
     @Test(timeout = 100)
     public void mapStillExecutesWhenThereAreNoItemsToMap(TestContext context) {

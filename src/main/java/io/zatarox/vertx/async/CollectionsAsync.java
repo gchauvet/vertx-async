@@ -28,7 +28,6 @@ import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import java.util.*;
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 
 public final class CollectionsAsync {
 
@@ -42,6 +41,32 @@ public final class CollectionsAsync {
             final ObjectWrapper<Boolean> failed = new ObjectWrapper<>(false);
             final ObjectWrapper<Integer> counter = new ObjectWrapper<>(iterable.size());
             for (T item : iterable) {
+                instance.runOnContext(aVoid -> consumer.accept(item, result -> {
+                    counter.setObject(counter.getObject() - 1);
+                    if (result.failed()) {
+                        if (!failed.getObject()) {
+                            handler.handle(DefaultAsyncResult.fail(result));
+                            failed.setObject(true);
+                        }
+                    } else if (counter.getObject() == 0 && !failed.getObject()) {
+                        handler.handle(DefaultAsyncResult.succeed());
+                    }
+                }));
+
+                if (failed.getObject()) {
+                    break;
+                }
+            }
+        }
+    }
+    
+    public static <K, V> void forEachOf(final Vertx instance, final Map<K, V> iterable, final BiConsumer<Map.Entry<K, V>, Handler<AsyncResult<Void>>> consumer, final Handler<AsyncResult<Void>> handler) {
+        if (iterable.isEmpty()) {
+            handler.handle(DefaultAsyncResult.succeed());
+        } else {
+            final ObjectWrapper<Boolean> failed = new ObjectWrapper<>(false);
+            final ObjectWrapper<Integer> counter = new ObjectWrapper<>(iterable.size());
+            for (Map.Entry<K, V> item : iterable.entrySet()) {
                 instance.runOnContext(aVoid -> consumer.accept(item, result -> {
                     counter.setObject(counter.getObject() - 1);
                     if (result.failed()) {
