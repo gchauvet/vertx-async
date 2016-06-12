@@ -90,5 +90,37 @@ public final class CollectionsAsync {
             }
         }
     }
+    
+    public static <T> void filter(final Vertx instance, final Collection<T> iterable, final BiConsumer<T, Handler<AsyncResult<Boolean>>> consumer, final Handler<AsyncResult<Collection<T>>> handler) {
+        final List<T> filtered = new LinkedList<>();
+        if (iterable.isEmpty()) {
+            handler.handle(DefaultAsyncResult.succeed(filtered));
+        } else {
+            final ObjectWrapper<Boolean> failed = new ObjectWrapper<>(false);
+            final ObjectWrapper<Integer> counter = new ObjectWrapper<>(iterable.size());
+            for (T item : iterable) {
+                instance.runOnContext(aVoid -> consumer.accept(item, result -> {
+                    counter.setObject(counter.getObject() - 1);
+                    if (result.failed()) {
+                        if (!failed.getObject()) {
+                            handler.handle(DefaultAsyncResult.fail(result));
+                            failed.setObject(true);
+                        }
+                    } else {
+                        if(result.result()) {
+                            filtered.add(item);
+                        }
+                        if (counter.getObject() == 0 && !failed.getObject()) {
+                            handler.handle(DefaultAsyncResult.succeed(filtered));
+                        }
+                    }
+                }));
+
+                if (failed.getObject()) {
+                    break;
+                }
+            }
+        }
+    }
 
 }
