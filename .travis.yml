@@ -5,7 +5,7 @@ sudo: false
 addons:
   apt:
     packages:
-      - openjdk-8-jdk
+      - openjdk-8-jre
 install:
 - mvn install -DskipTests=true
 
