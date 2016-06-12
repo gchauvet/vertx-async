@@ -158,4 +158,27 @@ public final class CollectionsAsync {
             }
         });
     }
+    
+    public static <K, V, T, R> void transform(final Vertx instance, final Map<K, V> iterable, final BiConsumer<Map.Entry<K, V>, Handler<AsyncResult<Map.Entry<T, R>>>> consumer, final Handler<AsyncResult<Map<T, R>>> handler) {
+        final Iterator<Map.Entry<K, V>> iterator = iterable.entrySet().iterator();
+        final Map<T, R> results = new HashMap<>(iterable.size());
+
+        instance.runOnContext(new Handler<Void>() {
+            @Override
+            public void handle(Void event) {
+                if (!iterator.hasNext()) {
+                    handler.handle(DefaultAsyncResult.succeed(results));
+                } else {
+                    consumer.accept(iterator.next(), (Handler<AsyncResult<Map.Entry<T, R>>>) (AsyncResult<Map.Entry<T, R>> event1) -> {
+                        if (event1.succeeded()) {
+                            results.put(event1.result().getKey(), event1.result().getValue());
+                            instance.runOnContext(this);
+                        } else {
+                            handler.handle(DefaultAsyncResult.fail(event1));
+                        }
+                    });
+                }
+            }
+        });
+    }
 }

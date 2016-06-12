@@ -31,8 +31,9 @@ import io.vertx.ext.unit.junit.RunTestOnContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
 import io.zatarox.vertx.async.fakes.*;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
-import java.util.function.BiConsumer;
+import java.util.Map;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -552,7 +553,7 @@ public final class CollectionsAsyncTest {
     }
 
     @Test(timeout = 100)
-    public void transformStillExecutesWhenThereAreNoItemsToMap(TestContext context) {
+    public void transformCollectionStillExecutesWhenThereAreNoItemsToMap(TestContext context) {
         final List<Integer> items = Arrays.asList();
         final FakeAsyncFunction<Integer, String> each = new FakeAsyncFunction<Integer, String>() {
             @Override
@@ -578,7 +579,7 @@ public final class CollectionsAsyncTest {
     }
 
     @Test(timeout = 100)
-    public void transformStillExecutesWhenThereAreThreeItemsToMap(TestContext context) {
+    public void transformCollectionStillExecutesWhenThereAreThreeItemsToMap(TestContext context) {
         final List<Integer> items = Arrays.asList(1, 3, 10);
         final FakeAsyncFunction<Integer, String> each = new FakeAsyncFunction<Integer, String>() {
             @Override
@@ -598,6 +599,95 @@ public final class CollectionsAsyncTest {
             context.assertEquals(3, each.runCount());
             context.assertEquals(3, result.result().size());
             context.assertTrue(result.result().containsAll(Arrays.asList(Integer.toString(1 * 1), Integer.toString(3 * 3), Integer.toString(10 * 10))));
+            context.assertEquals(1, (int) handlerCallCount.getObject());
+            async.complete();
+        });
+    }
+    
+    @Test(timeout = 100)
+    public void transformMapStillExecutesWhenThereAreNoItemsToMap(TestContext context) {
+        final Map<Integer, String> items = new HashMap<>();
+        final FakeAsyncFunction<Map.Entry<Integer, String>, Map.Entry<String, Integer>> each = new FakeAsyncFunction<Map.Entry<Integer, String>, Map.Entry<String, Integer>>() {
+            @Override
+            public void accept(Map.Entry<Integer, String> in, Handler<AsyncResult<Map.Entry<String, Integer>>> out) {
+                incrementRunCount();
+                consumedValues().add(in);
+                out.handle(DefaultAsyncResult.succeed(new Map.Entry<String, Integer>() {
+                    @Override
+                    public String getKey() {
+                        return in.getValue();
+                    }
+
+                    @Override
+                    public Integer getValue() {
+                        return in.getKey();
+                    }
+
+                    @Override
+                    public Integer setValue(Integer v) {
+                        return v;
+                    }
+                }));
+            }
+        };
+        final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
+        final Async async = context.async();
+
+        CollectionsAsync.transform(rule.vertx(), items, each, result -> {
+            handlerCallCount.setObject(handlerCallCount.getObject() + 1);
+
+            context.assertNotNull(result);
+            context.assertTrue(result.succeeded());
+            context.assertTrue(result.result().isEmpty());
+            context.assertEquals(0, each.runCount());
+            context.assertEquals(1, (int) handlerCallCount.getObject());
+            async.complete();
+        });
+    }
+
+    @Test(timeout = 100)
+    public void transformMapStillExecutesWhenThereAreThreeItemsToMap(TestContext context) {
+        final Map<Integer, String> items = new HashMap<>();
+        final FakeAsyncFunction<Map.Entry<Integer, String>, Map.Entry<String, Integer>> each = new FakeAsyncFunction<Map.Entry<Integer, String>, Map.Entry<String, Integer>>() {
+            @Override
+            public void accept(Map.Entry<Integer, String> in, Handler<AsyncResult<Map.Entry<String, Integer>>> out) {
+                incrementRunCount();
+                consumedValues().add(in);
+                out.handle(DefaultAsyncResult.succeed(new Map.Entry<String, Integer>() {
+                    @Override
+                    public String getKey() {
+                        return in.getValue();
+                    }
+
+                    @Override
+                    public Integer getValue() {
+                        return in.getKey();
+                    }
+
+                    @Override
+                    public Integer setValue(Integer v) {
+                        return v;
+                    }
+                }));
+            }
+        };
+        final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
+        final Async async = context.async();
+        
+        items.put(0, "Zero");
+        items.put(1, "One");
+        items.put(2, "Two");
+
+        CollectionsAsync.transform(rule.vertx(), items, each, result -> {
+            handlerCallCount.setObject(handlerCallCount.getObject() + 1);
+
+            context.assertNotNull(result);
+            context.assertTrue(result.succeeded());
+            context.assertEquals(3, each.runCount());
+            context.assertEquals(3, result.result().size());
+            context.assertEquals(0, result.result().get("Zero"));
+            context.assertEquals(1, result.result().get("One"));
+            context.assertEquals(2, result.result().get("Two"));
             context.assertEquals(1, (int) handlerCallCount.getObject());
             async.complete();
         });
