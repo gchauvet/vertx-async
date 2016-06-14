@@ -34,6 +34,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.javatuples.Pair;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -153,7 +154,7 @@ public final class CollectionsAsyncTest {
     @Test(timeout = 100)
     public void forEachOfStillExecutesWhenThereAreNoItems(TestContext context) {
         final Map<String, Void> items = new HashMap<>();
-        final FakeFailingAsyncFunction<Map.Entry<String, Void>, Void> each = new FakeFailingAsyncFunction<>(new Throwable("Failed"));
+        final FakeFailingAsyncFunction<Pair<String, Void>, Void> each = new FakeFailingAsyncFunction<>(new Throwable("Failed"));
         final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
         final Async async = context.async();
 
@@ -172,7 +173,7 @@ public final class CollectionsAsyncTest {
     @Test(timeout = 100)
     public void forEachOfExecutesForOneItem(TestContext context) {
         final Map<String, Integer> items = new HashMap<>();
-        final FakeSuccessfulAsyncFunction<Map.Entry<String, Integer>, Void> each = new FakeSuccessfulAsyncFunction<>(null);
+        final FakeSuccessfulAsyncFunction<Pair<String, Integer>, Void> each = new FakeSuccessfulAsyncFunction<>(null);
         final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
         final Async async = context.async();
         items.put("One", 1);
@@ -186,7 +187,7 @@ public final class CollectionsAsyncTest {
 
             context.assertEquals(1, each.runCount());
             each.consumedValues().stream().forEach((item) -> {
-                context.assertEquals(item.getValue(), items.get(item.getKey()));
+                context.assertEquals(item.getValue1(), items.get(item.getValue0()));
             });
             context.assertEquals(1, (int) handlerCallCount.getObject());
             async.complete();
@@ -196,7 +197,7 @@ public final class CollectionsAsyncTest {
     @Test(timeout = 100)
     public void forEachOfExecutesForTwoItems(TestContext context) {
         final Map<String, Integer> items = new HashMap<>();
-        final FakeSuccessfulAsyncFunction<Map.Entry<String, Integer>, Void> each = new FakeSuccessfulAsyncFunction<>(null);
+        final FakeSuccessfulAsyncFunction<Pair<String, Integer>, Void> each = new FakeSuccessfulAsyncFunction<>(null);
         final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
         final Async async = context.async();
         items.put("One", 1);
@@ -211,7 +212,7 @@ public final class CollectionsAsyncTest {
 
             context.assertEquals(2, each.runCount());
             each.consumedValues().stream().forEach((item) -> {
-                context.assertEquals(item.getValue(), items.get(item.getKey()));
+                context.assertEquals(item.getValue1(), items.get(item.getValue0()));
             });
             context.assertEquals(1, (int) handlerCallCount.getObject());
             async.complete();
@@ -221,7 +222,7 @@ public final class CollectionsAsyncTest {
     @Test(timeout = 100)
     public void forEachOfFailsWhenAnItemFails(TestContext context) {
         final Map<String, Integer> items = new HashMap<>();
-        final FakeFailingAsyncFunction<Map.Entry<String, Integer>, Void> each = new FakeFailingAsyncFunction<>(new Throwable("Failed"));
+        final FakeFailingAsyncFunction<Pair<String, Integer>, Void> each = new FakeFailingAsyncFunction<>(new Throwable("Failed"));
         final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
         final Async async = context.async();
         items.put("One", 1);
@@ -236,7 +237,7 @@ public final class CollectionsAsyncTest {
 
             context.assertEquals(1, each.runCount());
             each.consumedValues().stream().forEach((item) -> {
-                context.assertEquals(item.getValue(), items.get(item.getKey()));
+                context.assertEquals(item.getValue1(), items.get(item.getValue0()));
             });
             context.assertEquals(1, (int) handlerCallCount.getObject());
             async.complete();
@@ -246,7 +247,7 @@ public final class CollectionsAsyncTest {
     @Test(timeout = 100)
     public void forEachOfFailsNoMoreThanOnce(TestContext context) {
         final Map<String, Integer> items = new HashMap<>();
-        final FakeFailingAsyncFunction<Map.Entry<String, Integer>, Void> each = new FakeFailingAsyncFunction<>(new Throwable("Failed"));
+        final FakeFailingAsyncFunction<Pair<String, Integer>, Void> each = new FakeFailingAsyncFunction<>(new Throwable("Failed"));
         final ObjectWrapper<Integer> resultCount = new ObjectWrapper<>(0);
         final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
         final Async async = context.async();
@@ -725,27 +726,12 @@ public final class CollectionsAsyncTest {
     @Test(timeout = 100)
     public void transformMapStillExecutesWhenThereAreNoItemsToMap(TestContext context) {
         final Map<Integer, String> items = new HashMap<>();
-        final FakeAsyncFunction<Map.Entry<Integer, String>, Map.Entry<String, Integer>> each = new FakeAsyncFunction<Map.Entry<Integer, String>, Map.Entry<String, Integer>>() {
+        final FakeAsyncFunction<Pair<Integer, String>, Pair<String, Integer>> each = new FakeAsyncFunction<Pair<Integer, String>, Pair<String, Integer>>() {
             @Override
-            public void accept(Map.Entry<Integer, String> in, Handler<AsyncResult<Map.Entry<String, Integer>>> out) {
+            public void accept(Pair<Integer, String> in, Handler<AsyncResult<Pair<String, Integer>>> out) {
                 incrementRunCount();
                 consumedValues().add(in);
-                out.handle(DefaultAsyncResult.succeed(new Map.Entry<String, Integer>() {
-                    @Override
-                    public String getKey() {
-                        return in.getValue();
-                    }
-
-                    @Override
-                    public Integer getValue() {
-                        return in.getKey();
-                    }
-
-                    @Override
-                    public Integer setValue(Integer v) {
-                        return v;
-                    }
-                }));
+                out.handle(DefaultAsyncResult.succeed(new Pair<>(in.getValue1(), in.getValue0())));
             }
         };
         final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
@@ -766,27 +752,12 @@ public final class CollectionsAsyncTest {
     @Test(timeout = 100)
     public void transformMapStillExecutesWhenThereAreThreeItemsToMap(TestContext context) {
         final Map<Integer, String> items = new HashMap<>();
-        final FakeAsyncFunction<Map.Entry<Integer, String>, Map.Entry<String, Integer>> each = new FakeAsyncFunction<Map.Entry<Integer, String>, Map.Entry<String, Integer>>() {
+        final FakeAsyncFunction<Pair<Integer, String>, Pair<String, Integer>> each = new FakeAsyncFunction<Pair<Integer, String>, Pair<String, Integer>>() {
             @Override
-            public void accept(Map.Entry<Integer, String> in, Handler<AsyncResult<Map.Entry<String, Integer>>> out) {
+            public void accept(Pair<Integer, String> in, Handler<AsyncResult<Pair<String, Integer>>> out) {
                 incrementRunCount();
                 consumedValues().add(in);
-                out.handle(DefaultAsyncResult.succeed(new Map.Entry<String, Integer>() {
-                    @Override
-                    public String getKey() {
-                        return in.getValue();
-                    }
-
-                    @Override
-                    public Integer getValue() {
-                        return in.getKey();
-                    }
-
-                    @Override
-                    public Integer setValue(Integer v) {
-                        return v;
-                    }
-                }));
+                out.handle(DefaultAsyncResult.succeed(new Pair<>(in.getValue1(), in.getValue0())));
             }
         };
         final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
