@@ -133,15 +133,17 @@ public final class CollectionsAsync {
      * have finished, or an error occurs. Results is a List of the transformed
      * items from the `iterable`.
      */
-    public static <I, O> void map(final Vertx instance, final Collection<I> iterable, final BiConsumer<I, Handler<AsyncResult<O>>> consumer, final Handler<AsyncResult<Collection<O>>> handler) {
-        final List<O> mapped = new LinkedList<>();
+    public static <I, O> void map(final Vertx instance, final List<I> iterable, final BiConsumer<I, Handler<AsyncResult<O>>> consumer, final Handler<AsyncResult<Collection<O>>> handler) {
+        final List<O> mapped = new ArrayList<>(iterable.size());
         if (iterable.isEmpty()) {
             handler.handle(DefaultAsyncResult.succeed(mapped));
         } else {
             final ObjectWrapper<Boolean> failed = new ObjectWrapper<>(false);
             final ObjectWrapper<Integer> counter = new ObjectWrapper<>(iterable.size());
 
-            for (I item : iterable) {
+            for (int i = 0; i < iterable.size(); i++) {
+                final I item = iterable.get(i);
+                final int pos = i;
                 instance.runOnContext(aVoid -> consumer.accept(item, result -> {
                     counter.setObject(counter.getObject() - 1);
                     if (result.failed()) {
@@ -150,7 +152,7 @@ public final class CollectionsAsync {
                             failed.setObject(true);
                         }
                     } else {
-                        mapped.add(result.result());
+                        mapped.add(pos, result.result());
                         if (counter.getObject() == 0 && !failed.getObject()) {
                             handler.handle(DefaultAsyncResult.succeed(mapped));
                         }
