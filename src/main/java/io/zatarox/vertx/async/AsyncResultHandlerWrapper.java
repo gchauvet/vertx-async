@@ -42,9 +42,8 @@ public final class AsyncResultHandlerWrapper<T, R> implements Handler<AsyncResul
     public void handle(AsyncResult<R> asyncResult) {
         if (asyncResult.failed()) {
             handler.handle(DefaultAsyncResult.fail(asyncResult.cause()));
-            return;
+        } else {
+            handler.handle(DefaultAsyncResult.succeed((T) asyncResult.result()));
         }
-
-        handler.handle(DefaultAsyncResult.succeed((T) asyncResult.result()));
     }
 }

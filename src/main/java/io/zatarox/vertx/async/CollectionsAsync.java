@@ -35,6 +35,28 @@ public final class CollectionsAsync {
     private CollectionsAsync() {
     }
 
+    /**
+     * Applies the function `consumer` to each item in `iterable`, in parallel.
+     * The `consumer` is called with an item from the list, and a callback when
+     * it has finished. If the `consumer` passes an error to its `callback`, the
+     * main `handler` (for the `each` function) is immediately called with the
+     * error.
+     *
+     * Note, that since this function applies `consumer` to each item in
+     * parallel, there is no guarantee that the consumer functions will complete
+     * in order.
+     *
+     * @param <T> Define the manipulated type.
+     * @param instance The Vertx instance to use.
+     * @param iterable A collection to iterate over.
+     * @param consumer A function to apply to each item in `iterable`. The
+     * iteratee is passed a `consumer` which must be called once it has
+     * completed. If no error has occurred, the `callback` should be run without
+     * arguments or with an explicit `null` argument. The array index is not
+     * passed to the consumer. If you need the index, use `eachOf`.
+     * @param handler A callback which is called when all `consumer` functions
+     * have finished, or an error occurs.
+     */
     public static <T> void each(final Vertx instance, final Collection<T> iterable, final BiConsumer<T, Handler<AsyncResult<Void>>> consumer, final Handler<AsyncResult<Void>> handler) {
         if (iterable.isEmpty()) {
             handler.handle(DefaultAsyncResult.succeed());
@@ -87,6 +109,30 @@ public final class CollectionsAsync {
         }
     }
 
+    /**
+     * Produces a new collection of values by mapping each value in `iterable`
+     * through the `consumer` function. The `consumer` is called with an item
+     * from `iterbale` and a callback for when it has finished processing. Each
+     * of these callback takes 2 arguments: an `error`, and the transformed item
+     * from `iterable`. If `consumer` passes an error to its callback, the main
+     * `handler` (for the `map` function) is immediately called with the error.
+     *
+     * Note, that since this function applies the `consumer` to each item in
+     * parallel, there is no guarantee that the `consumer` functions will
+     * complete in order. However, the results array will be in the same order
+     * as the original `iterable`.
+     *
+     * @param <I> Define input type.
+     * @param <O> Define output type.
+     * @param instance Define Vertx instance.
+     * @param iterable A collection to iterate over.
+     * @param consumer A function to apply to each item in `iterable`. The
+     * iteratee is passed a `handler` which must be called once it has completed
+     * with an error and a transformed item. Invoked with (item, callback).
+     * @param handler A callback which is called when all `consumer` functions
+     * have finished, or an error occurs. Results is a List of the transformed
+     * items from the `iterable`.
+     */
     public static <I, O> void map(final Vertx instance, final Collection<I> iterable, final BiConsumer<I, Handler<AsyncResult<O>>> consumer, final Handler<AsyncResult<Collection<O>>> handler) {
         final List<O> mapped = new LinkedList<>();
         if (iterable.isEmpty()) {
@@ -118,6 +164,20 @@ public final class CollectionsAsync {
         }
     }
 
+    /**
+     * Returns a new array of all the values in `iterable` which pass an async
+     * truth test. This operation is performed in parallel, but the results
+     * array will be in the same order as the original.
+     *
+     * @param <T> Define the manipulated type.
+     * @param instance Define Vertx instance.
+     * @param iterable A collection to iterate over.
+     * @param consumer A truth test to apply to each item in `iterable`. The
+     * `consumer` is passed a `handler`, which must be called with a boolean
+     * argument once it has completed.
+     * @param handler A callback which is called after all the `iteratee`
+     * functions have finished.
+     */
     public static <T> void filter(final Vertx instance, final Collection<T> iterable, final BiConsumer<T, Handler<AsyncResult<Boolean>>> consumer, final Handler<AsyncResult<Collection<T>>> handler) {
         final List<T> filtered = new LinkedList<>();
         if (iterable.isEmpty()) {
