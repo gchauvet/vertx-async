@@ -43,10 +43,15 @@ import org.junit.runner.RunWith;
 @RunWith(VertxUnitRunner.class)
 public final class CollectionsAsyncTest {
 
+    /**
+     * Timelimit
+     */
+    private static final int LIMIT = 1000;
+    
     @Rule
     public RunTestOnContext rule = new RunTestOnContext();
 
-    @Test(timeout = 100)
+    @Test(timeout = CollectionsAsyncTest.LIMIT)
     public void eachStillExecutesWhenThereAreNoItems(TestContext context) {
         final List<String> items = Arrays.asList();
         final FakeFailingAsyncFunction<String, Void> each = new FakeFailingAsyncFunction<>(new Throwable("Failed"));
@@ -65,7 +70,7 @@ public final class CollectionsAsyncTest {
         });
     }
 
-    @Test(timeout = 100)
+    @Test(timeout = CollectionsAsyncTest.LIMIT)
     public void eachExecutesForOneItem(TestContext context) {
         final List<String> items = Arrays.asList("One");
         final FakeSuccessfulAsyncFunction<String, Void> each = new FakeSuccessfulAsyncFunction<>(null);
@@ -86,7 +91,7 @@ public final class CollectionsAsyncTest {
         });
     }
 
-    @Test(timeout = 100)
+    @Test(timeout = CollectionsAsyncTest.LIMIT)
     public void eachExecutesForTwoItems(TestContext context) {
         final List<String> items = Arrays.asList("One", "Two");
         final FakeSuccessfulAsyncFunction<String, Void> each = new FakeSuccessfulAsyncFunction<>(null);
@@ -107,7 +112,7 @@ public final class CollectionsAsyncTest {
         });
     }
 
-    @Test(timeout = 100)
+    @Test(timeout = CollectionsAsyncTest.LIMIT)
     public void eachFailsWhenAnItemFails(TestContext context) {
         final List<String> items = Arrays.asList("One");
         final FakeFailingAsyncFunction<String, Void> each = new FakeFailingAsyncFunction<>(new Throwable("Failed"));
@@ -129,7 +134,7 @@ public final class CollectionsAsyncTest {
         });
     }
 
-    @Test(timeout = 100)
+    @Test(timeout = CollectionsAsyncTest.LIMIT)
     public void eachFailsNoMoreThanOnce(TestContext context) {
         final List<String> items = Arrays.asList("One", "Two");
         final FakeFailingAsyncFunction<String, Void> each = new FakeFailingAsyncFunction<>(new Throwable("Failed"));
@@ -152,7 +157,7 @@ public final class CollectionsAsyncTest {
         });
     }
     
-    @Test(timeout = 100)
+    @Test(timeout = CollectionsAsyncTest.LIMIT)
     public void forEachOfStillExecutesWhenThereAreNoItems(TestContext context) {
         final Map<String, Void> items = new HashMap<>();
         final FakeFailingAsyncFunction<KeyValue<String, Void>, Void> each = new FakeFailingAsyncFunction<>(new Throwable("Failed"));
@@ -171,7 +176,7 @@ public final class CollectionsAsyncTest {
         });
     }
 
-    @Test(timeout = 100)
+    @Test(timeout = CollectionsAsyncTest.LIMIT)
     public void forEachOfExecutesForOneItem(TestContext context) {
         final Map<String, Integer> items = new HashMap<>();
         final FakeSuccessfulAsyncFunction<KeyValue<String, Integer>, Void> each = new FakeSuccessfulAsyncFunction<>(null);
@@ -195,7 +200,7 @@ public final class CollectionsAsyncTest {
         });
     }
 
-    @Test(timeout = 100)
+    @Test(timeout = CollectionsAsyncTest.LIMIT)
     public void forEachOfExecutesForTwoItems(TestContext context) {
         final Map<String, Integer> items = new HashMap<>();
         final FakeSuccessfulAsyncFunction<KeyValue<String, Integer>, Void> each = new FakeSuccessfulAsyncFunction<>(null);
@@ -220,7 +225,7 @@ public final class CollectionsAsyncTest {
         });
     }
 
-    @Test(timeout = 100)
+    @Test(timeout = CollectionsAsyncTest.LIMIT)
     public void forEachOfFailsWhenAnItemFails(TestContext context) {
         final Map<String, Integer> items = new HashMap<>();
         final FakeFailingAsyncFunction<KeyValue<String, Integer>, Void> each = new FakeFailingAsyncFunction<>(new Throwable("Failed"));
@@ -245,7 +250,7 @@ public final class CollectionsAsyncTest {
         });
     }
 
-    @Test(timeout = 100)
+    @Test(timeout = CollectionsAsyncTest.LIMIT)
     public void forEachOfFailsNoMoreThanOnce(TestContext context) {
         final Map<String, Integer> items = new HashMap<>();
         final FakeFailingAsyncFunction<KeyValue<String, Integer>, Void> each = new FakeFailingAsyncFunction<>(new Throwable("Failed"));
@@ -270,7 +275,7 @@ public final class CollectionsAsyncTest {
         });
     }
 
-    @Test(timeout = 100)
+    @Test(timeout = CollectionsAsyncTest.LIMIT)
     public void mapStillExecutesWhenThereAreNoItemsToMap(TestContext context) {
         final List<Integer> items = Arrays.asList();
         final FakeAsyncFunction<Integer, Integer> each = new FakeAsyncFunction<Integer, Integer>() {
@@ -294,7 +299,7 @@ public final class CollectionsAsyncTest {
         });
     }
 
-    @Test(timeout = 100)
+    @Test(timeout = CollectionsAsyncTest.LIMIT)
     public void mapStillExecutesWhenThereAreThreeItemsToMap(TestContext context) {
         final List<Integer> items = Arrays.asList(1, 3, 10);
         final FakeAsyncFunction<Integer, Integer> each = new FakeAsyncFunction<Integer, Integer>() {
@@ -320,7 +325,7 @@ public final class CollectionsAsyncTest {
         });
     }
 
-    @Test(timeout = 100)
+    @Test(timeout = CollectionsAsyncTest.LIMIT)
     public void filterStillExecutesWhenThereAreNoItems(TestContext context) {
         final List<String> items = Arrays.asList();
         final FakeFailingAsyncFunction<String, Boolean> filter = new FakeFailingAsyncFunction<>(new Throwable("Failed"));
@@ -339,7 +344,7 @@ public final class CollectionsAsyncTest {
         });
     }
 
-    @Test(timeout = 100)
+    @Test(timeout = CollectionsAsyncTest.LIMIT)
     public void filterExecutesForOneItem(TestContext context) {
         final List<String> items = Arrays.asList("One");
         final FakeAsyncFunction<String, Boolean> filter = new FakeAsyncFunction<String, Boolean>() {
@@ -366,7 +371,7 @@ public final class CollectionsAsyncTest {
         });
     }
 
-    @Test(timeout = 100)
+    @Test(timeout = CollectionsAsyncTest.LIMIT)
     public void filterExecutesForTwoItems(TestContext context) {
         final List<String> items = Arrays.asList("One", "Two");
         final FakeAsyncFunction<String, Boolean> filter = new FakeAsyncFunction<String, Boolean>() {
@@ -395,7 +400,7 @@ public final class CollectionsAsyncTest {
         });
     }
 
-    @Test(timeout = 100)
+    @Test(timeout = CollectionsAsyncTest.LIMIT)
     public void filterFailsWhenAnItemFails(TestContext context) {
         final List<String> items = Arrays.asList("One");
         final FakeFailingAsyncFunction<String, Boolean> filter = new FakeFailingAsyncFunction<>(new Throwable("Failed"));
@@ -417,7 +422,7 @@ public final class CollectionsAsyncTest {
         });
     }
 
-    @Test(timeout = 100)
+    @Test(timeout = CollectionsAsyncTest.LIMIT)
     public void filterRejectAllItems(TestContext context) {
         final List<String> items = Arrays.asList("One", "Two", "Three");
         final FakeAsyncFunction<String, Boolean> filter = new FakeAsyncFunction<String, Boolean>() {
@@ -445,7 +450,7 @@ public final class CollectionsAsyncTest {
         });
     }
 
-    @Test(timeout = 100)
+    @Test(timeout = CollectionsAsyncTest.LIMIT)
     public void filterAcceptAllItems(TestContext context) {
         final List<String> items = Arrays.asList("One", "Two", "Three");
         final FakeAsyncFunction<String, Boolean> filter = new FakeAsyncFunction<String, Boolean>() {
@@ -473,7 +478,7 @@ public final class CollectionsAsyncTest {
         });
     }
 
-    @Test(timeout = 100)
+    @Test(timeout = CollectionsAsyncTest.LIMIT)
     public void filterFailsNoMoreThanOnce(TestContext context) {
         final List<String> items = Arrays.asList("One", "Two");
         final FakeFailingAsyncFunction<String, Boolean> filter = new FakeFailingAsyncFunction<>(new Throwable("Failed"));
@@ -496,7 +501,7 @@ public final class CollectionsAsyncTest {
         });
     }
 
-    @Test(timeout = 100)
+    @Test(timeout = CollectionsAsyncTest.LIMIT)
     public void rejectStillExecutesWhenThereAreNoItems(TestContext context) {
         final List<String> items = Arrays.asList();
         final FakeFailingAsyncFunction<String, Boolean> filter = new FakeFailingAsyncFunction<>(new Throwable("Failed"));
@@ -515,7 +520,7 @@ public final class CollectionsAsyncTest {
         });
     }
 
-    @Test(timeout = 100)
+    @Test(timeout = CollectionsAsyncTest.LIMIT)
     public void rejectExecutesForOneItem(TestContext context) {
         final List<String> items = Arrays.asList("One");
         final FakeAsyncFunction<String, Boolean> filter = new FakeAsyncFunction<String, Boolean>() {
@@ -542,7 +547,7 @@ public final class CollectionsAsyncTest {
         });
     }
 
-    @Test(timeout = 100)
+    @Test(timeout = CollectionsAsyncTest.LIMIT)
     public void rejectExecutesForTwoItems(TestContext context) {
         final List<String> items = Arrays.asList("One", "Two");
         final FakeAsyncFunction<String, Boolean> filter = new FakeAsyncFunction<String, Boolean>() {
@@ -571,7 +576,7 @@ public final class CollectionsAsyncTest {
         });
     }
 
-    @Test(timeout = 100)
+    @Test(timeout = CollectionsAsyncTest.LIMIT)
     public void rejectFailsWhenAnItemFails(TestContext context) {
         final List<String> items = Arrays.asList("One");
         final FakeFailingAsyncFunction<String, Boolean> filter = new FakeFailingAsyncFunction<>(new Throwable("Failed"));
@@ -593,7 +598,7 @@ public final class CollectionsAsyncTest {
         });
     }
 
-    @Test(timeout = 100)
+    @Test(timeout = CollectionsAsyncTest.LIMIT)
     public void rejectNoItems(TestContext context) {
         final List<String> items = Arrays.asList("One", "Two", "Three");
         final FakeAsyncFunction<String, Boolean> filter = new FakeAsyncFunction<String, Boolean>() {
@@ -621,7 +626,7 @@ public final class CollectionsAsyncTest {
         });
     }
 
-    @Test(timeout = 100)
+    @Test(timeout = CollectionsAsyncTest.LIMIT)
     public void rejectKeepAllItems(TestContext context) {
         final List<String> items = Arrays.asList("One", "Two", "Three");
         final FakeAsyncFunction<String, Boolean> filter = new FakeAsyncFunction<String, Boolean>() {
@@ -649,7 +654,7 @@ public final class CollectionsAsyncTest {
         });
     }
 
-    @Test(timeout = 100)
+    @Test(timeout = CollectionsAsyncTest.LIMIT)
     public void rejectFailsNoMoreThanOnce(TestContext context) {
         final List<String> items = Arrays.asList("One", "Two");
         final FakeFailingAsyncFunction<String, Boolean> filter = new FakeFailingAsyncFunction<>(new Throwable("Failed"));
@@ -672,7 +677,7 @@ public final class CollectionsAsyncTest {
         });
     }
 
-    @Test(timeout = 100)
+    @Test(timeout = CollectionsAsyncTest.LIMIT)
     public void transformCollectionStillExecutesWhenThereAreNoItemsToMap(TestContext context) {
         final List<Integer> items = Arrays.asList();
         final FakeAsyncFunction<Integer, String> each = new FakeAsyncFunction<Integer, String>() {
@@ -698,7 +703,7 @@ public final class CollectionsAsyncTest {
         });
     }
 
-    @Test(timeout = 100)
+    @Test(timeout = CollectionsAsyncTest.LIMIT)
     public void transformCollectionStillExecutesWhenThereAreThreeItemsToMap(TestContext context) {
         final List<Integer> items = Arrays.asList(1, 3, 10);
         final FakeAsyncFunction<Integer, String> each = new FakeAsyncFunction<Integer, String>() {
@@ -724,7 +729,7 @@ public final class CollectionsAsyncTest {
         });
     }
     
-    @Test(timeout = 100)
+    @Test(timeout = CollectionsAsyncTest.LIMIT)
     public void transformMapStillExecutesWhenThereAreNoItemsToMap(TestContext context) {
         final Map<Integer, String> items = new HashMap<>();
         final FakeAsyncFunction<KeyValue<Integer, String>, KeyValue<String, Integer>> each = new FakeAsyncFunction<KeyValue<Integer, String>, KeyValue<String, Integer>>() {
@@ -750,7 +755,7 @@ public final class CollectionsAsyncTest {
         });
     }
 
-    @Test(timeout = 100)
+    @Test(timeout = CollectionsAsyncTest.LIMIT)
     public void transformMapStillExecutesWhenThereAreThreeItemsToMap(TestContext context) {
         final Map<Integer, String> items = new HashMap<>();
         final FakeAsyncFunction<KeyValue<Integer, String>, KeyValue<String, Integer>> each = new FakeAsyncFunction<KeyValue<Integer, String>, KeyValue<String, Integer>>() {
@@ -783,7 +788,7 @@ public final class CollectionsAsyncTest {
         });
     }
     
-    @Test(timeout = 100)
+    @Test(timeout = CollectionsAsyncTest.LIMIT)
     public void reduceWhenThereAreNoItems(TestContext context) {
         final List<String> items = Arrays.asList();
         final FakeAsyncFunction<Pair<String, Integer>, Integer> reducer = new FakeAsyncFunction<Pair<String, Integer>, Integer>() {
@@ -809,7 +814,7 @@ public final class CollectionsAsyncTest {
         });
     }
     
-    @Test(timeout = 100)
+    @Test(timeout = CollectionsAsyncTest.LIMIT)
     public void reduceWhenThereAreItems(TestContext context) {
         final List<String> items = Arrays.asList("1", "2", "3");
         final FakeAsyncFunction<Pair<String, Integer>, Integer> reducer = new FakeAsyncFunction<Pair<String, Integer>, Integer>() {
@@ -835,7 +840,7 @@ public final class CollectionsAsyncTest {
         });
     }
     
-    @Test(timeout = 100)
+    @Test(timeout = CollectionsAsyncTest.LIMIT)
     public void reduceWhenThereAreAnItemFails(TestContext context) {
         final List<String> items = Arrays.asList("1", "2", "3");
         final FakeFailingAsyncFunction<Pair<String, Integer>, Integer> reducer = new FakeFailingAsyncFunction<>(new Throwable("Failed"));
@@ -854,7 +859,7 @@ public final class CollectionsAsyncTest {
         });
     }
     
-    @Test(timeout = 100)
+    @Test(timeout = CollectionsAsyncTest.LIMIT)
     public void reduceWhenThereAreLastItemFails(TestContext context) {
         final List<String> items = Arrays.asList("1", "2", "3");
         final FakeFailingAsyncFunction<Pair<String, Integer>, Integer> reducer = new FakeFailingAsyncFunction<>(2, null, new Throwable("Failed"));
