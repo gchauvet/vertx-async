@@ -83,6 +83,21 @@ public final class CollectionsAsync {
         }
     }
 
+    /**
+     * Like `each`, except that it passes the tuple key/value as argument to the
+     * consumer.
+     *
+     * @param <K> Define type of key.
+     * @param <V> Define type of value.
+     * @param instance The Vertx instance to use.
+     * @param iterable A collection to iterate over.
+     * @param consumer A function to apply to each item in `iterable`. The `key`
+     * is the item's key. The iteratee is passed a `handler` which must be
+     * called once it has completed. If no error has occurred, the callback
+     * should be run without arguments or with an explicit `null` argument.
+     * @param handler A callback which is called when all `consumer` functions
+     * have finished, or an error occurs.
+     */
     public static <K, V> void forEachOf(final Vertx instance, final Map<K, V> iterable, final BiConsumer<KeyValue<K, V>, Handler<AsyncResult<Void>>> consumer, final Handler<AsyncResult<Void>> handler) {
         if (iterable.isEmpty()) {
             handler.handle(DefaultAsyncResult.succeed());
@@ -167,9 +182,9 @@ public final class CollectionsAsync {
     }
 
     /**
-     * Returns a new array of all the values in `iterable` which pass an async
-     * truth test. This operation is performed in parallel, but the results
-     * array will be in the same order as the original.
+     * Returns a new collection of all the values in `iterable` which pass an
+     * async truth test. This operation is performed in parallel, but the
+     * results array will be in the same order as the original.
      *
      * @param <T> Define the manipulated type.
      * @param instance Define Vertx instance.
@@ -177,7 +192,7 @@ public final class CollectionsAsync {
      * @param consumer A truth test to apply to each item in `iterable`. The
      * `consumer` is passed a `handler`, which must be called with a boolean
      * argument once it has completed.
-     * @param handler A callback which is called after all the `iteratee`
+     * @param handler A callback which is called after all the `consumer`
      * functions have finished.
      */
     public static <T> void filter(final Vertx instance, final Collection<T> iterable, final BiConsumer<T, Handler<AsyncResult<Boolean>>> consumer, final Handler<AsyncResult<Collection<T>>> handler) {
@@ -212,6 +227,18 @@ public final class CollectionsAsync {
         }
     }
 
+    /**
+     * The opposite of `filter`. Removes values that pass an `async` truth test.
+     *
+     * @param <T> Define the manipulated type.
+     * @param instance Define Vertx instance.
+     * @param iterable A collection to iterate over.
+     * @param consumer A falsy test to apply to each item in `iterable`. The
+     * `consumer` is passed a `handler`, which must be called with a boolean
+     * argument once it has completed.
+     * @param handler A callback which is called after all the `consumer`
+     * functions have finished.
+     */
     public static <T> void reject(final Vertx instance, final Collection<T> iterable, final BiConsumer<T, Handler<AsyncResult<Boolean>>> consumer, final Handler<AsyncResult<Collection<T>>> handler) {
         filter(instance, iterable, (T t, Handler<AsyncResult<Boolean>> u) -> {
             consumer.accept(t, (Handler<AsyncResult<Boolean>>) (AsyncResult<Boolean> event) -> {
@@ -224,19 +251,35 @@ public final class CollectionsAsync {
         }, handler);
     }
 
+    /**
+     * A relative of `reduce`. Takes a Collection, and iterates over each
+     * element in series, each step potentially mutating an `accumulator` value.
+     * The type of the accumulator defaults to the type of collection passed in.
+     *
+     * @param <I> Define the type of input data
+     * @param <O> Define the type of output data
+     * @param instance Define Vertx instance.
+     * @param iterable A collection to iterate over.
+     * @param consumer A function applied to each item in the collection that
+     * potentially modifies the accumulator. The `consumer` is passed a
+     * `handler`. If an error is passed to the callback, the transform is
+     * stopped and the main `handler` is immediately called with the error.
+     * @param handler A callback which is called after all the `consumer`
+     * functions have finished. Result is the transformed accumulator.
+     */
     public static <I, O> void transform(final Vertx instance, final Collection<I> iterable, final BiConsumer<I, Handler<AsyncResult<O>>> consumer, final Handler<AsyncResult<Collection<O>>> handler) {
         final Iterator<I> iterator = iterable.iterator();
-        final List<O> results = new ArrayList<>(iterable.size());
+        final List<O> result = new ArrayList<>(iterable.size());
 
         instance.runOnContext(new Handler<Void>() {
             @Override
             public void handle(Void event) {
                 if (!iterator.hasNext()) {
-                    handler.handle(DefaultAsyncResult.succeed(results));
+                    handler.handle(DefaultAsyncResult.succeed(result));
                 } else {
                     consumer.accept(iterator.next(), (Handler<AsyncResult<O>>) (AsyncResult<O> event1) -> {
                         if (event1.succeeded()) {
-                            results.add(event1.result());
+                            result.add(event1.result());
                             instance.runOnContext(this);
                         } else {
                             handler.handle(DefaultAsyncResult.fail(event1));
@@ -247,6 +290,22 @@ public final class CollectionsAsync {
         });
     }
 
+    /**
+     * A relative of `reduce`. Takes a Map, and iterates over each element in
+     * series, each step potentially mutating an `accumulator` value. The type
+     * of the accumulator defaults to the type of collection passed in.
+     *
+     * @param <I> Define the type of input data
+     * @param <O> Define the type of output data
+     * @param instance Define Vertx instance.
+     * @param iterable A collection to iterate over.
+     * @param consumer A function applied to each item in the collection that
+     * potentially modifies the accumulator. The `consumer` is passed a
+     * `handler`. If an error is passed to the callback, the transform is
+     * stopped and the main `handler` is immediately called with the error.
+     * @param handler A callback which is called after all the `consumer`
+     * functions have finished. Result is the transformed accumulator.
+     */
     public static <K, V, T, R> void transform(final Vertx instance, final Map<K, V> iterable, final BiConsumer<KeyValue<K, V>, Handler<AsyncResult<KeyValue<T, R>>>> consumer, final Handler<AsyncResult<Map<T, R>>> handler) {
         final Iterator<Map.Entry<K, V>> iterator = iterable.entrySet().iterator();
         final Map<T, R> results = new HashMap<>(iterable.size());
@@ -270,7 +329,30 @@ public final class CollectionsAsync {
             }
         });
     }
-    
+
+    /**
+     * Reduces `collection` into a single value using an async `consumer` to
+     * return each successive step. `memo` is the initial state of the
+     * reduction. This function only operates in series.
+     *
+     * For performance reasons, it may make sense to split a call to this
+     * function into a parallel map, and then use the normal
+     * `Array.prototype.reduce` on the results. This function is for situations
+     * where each step in the reduction needs to be async; if you can get the
+     * data before reducing it, then it's probably a good idea to do so.
+     *
+     * @param <I> Define the type of input data
+     * @param <O> Define the type of output data
+     * @param instance Define Vertx instance.
+     * @param collection A collection to iterate over.
+     * @param memo Initial state of the reduction.
+     * @param function A function applied to each item in the array to produce
+     * the next step in the reduction. The `function` is passed a `handler)`
+     * which accepts an optional error as its first argument, and the state of
+     * the reduction as the second. If an error is passed to the callback, the
+     * reduction is stopped and the main `handler` is immediately called.
+     * @param handler
+     */
     public static <I, O> void reduce(final Vertx instance, final Collection<I> collection, final O memo, final BiConsumer<Pair<I, O>, Handler<AsyncResult<O>>> function, final Handler<AsyncResult<O>> handler) {
         final Iterator<I> iterator = collection.iterator();
         final ObjectWrapper<O> value = new ObjectWrapper<>(memo);
