@@ -276,7 +276,7 @@ public final class CollectionsAsyncTest {
     }
 
     @Test(timeout = CollectionsAsyncTest.LIMIT)
-    public void mapStillExecutesWhenThereAreNoItemsToMap(TestContext context) {
+    public void mapCollectionWhenThereAreNoItemsToMap(TestContext context) {
         final List<Integer> items = Arrays.asList();
         final FakeAsyncFunction<Integer, Integer> each = new FakeAsyncFunction<Integer, Integer>() {
             @Override
@@ -294,6 +294,25 @@ public final class CollectionsAsyncTest {
             context.assertTrue(result.succeeded());
             context.assertTrue(result.result().isEmpty());
             context.assertEquals(0, each.runCount());
+            context.assertEquals(1, (int) handlerCallCount.getObject());
+            async.complete();
+        });
+    }
+    
+    @Test(timeout = CollectionsAsyncTest.LIMIT)
+    public void mapCollectionInFail(TestContext context) {
+        final List<Integer> items = Arrays.asList(1, 2, 3);
+        final FakeFailingAsyncFunction<Integer, Integer> each = new FakeFailingAsyncFunction<>(new Throwable("Failed"));
+        final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
+        final Async async = context.async();
+
+        CollectionsAsync.map(rule.vertx(), items, each, result -> {
+            handlerCallCount.setObject(handlerCallCount.getObject() + 1);
+
+            context.assertNotNull(result);
+            context.assertFalse(result.succeeded());
+            context.assertNull(result.result());
+            context.assertEquals(1, each.runCount());
             context.assertEquals(1, (int) handlerCallCount.getObject());
             async.complete();
         });
