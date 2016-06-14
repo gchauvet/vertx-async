@@ -421,6 +421,10 @@ public final class CollectionsAsync {
                         handler.handle(DefaultAsyncResult.fail(event));
                     }
                 }));
+                
+                if (found.getObject()) {
+                    break;
+                }
             }
         }
     }
