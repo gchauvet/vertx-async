@@ -1,11 +1,9 @@
 dist: trusty
-sudo: false
-language: java
 
-addons:
-  apt:
-    packages:
-      - openjdk8-jdk
+language: java
+jdk:
+- openjdk8-jdk
+
 install:
 - mvn install -DskipTests=true
 
