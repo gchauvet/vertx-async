@@ -295,8 +295,10 @@ public final class CollectionsAsync {
      * series, each step potentially mutating an `accumulator` value. The type
      * of the accumulator defaults to the type of collection passed in.
      *
-     * @param <I> Define the type of input data
-     * @param <O> Define the type of output data
+     * @param <K> Define the type of input key.
+     * @param <V> Define the type of input value.
+     * @param <T> Define the type of output key.
+     * @param <R> Define the type of output value.
      * @param instance Define Vertx instance.
      * @param iterable A collection to iterate over.
      * @param consumer A function applied to each item in the collection that
@@ -375,6 +377,52 @@ public final class CollectionsAsync {
                 }
             }
         });
+    }
+
+    /**
+     * Returns the first value in `collection` that passes an async truth test.
+     * The `function` is applied in parallel, meaning the first iteratee to
+     * return `true` will fire the detect `callback` with that result. That
+     * means the result might not be the first item in the original `collection`
+     * (in terms of order) that passes the test.
+     *
+     * @param <T> Define the manipulated type.
+     * @param instance Define Vertx instance.
+     * @param collection A collection to iterate over.
+     * @param function A truth test to apply to each item in `coll`. The
+     * iteratee is passed a `callback(err, truthValue)` which must be called
+     * with a boolean argument once it has completed.
+     * @param handler A callback which is called as soon as any iteratee returns
+     * `true`, or after all the `function` functions have finished. Result will
+     * be the first item in the array that passes the truth test (function) or
+     * the value `null` if none passed.
+     */
+    public static <T> void detect(final Vertx instance, final Collection<T> collection, final BiConsumer<T, Handler<AsyncResult<Boolean>>> function, final Handler<AsyncResult<T>> handler) {
+        if (collection.isEmpty()) {
+            handler.handle(DefaultAsyncResult.succeed(null));
+        } else {
+            final ObjectWrapper<Boolean> found = new ObjectWrapper<>(false);
+            final ObjectWrapper<Integer> counter = new ObjectWrapper<>(collection.size());
+            for (T item : collection) {
+                instance.runOnContext(aVoid -> function.accept(item, event -> {
+                    counter.setObject(counter.getObject() - 1);
+                    if (event.succeeded()) {
+                        // Prevent Unhandled exception in Netty
+                        if (null != event.result() && event.result()) {
+                            if (!found.getObject()) {
+                                found.setObject(true);
+                                handler.handle(DefaultAsyncResult.succeed(item));
+                            }
+                        } else if (counter.getObject() == 0 && !found.getObject()) {
+                            handler.handle(DefaultAsyncResult.succeed(null));
+                        }
+                    } else {
+                        found.setObject(true);
+                        handler.handle(DefaultAsyncResult.fail(event));
+                    }
+                }));
+            }
+        }
     }
 
 }
