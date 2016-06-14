@@ -32,17 +32,15 @@
     </developers>
     <scm>
         <connection>scm:git:https://github.com/gchauvet/vertx-async.git</connection>
-        <developerConnection>scm:git:git@github.com:simondean/vertx-async.git</developerConnection>
+        <developerConnection>scm:git:git@github.com:gchauvet/vertx-async.git</developerConnection>
         <url>https://github.com/gchauvet/vertx-async.git</url>
     </scm>
-
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <vertx.version>3.2.1</vertx.version>
     </properties>
-
     <dependencies>
         <dependency>
             <groupId>io.vertx</groupId>
@@ -74,6 +72,18 @@
             <url>https://oss.sonatype.org/content/repositories/snapshots</url>
         </snapshotRepository>
     </distributionManagement>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.eluder.coveralls</groupId>
+                <artifactId>coveralls-maven-plugin</artifactId>
+                <version>4.2.0</version>
+                <configuration>
+                    <repoToken>fLqX5i1hDnTP0mfInJRHUlAle7aezesSH</repoToken>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
     <profiles>
         <profile>
             <id>release</id>
