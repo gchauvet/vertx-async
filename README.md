@@ -1,5 +1,5 @@
 [![Build Status via Travis CI](https://travis-ci.org/gchauvet/vertx-async.svg?branch=master)](https://travis-ci.org/gchauvet/vertx-async)
-[![Coverage Status](https://coveralls.io/repos/gchauvet/vertx-async/badge.svg?branch=master)](https://coveralls.io/r/gchauvet/vertx-async?branch=master)
+[![Coverage Status](https://coveralls.io/repos/github/gchauvet/vertx-async/badge.svg?branch=master)](https://coveralls.io/github/gchauvet/vertx-async?branch=master)
 
 # vertx-async
 
