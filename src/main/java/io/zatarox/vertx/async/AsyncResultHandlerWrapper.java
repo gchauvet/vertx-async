@@ -34,10 +34,6 @@ public final class AsyncResultHandlerWrapper<T, R> implements Handler<AsyncResul
         this.handler = handler;
     }
 
-    public static <T, R> Handler<AsyncResult<R>> wrap(Handler<AsyncResult<T>> handler) {
-        return new AsyncResultHandlerWrapper<>(handler);
-    }
-
     @Override
     public void handle(AsyncResult<R> asyncResult) {
         if (asyncResult.failed()) {
