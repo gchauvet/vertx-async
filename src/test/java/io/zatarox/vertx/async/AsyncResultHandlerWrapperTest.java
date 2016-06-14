@@ -29,7 +29,12 @@ import static org.junit.Assert.*;
 
 public final class AsyncResultHandlerWrapperTest {
 
-    @Test(timeout = 100)
+    /**
+     * Timelimit
+     */
+    private static final int LIMIT = 1000;
+    
+    @Test(timeout = AsyncResultHandlerWrapperTest.LIMIT)
     public void testWrapperSucceed() {
         final AsyncResultHandlerWrapper<Void, Void> instance = new AsyncResultHandlerWrapper<>((AsyncResult<Void> event) -> {
              assertTrue(event.succeeded());
@@ -40,7 +45,7 @@ public final class AsyncResultHandlerWrapperTest {
         instance.handle(DefaultAsyncResult.succeed());
     }
     
-    @Test(timeout = 100)
+    @Test(timeout = AsyncResultHandlerWrapperTest.LIMIT)
     public void testWrapperFailed() {
         final AsyncResultHandlerWrapper<Void, Void> instance = new AsyncResultHandlerWrapper<>((AsyncResult<Void> event) -> {
              assertFalse(event.succeeded());
