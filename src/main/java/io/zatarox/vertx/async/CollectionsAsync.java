@@ -28,7 +28,7 @@ import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import java.util.*;
 import java.util.function.BiConsumer;
-import org.javatuples.KeyValue;
+import org.javatuples.*;
 
 public final class CollectionsAsync {
 
@@ -202,6 +202,30 @@ public final class CollectionsAsync {
                             instance.runOnContext(this);
                         } else {
                             handler.handle(DefaultAsyncResult.fail(event1));
+                        }
+                    });
+                }
+            }
+        });
+    }
+    
+    public static <I, O> void reduce(final Vertx instance, final Collection<I> collection, final O memo, final BiConsumer<Pair<I, O>, Handler<AsyncResult<O>>> function, final Handler<AsyncResult<O>> handler) {
+        final Iterator<I> iterator = collection.iterator();
+        final ObjectWrapper<O> value = new ObjectWrapper<>(memo);
+        instance.runOnContext(new Handler<Void>() {
+            @Override
+            public void handle(Void event) {
+                if (!iterator.hasNext()) {
+                    handler.handle(DefaultAsyncResult.succeed(value.getObject()));
+                } else {
+                    function.accept(new Pair<>(iterator.next(), value.getObject()), (Handler<AsyncResult<O>>) (AsyncResult<O> event1) -> {
+                        if (event1.failed()) {
+                            handler.handle(DefaultAsyncResult.fail(event1));
+                        } else {
+                            value.setObject(event1.result());
+                            instance.runOnContext((Void) -> {
+                                instance.runOnContext(this);
+                            });
                         }
                     });
                 }

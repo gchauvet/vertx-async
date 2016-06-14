@@ -35,6 +35,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.javatuples.KeyValue;
+import org.javatuples.Pair;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -777,6 +778,96 @@ public final class CollectionsAsyncTest {
             context.assertEquals(0, result.result().get("Zero"));
             context.assertEquals(1, result.result().get("One"));
             context.assertEquals(2, result.result().get("Two"));
+            context.assertEquals(1, (int) handlerCallCount.getObject());
+            async.complete();
+        });
+    }
+    
+    @Test(timeout = 100)
+    public void reduceWhenThereAreNoItems(TestContext context) {
+        final List<String> items = Arrays.asList();
+        final FakeAsyncFunction<Pair<String, Integer>, Integer> reducer = new FakeAsyncFunction<Pair<String, Integer>, Integer>() {
+            @Override
+            public void accept(Pair<String, Integer> in, Handler<AsyncResult<Integer>> out) {
+                incrementRunCount();
+                consumedValues().add(in);
+                out.handle(DefaultAsyncResult.succeed(Integer.valueOf(in.getValue0()) + in.getValue1()));
+            }
+        };
+        final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
+        final Async async = context.async();
+
+        CollectionsAsync.<String, Integer>reduce(rule.vertx(), items, 0, reducer, result -> {
+            handlerCallCount.setObject(handlerCallCount.getObject() + 1);
+
+            context.assertNotNull(result);
+            context.assertTrue(result.succeeded());
+            context.assertEquals(0, result.result());
+            context.assertEquals(0, reducer.runCount());
+            context.assertEquals(1, (int) handlerCallCount.getObject());
+            async.complete();
+        });
+    }
+    
+    @Test(timeout = 100)
+    public void reduceWhenThereAreItems(TestContext context) {
+        final List<String> items = Arrays.asList("1", "2", "3");
+        final FakeAsyncFunction<Pair<String, Integer>, Integer> reducer = new FakeAsyncFunction<Pair<String, Integer>, Integer>() {
+            @Override
+            public void accept(Pair<String, Integer> in, Handler<AsyncResult<Integer>> out) {
+                incrementRunCount();
+                consumedValues().add(in);
+                out.handle(DefaultAsyncResult.succeed(Integer.valueOf(in.getValue0()) + in.getValue1()));
+            }
+        };
+        final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
+        final Async async = context.async();
+
+        CollectionsAsync.reduce(rule.vertx(), items, 0, reducer, result -> {
+            handlerCallCount.setObject(handlerCallCount.getObject() + 1);
+
+            context.assertNotNull(result);
+            context.assertTrue(result.succeeded());
+            context.assertEquals(6, result.result());
+            context.assertEquals(3, reducer.runCount());
+            context.assertEquals(1, (int) handlerCallCount.getObject());
+            async.complete();
+        });
+    }
+    
+    @Test(timeout = 100)
+    public void reduceWhenThereAreAnItemFails(TestContext context) {
+        final List<String> items = Arrays.asList("1", "2", "3");
+        final FakeFailingAsyncFunction<Pair<String, Integer>, Integer> reducer = new FakeFailingAsyncFunction<>(new Throwable("Failed"));
+        final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
+        final Async async = context.async();
+
+        CollectionsAsync.reduce(rule.vertx(), items, 0, reducer, result -> {
+            handlerCallCount.setObject(handlerCallCount.getObject() + 1);
+
+            context.assertNotNull(result);
+            context.assertFalse(result.succeeded());
+            context.assertNull(result.result());
+            context.assertEquals(1, reducer.runCount());
+            context.assertEquals(1, (int) handlerCallCount.getObject());
+            async.complete();
+        });
+    }
+    
+    @Test(timeout = 100)
+    public void reduceWhenThereAreLastItemFails(TestContext context) {
+        final List<String> items = Arrays.asList("1", "2", "3");
+        final FakeFailingAsyncFunction<Pair<String, Integer>, Integer> reducer = new FakeFailingAsyncFunction<>(2, null, new Throwable("Failed"));
+        final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
+        final Async async = context.async();
+
+        CollectionsAsync.reduce(rule.vertx(), items, 0, reducer, result -> {
+            handlerCallCount.setObject(handlerCallCount.getObject() + 1);
+
+            context.assertNotNull(result);
+            context.assertFalse(result.succeeded());
+            context.assertNull(result.result());
+            context.assertEquals(3, reducer.runCount());
             context.assertEquals(1, (int) handlerCallCount.getObject());
             async.complete();
         });
