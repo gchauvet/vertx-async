@@ -28,7 +28,7 @@ import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import java.util.*;
 import java.util.function.BiConsumer;
-import org.javatuples.Pair;
+import org.javatuples.KeyValue;
 
 public final class CollectionsAsync {
 
@@ -61,14 +61,14 @@ public final class CollectionsAsync {
         }
     }
 
-    public static <K, V> void forEachOf(final Vertx instance, final Map<K, V> iterable, final BiConsumer<Pair<K, V>, Handler<AsyncResult<Void>>> consumer, final Handler<AsyncResult<Void>> handler) {
+    public static <K, V> void forEachOf(final Vertx instance, final Map<K, V> iterable, final BiConsumer<KeyValue<K, V>, Handler<AsyncResult<Void>>> consumer, final Handler<AsyncResult<Void>> handler) {
         if (iterable.isEmpty()) {
             handler.handle(DefaultAsyncResult.succeed());
         } else {
             final ObjectWrapper<Boolean> failed = new ObjectWrapper<>(false);
             final ObjectWrapper<Integer> counter = new ObjectWrapper<>(iterable.size());
             for (final Map.Entry<K, V> item : iterable.entrySet()) {
-                instance.runOnContext(aVoid -> consumer.accept(new Pair<>(item.getKey(), item.getValue()), result -> {
+                instance.runOnContext(aVoid -> consumer.accept(new KeyValue<>(item.getKey(), item.getValue()), result -> {
                     counter.setObject(counter.getObject() - 1);
                     if (result.failed()) {
                         if (!failed.getObject()) {
@@ -185,7 +185,7 @@ public final class CollectionsAsync {
         });
     }
 
-    public static <K, V, T, R> void transform(final Vertx instance, final Map<K, V> iterable, final BiConsumer<Pair<K, V>, Handler<AsyncResult<Pair<T, R>>>> consumer, final Handler<AsyncResult<Map<T, R>>> handler) {
+    public static <K, V, T, R> void transform(final Vertx instance, final Map<K, V> iterable, final BiConsumer<KeyValue<K, V>, Handler<AsyncResult<KeyValue<T, R>>>> consumer, final Handler<AsyncResult<Map<T, R>>> handler) {
         final Iterator<Map.Entry<K, V>> iterator = iterable.entrySet().iterator();
         final Map<T, R> results = new HashMap<>(iterable.size());
 
@@ -196,9 +196,9 @@ public final class CollectionsAsync {
                     handler.handle(DefaultAsyncResult.succeed(results));
                 } else {
                     final Map.Entry<K, V> item = iterator.next();
-                    consumer.accept(new Pair<>(item.getKey(), item.getValue()), (Handler<AsyncResult<Pair<T, R>>>) (AsyncResult<Pair<T, R>> event1) -> {
+                    consumer.accept(new KeyValue<>(item.getKey(), item.getValue()), (Handler<AsyncResult<KeyValue<T, R>>>) (AsyncResult<KeyValue<T, R>> event1) -> {
                         if (event1.succeeded()) {
-                            results.put(event1.result().getValue0(), event1.result().getValue1());
+                            results.put(event1.result().getKey(), event1.result().getValue());
                             instance.runOnContext(this);
                         } else {
                             handler.handle(DefaultAsyncResult.fail(event1));
@@ -208,4 +208,5 @@ public final class CollectionsAsync {
             }
         });
     }
+
 }
