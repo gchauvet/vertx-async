@@ -716,7 +716,7 @@ public final class CollectionsAsyncTest {
         final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
         final Async async = context.async();
 
-        CollectionsAsync.map(rule.vertx(), items, each, result -> {
+        CollectionsAsync.transform(rule.vertx(), items, each, result -> {
             handlerCallCount.setObject(handlerCallCount.getObject() + 1);
 
             context.assertNotNull(result);
