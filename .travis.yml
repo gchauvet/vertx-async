@@ -2,7 +2,7 @@ dist: wily
 
 language: java
 jdk:
-- openjdk-8-jdk
+- openjdk8
 
 install:
 - mvn install -DskipTests=true
