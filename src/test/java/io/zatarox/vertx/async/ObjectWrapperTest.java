@@ -25,24 +25,19 @@ package io.zatarox.vertx.async;
 
 import org.junit.Test;
 import static org.junit.Assert.*;
-import org.junit.Before;
 
 public final class ObjectWrapperTest {
 
-    private ObjectWrapper<Integer> instance;
-    
-    @Before
-    public void setUp() {
-        instance = new ObjectWrapper<>(73);
+    @Test(timeout = 100)
+    public void testDefaultConstructor() {
+        final ObjectWrapper<Integer> instance = new ObjectWrapper<>();
+        assertNull(instance.getObject());
     }
     
     @Test(timeout = 100)
-    public void testConstructor() {
+    public void testMutators() {
+        final ObjectWrapper<Integer> instance = new ObjectWrapper<>(73);
         assertEquals(73, (int) instance.getObject());
-    }
-    
-    @Test(timeout = 100)
-    public void testSetter() {
         instance.setObject(42);
         assertEquals(42, (int) instance.getObject());
     }
