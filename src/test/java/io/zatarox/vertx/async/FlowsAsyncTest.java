@@ -50,7 +50,7 @@ public final class FlowsAsyncTest {
     public RunTestOnContext rule = new RunTestOnContext();
 
     @Test(timeout = FlowsAsyncTest.LIMIT)
-    public void seriesStillExecutesWhenThereAreNoTasks(TestContext context) {
+    public void seriesStillExecutesWhenThereAreNoTasks(final TestContext context) {
         final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
         final Async async = context.async();
 
@@ -68,7 +68,7 @@ public final class FlowsAsyncTest {
     }
 
     @Test(timeout = FlowsAsyncTest.LIMIT)
-    public void seriesExecutesOneTask(TestContext context) {
+    public void seriesExecutesOneTask(final TestContext context) {
         final FakeSuccessfulAsyncSupplier<Object> task1 = new FakeSuccessfulAsyncSupplier<>("Task 1");
         final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
         final Async async = context.async();
@@ -88,7 +88,7 @@ public final class FlowsAsyncTest {
     }
 
     @Test(timeout = FlowsAsyncTest.LIMIT)
-    public void seriesExecutesTwoTasks(TestContext context) {
+    public void seriesExecutesTwoTasks(final TestContext context) {
         final FakeSuccessfulAsyncSupplier<Object> task1 = new FakeSuccessfulAsyncSupplier<>("Task 1");
         final FakeSuccessfulAsyncSupplier<Object> task2 = new FakeSuccessfulAsyncSupplier<>("Task 2");
         final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
@@ -110,7 +110,7 @@ public final class FlowsAsyncTest {
     }
 
     @Test(timeout = FlowsAsyncTest.LIMIT)
-    public void seriesFailsWhenATaskFails(TestContext context) {
+    public void seriesFailsWhenATaskFails(final TestContext context) {
         final FakeFailingAsyncSupplier<Object> task1 = new FakeFailingAsyncSupplier<>(new Throwable("Failed"));
         final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
         final Async async = context.async();
@@ -129,7 +129,7 @@ public final class FlowsAsyncTest {
     }
 
     @Test(timeout = FlowsAsyncTest.LIMIT)
-    public void seriesExecutesNoMoreTasksWhenATaskFails(TestContext context) {
+    public void seriesExecutesNoMoreTasksWhenATaskFails(final TestContext context) {
         final FakeFailingAsyncSupplier<Object> task1 = new FakeFailingAsyncSupplier<>(new Throwable("Failed"));
         final FakeSuccessfulAsyncSupplier<Object> task2 = new FakeSuccessfulAsyncSupplier<>("Task 2");
         final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
@@ -150,7 +150,7 @@ public final class FlowsAsyncTest {
     }
 
     @Test(timeout = FlowsAsyncTest.LIMIT)
-    public void retryExecutesTheTask(TestContext context) {
+    public void retryExecutesTheTask(final TestContext context) {
         final FakeSuccessfulAsyncSupplier<String> task1 = new FakeSuccessfulAsyncSupplier<>("Task 1");
         final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
         final Async async = context.async();
@@ -170,7 +170,7 @@ public final class FlowsAsyncTest {
     }
 
     @Test(timeout = FlowsAsyncTest.LIMIT)
-    public void retryExecutesTheTaskAgainAfterAFailure(TestContext context) {
+    public void retryExecutesTheTaskAgainAfterAFailure(final TestContext context) {
         final FakeSuccessfulAsyncSupplier<String> task1 = new FakeSuccessfulAsyncSupplier<>(1, new Throwable("Failed"), "Task 1");
         final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
         final Async async = context.async();
@@ -190,7 +190,7 @@ public final class FlowsAsyncTest {
     }
 
     @Test(timeout = FlowsAsyncTest.LIMIT)
-    public void retryExecutesTheTaskAgainAfterASecondFailure(TestContext context) {
+    public void retryExecutesTheTaskAgainAfterASecondFailure(final TestContext context) {
         final FakeSuccessfulAsyncSupplier<String> task1 = new FakeSuccessfulAsyncSupplier<>(2, new Throwable("Failed"), "Task 1");
         final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
         final Async async = context.async();
@@ -210,7 +210,7 @@ public final class FlowsAsyncTest {
     }
 
     @Test(timeout = FlowsAsyncTest.LIMIT)
-    public void retryFailsAfterTheRetryTimes(TestContext context) {
+    public void retryFailsAfterTheRetryTimes(final TestContext context) {
         final FakeFailingAsyncSupplier<String> task1 = new FakeFailingAsyncSupplier<>(new Throwable("Failed"));
         final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
         final Async async = context.async();
@@ -229,7 +229,7 @@ public final class FlowsAsyncTest {
     }
 
     @Test(timeout = FlowsAsyncTest.LIMIT)
-    public void foreverExecutesTheTaskUntilItFails(TestContext context) {
+    public void foreverExecutesTheTaskUntilItFails(final TestContext context) {
         final FakeFailingAsyncSupplier<Void> task1 = new FakeFailingAsyncSupplier<>(2, null, new Throwable("Failed"));
         final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
         final Async async = context.async();
@@ -248,7 +248,7 @@ public final class FlowsAsyncTest {
     }
 
     @Test(timeout = FlowsAsyncTest.LIMIT)
-    public void waterfallOneTask(TestContext context) {
+    public void waterfallOneTask(final TestContext context) {
         final FakeSuccessfulAsyncFunction<Void, String> task1 = new FakeSuccessfulAsyncFunction<>("Task 1");
         final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
         final List<BiConsumer<Object, Handler<AsyncResult<Object>>>> functions = new LinkedList<>();
@@ -270,7 +270,7 @@ public final class FlowsAsyncTest {
     }
 
     @Test(timeout = FlowsAsyncTest.LIMIT)
-    public void waterfallTwoTasks(TestContext context) {
+    public void waterfallTwoTasks(final TestContext context) {
         final FakeSuccessfulAsyncFunction<Void, String> task1 = new FakeSuccessfulAsyncFunction<>("Task 1");
         final FakeSuccessfulAsyncFunction<String, Integer> task2 = new FakeSuccessfulAsyncFunction<>(2);
         final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
@@ -297,7 +297,7 @@ public final class FlowsAsyncTest {
     }
 
     @Test(timeout = FlowsAsyncTest.LIMIT)
-    public void waterfallFailsWhenATaskFails(TestContext context) {
+    public void waterfallFailsWhenATaskFails(final TestContext context) {
         final FakeFailingAsyncFunction<Void, String> task1 = new FakeFailingAsyncFunction<>(new Throwable("Failed"));
         final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
         final List<BiConsumer<Object, Handler<AsyncResult<Object>>>> functions = new LinkedList<>();
@@ -319,7 +319,7 @@ public final class FlowsAsyncTest {
     }
 
     @Test(timeout = FlowsAsyncTest.LIMIT)
-    public void waterfallNoMoreTasksWhenATaskFails(TestContext context) {
+    public void waterfallNoMoreTasksWhenATaskFails(final TestContext context) {
         final FakeFailingAsyncFunction<Void, String> task1 = new FakeFailingAsyncFunction<>(new Throwable("Failed"));
         final FakeSuccessfulAsyncFunction<String, Integer> task2 = new FakeSuccessfulAsyncFunction<>(2);
         final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
@@ -344,7 +344,7 @@ public final class FlowsAsyncTest {
     }
 
     @Test(timeout = FlowsAsyncTest.LIMIT)
-    public void waterfallFailsWhenAConsumerTaskFails(TestContext context) {
+    public void waterfallFailsWhenAConsumerTaskFails(final TestContext context) {
         final FakeSuccessfulAsyncFunction<Void, String> task1 = new FakeSuccessfulAsyncFunction<>("Task 1");
         final FakeFailingAsyncFunction<String, Integer> task2 = new FakeFailingAsyncFunction<>(new Throwable("Failed"));
         final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
@@ -370,7 +370,7 @@ public final class FlowsAsyncTest {
     }
 
     @Test(timeout = FlowsAsyncTest.LIMIT)
-    public void waterfallExecutesNoMoreTasksWhenAConsumerTaskFails(TestContext context) {
+    public void waterfallExecutesNoMoreTasksWhenAConsumerTaskFails(final TestContext context) {
         final FakeSuccessfulAsyncFunction<Void, String> task1 = new FakeSuccessfulAsyncFunction<>("Task 1");
         final FakeFailingAsyncFunction<String, Integer> task2 = new FakeFailingAsyncFunction<>(new Throwable("Failed"));
         final FakeSuccessfulAsyncFunction<Integer, String> task3 = new FakeSuccessfulAsyncFunction<>("Task 3");

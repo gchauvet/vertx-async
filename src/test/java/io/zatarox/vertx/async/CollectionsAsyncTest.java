@@ -52,7 +52,7 @@ public final class CollectionsAsyncTest {
     public RunTestOnContext rule = new RunTestOnContext();
 
     @Test(timeout = CollectionsAsyncTest.LIMIT)
-    public void eachStillExecutesWhenThereAreNoItems(TestContext context) {
+    public void eachStillExecutesWhenThereAreNoItems(final TestContext context) {
         final List<String> items = Arrays.asList();
         final FakeFailingAsyncFunction<String, Void> each = new FakeFailingAsyncFunction<>(new Throwable("Failed"));
         final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
@@ -71,7 +71,7 @@ public final class CollectionsAsyncTest {
     }
 
     @Test(timeout = CollectionsAsyncTest.LIMIT)
-    public void eachExecutesForOneItem(TestContext context) {
+    public void eachExecutesForOneItem(final TestContext context) {
         final List<String> items = Arrays.asList("One");
         final FakeSuccessfulAsyncFunction<String, Void> each = new FakeSuccessfulAsyncFunction<>(null);
         final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
@@ -92,7 +92,7 @@ public final class CollectionsAsyncTest {
     }
 
     @Test(timeout = CollectionsAsyncTest.LIMIT)
-    public void eachExecutesForTwoItems(TestContext context) {
+    public void eachExecutesForTwoItems(final TestContext context) {
         final List<String> items = Arrays.asList("One", "Two");
         final FakeSuccessfulAsyncFunction<String, Void> each = new FakeSuccessfulAsyncFunction<>(null);
         final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
@@ -113,7 +113,7 @@ public final class CollectionsAsyncTest {
     }
 
     @Test(timeout = CollectionsAsyncTest.LIMIT)
-    public void eachFailsWhenAnItemFails(TestContext context) {
+    public void eachFailsWhenAnItemFails(final TestContext context) {
         final List<String> items = Arrays.asList("One");
         final FakeFailingAsyncFunction<String, Void> each = new FakeFailingAsyncFunction<>(new Throwable("Failed"));
         final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
@@ -135,7 +135,7 @@ public final class CollectionsAsyncTest {
     }
 
     @Test(timeout = CollectionsAsyncTest.LIMIT)
-    public void eachFailsNoMoreThanOnce(TestContext context) {
+    public void eachFailsNoMoreThanOnce(final TestContext context) {
         final List<String> items = Arrays.asList("One", "Two");
         final FakeFailingAsyncFunction<String, Void> each = new FakeFailingAsyncFunction<>(new Throwable("Failed"));
         final ObjectWrapper<Integer> resultCount = new ObjectWrapper<>(0);
@@ -158,7 +158,7 @@ public final class CollectionsAsyncTest {
     }
     
     @Test(timeout = CollectionsAsyncTest.LIMIT)
-    public void forEachOfStillExecutesWhenThereAreNoItems(TestContext context) {
+    public void forEachOfStillExecutesWhenThereAreNoItems(final TestContext context) {
         final Map<String, Void> items = new HashMap<>();
         final FakeFailingAsyncFunction<KeyValue<String, Void>, Void> each = new FakeFailingAsyncFunction<>(new Throwable("Failed"));
         final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
@@ -177,7 +177,7 @@ public final class CollectionsAsyncTest {
     }
 
     @Test(timeout = CollectionsAsyncTest.LIMIT)
-    public void forEachOfExecutesForOneItem(TestContext context) {
+    public void forEachOfExecutesForOneItem(final TestContext context) {
         final Map<String, Integer> items = new HashMap<>();
         final FakeSuccessfulAsyncFunction<KeyValue<String, Integer>, Void> each = new FakeSuccessfulAsyncFunction<>(null);
         final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
@@ -201,7 +201,7 @@ public final class CollectionsAsyncTest {
     }
 
     @Test(timeout = CollectionsAsyncTest.LIMIT)
-    public void forEachOfExecutesForTwoItems(TestContext context) {
+    public void forEachOfExecutesForTwoItems(final TestContext context) {
         final Map<String, Integer> items = new HashMap<>();
         final FakeSuccessfulAsyncFunction<KeyValue<String, Integer>, Void> each = new FakeSuccessfulAsyncFunction<>(null);
         final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
@@ -226,7 +226,7 @@ public final class CollectionsAsyncTest {
     }
 
     @Test(timeout = CollectionsAsyncTest.LIMIT)
-    public void forEachOfFailsWhenAnItemFails(TestContext context) {
+    public void forEachOfFailsWhenAnItemFails(final TestContext context) {
         final Map<String, Integer> items = new HashMap<>();
         final FakeFailingAsyncFunction<KeyValue<String, Integer>, Void> each = new FakeFailingAsyncFunction<>(new Throwable("Failed"));
         final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
@@ -251,7 +251,7 @@ public final class CollectionsAsyncTest {
     }
 
     @Test(timeout = CollectionsAsyncTest.LIMIT)
-    public void forEachOfFailsNoMoreThanOnce(TestContext context) {
+    public void forEachOfFailsNoMoreThanOnce(final TestContext context) {
         final Map<String, Integer> items = new HashMap<>();
         final FakeFailingAsyncFunction<KeyValue<String, Integer>, Void> each = new FakeFailingAsyncFunction<>(new Throwable("Failed"));
         final ObjectWrapper<Integer> resultCount = new ObjectWrapper<>(0);
@@ -276,7 +276,7 @@ public final class CollectionsAsyncTest {
     }
 
     @Test(timeout = CollectionsAsyncTest.LIMIT)
-    public void mapCollectionWhenThereAreNoItemsToMap(TestContext context) {
+    public void mapCollectionWhenThereAreNoItemsToMap(final TestContext context) {
         final List<Integer> items = Arrays.asList();
         final FakeAsyncFunction<Integer, Integer> each = new FakeAsyncFunction<Integer, Integer>() {
             @Override
@@ -300,7 +300,7 @@ public final class CollectionsAsyncTest {
     }
     
     @Test(timeout = CollectionsAsyncTest.LIMIT)
-    public void mapCollectionInFail(TestContext context) {
+    public void mapCollectionInFail(final TestContext context) {
         final List<Integer> items = Arrays.asList(1, 2, 3);
         final FakeFailingAsyncFunction<Integer, Integer> each = new FakeFailingAsyncFunction<>(new Throwable("Failed"));
         final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
@@ -319,7 +319,7 @@ public final class CollectionsAsyncTest {
     }
 
     @Test(timeout = CollectionsAsyncTest.LIMIT)
-    public void mapStillExecutesWhenThereAreThreeItemsToMap(TestContext context) {
+    public void mapStillExecutesWhenThereAreThreeItemsToMap(final TestContext context) {
         final List<Integer> items = Arrays.asList(1, 3, 10);
         final FakeAsyncFunction<Integer, Integer> each = new FakeAsyncFunction<Integer, Integer>() {
             @Override
@@ -345,7 +345,7 @@ public final class CollectionsAsyncTest {
     }
 
     @Test(timeout = CollectionsAsyncTest.LIMIT)
-    public void filterStillExecutesWhenThereAreNoItems(TestContext context) {
+    public void filterStillExecutesWhenThereAreNoItems(final TestContext context) {
         final List<String> items = Arrays.asList();
         final FakeFailingAsyncFunction<String, Boolean> filter = new FakeFailingAsyncFunction<>(new Throwable("Failed"));
         final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
@@ -364,7 +364,7 @@ public final class CollectionsAsyncTest {
     }
 
     @Test(timeout = CollectionsAsyncTest.LIMIT)
-    public void filterExecutesForOneItem(TestContext context) {
+    public void filterExecutesForOneItem(final TestContext context) {
         final List<String> items = Arrays.asList("One");
         final FakeAsyncFunction<String, Boolean> filter = new FakeAsyncFunction<String, Boolean>() {
             @Override
@@ -391,7 +391,7 @@ public final class CollectionsAsyncTest {
     }
 
     @Test(timeout = CollectionsAsyncTest.LIMIT)
-    public void filterExecutesForTwoItems(TestContext context) {
+    public void filterExecutesForTwoItems(final TestContext context) {
         final List<String> items = Arrays.asList("One", "Two");
         final FakeAsyncFunction<String, Boolean> filter = new FakeAsyncFunction<String, Boolean>() {
             @Override
@@ -420,7 +420,7 @@ public final class CollectionsAsyncTest {
     }
 
     @Test(timeout = CollectionsAsyncTest.LIMIT)
-    public void filterFailsWhenAnItemFails(TestContext context) {
+    public void filterFailsWhenAnItemFails(final TestContext context) {
         final List<String> items = Arrays.asList("One");
         final FakeFailingAsyncFunction<String, Boolean> filter = new FakeFailingAsyncFunction<>(new Throwable("Failed"));
         final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
@@ -442,7 +442,7 @@ public final class CollectionsAsyncTest {
     }
 
     @Test(timeout = CollectionsAsyncTest.LIMIT)
-    public void filterRejectAllItems(TestContext context) {
+    public void filterRejectAllItems(final TestContext context) {
         final List<String> items = Arrays.asList("One", "Two", "Three");
         final FakeAsyncFunction<String, Boolean> filter = new FakeAsyncFunction<String, Boolean>() {
             @Override
@@ -470,7 +470,7 @@ public final class CollectionsAsyncTest {
     }
 
     @Test(timeout = CollectionsAsyncTest.LIMIT)
-    public void filterAcceptAllItems(TestContext context) {
+    public void filterAcceptAllItems(final TestContext context) {
         final List<String> items = Arrays.asList("One", "Two", "Three");
         final FakeAsyncFunction<String, Boolean> filter = new FakeAsyncFunction<String, Boolean>() {
             @Override
@@ -498,7 +498,7 @@ public final class CollectionsAsyncTest {
     }
 
     @Test(timeout = CollectionsAsyncTest.LIMIT)
-    public void filterFailsNoMoreThanOnce(TestContext context) {
+    public void filterFailsNoMoreThanOnce(final TestContext context) {
         final List<String> items = Arrays.asList("One", "Two");
         final FakeFailingAsyncFunction<String, Boolean> filter = new FakeFailingAsyncFunction<>(new Throwable("Failed"));
         final ObjectWrapper<Integer> resultCount = new ObjectWrapper<>(0);
@@ -521,7 +521,7 @@ public final class CollectionsAsyncTest {
     }
 
     @Test(timeout = CollectionsAsyncTest.LIMIT)
-    public void rejectStillExecutesWhenThereAreNoItems(TestContext context) {
+    public void rejectStillExecutesWhenThereAreNoItems(final TestContext context) {
         final List<String> items = Arrays.asList();
         final FakeFailingAsyncFunction<String, Boolean> filter = new FakeFailingAsyncFunction<>(new Throwable("Failed"));
         final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
@@ -540,7 +540,7 @@ public final class CollectionsAsyncTest {
     }
 
     @Test(timeout = CollectionsAsyncTest.LIMIT)
-    public void rejectExecutesForOneItem(TestContext context) {
+    public void rejectExecutesForOneItem(final TestContext context) {
         final List<String> items = Arrays.asList("One");
         final FakeAsyncFunction<String, Boolean> filter = new FakeAsyncFunction<String, Boolean>() {
             @Override
@@ -567,7 +567,7 @@ public final class CollectionsAsyncTest {
     }
 
     @Test(timeout = CollectionsAsyncTest.LIMIT)
-    public void rejectExecutesForTwoItems(TestContext context) {
+    public void rejectExecutesForTwoItems(final TestContext context) {
         final List<String> items = Arrays.asList("One", "Two");
         final FakeAsyncFunction<String, Boolean> filter = new FakeAsyncFunction<String, Boolean>() {
             @Override
@@ -596,7 +596,7 @@ public final class CollectionsAsyncTest {
     }
 
     @Test(timeout = CollectionsAsyncTest.LIMIT)
-    public void rejectFailsWhenAnItemFails(TestContext context) {
+    public void rejectFailsWhenAnItemFails(final TestContext context) {
         final List<String> items = Arrays.asList("One");
         final FakeFailingAsyncFunction<String, Boolean> filter = new FakeFailingAsyncFunction<>(new Throwable("Failed"));
         final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
@@ -618,7 +618,7 @@ public final class CollectionsAsyncTest {
     }
 
     @Test(timeout = CollectionsAsyncTest.LIMIT)
-    public void rejectNoItems(TestContext context) {
+    public void rejectNoItems(final TestContext context) {
         final List<String> items = Arrays.asList("One", "Two", "Three");
         final FakeAsyncFunction<String, Boolean> filter = new FakeAsyncFunction<String, Boolean>() {
             @Override
@@ -646,7 +646,7 @@ public final class CollectionsAsyncTest {
     }
 
     @Test(timeout = CollectionsAsyncTest.LIMIT)
-    public void rejectKeepAllItems(TestContext context) {
+    public void rejectKeepAllItems(final TestContext context) {
         final List<String> items = Arrays.asList("One", "Two", "Three");
         final FakeAsyncFunction<String, Boolean> filter = new FakeAsyncFunction<String, Boolean>() {
             @Override
@@ -674,7 +674,7 @@ public final class CollectionsAsyncTest {
     }
 
     @Test(timeout = CollectionsAsyncTest.LIMIT)
-    public void rejectFailsNoMoreThanOnce(TestContext context) {
+    public void rejectFailsNoMoreThanOnce(final TestContext context) {
         final List<String> items = Arrays.asList("One", "Two");
         final FakeFailingAsyncFunction<String, Boolean> filter = new FakeFailingAsyncFunction<>(new Throwable("Failed"));
         final ObjectWrapper<Integer> resultCount = new ObjectWrapper<>(0);
@@ -697,7 +697,7 @@ public final class CollectionsAsyncTest {
     }
 
     @Test(timeout = CollectionsAsyncTest.LIMIT)
-    public void transformCollectionStillExecutesWhenThereAreNoItemsToMap(TestContext context) {
+    public void transformCollectionStillExecutesWhenThereAreNoItemsToMap(final TestContext context) {
         final List<Integer> items = Arrays.asList();
         final FakeAsyncFunction<Integer, String> each = new FakeAsyncFunction<Integer, String>() {
             @Override
@@ -723,7 +723,7 @@ public final class CollectionsAsyncTest {
     }
 
     @Test(timeout = CollectionsAsyncTest.LIMIT)
-    public void transformCollectionStillExecutesWhenThereAreThreeItemsToMap(TestContext context) {
+    public void transformCollectionStillExecutesWhenThereAreThreeItemsToMap(final TestContext context) {
         final List<Integer> items = Arrays.asList(1, 3, 10);
         final FakeAsyncFunction<Integer, String> each = new FakeAsyncFunction<Integer, String>() {
             @Override
@@ -749,7 +749,7 @@ public final class CollectionsAsyncTest {
     }
     
     @Test(timeout = CollectionsAsyncTest.LIMIT)
-    public void transformMapStillExecutesWhenThereAreNoItemsToMap(TestContext context) {
+    public void transformMapStillExecutesWhenThereAreNoItemsToMap(final TestContext context) {
         final Map<Integer, String> items = new HashMap<>();
         final FakeAsyncFunction<KeyValue<Integer, String>, KeyValue<String, Integer>> each = new FakeAsyncFunction<KeyValue<Integer, String>, KeyValue<String, Integer>>() {
             @Override
@@ -775,7 +775,7 @@ public final class CollectionsAsyncTest {
     }
 
     @Test(timeout = CollectionsAsyncTest.LIMIT)
-    public void transformMapStillExecutesWhenThereAreThreeItemsToMap(TestContext context) {
+    public void transformMapStillExecutesWhenThereAreThreeItemsToMap(final TestContext context) {
         final Map<Integer, String> items = new HashMap<>();
         final FakeAsyncFunction<KeyValue<Integer, String>, KeyValue<String, Integer>> each = new FakeAsyncFunction<KeyValue<Integer, String>, KeyValue<String, Integer>>() {
             @Override
@@ -808,7 +808,7 @@ public final class CollectionsAsyncTest {
     }
     
     @Test(timeout = CollectionsAsyncTest.LIMIT)
-    public void reduceWhenThereAreNoItems(TestContext context) {
+    public void reduceWhenThereAreNoItems(final TestContext context) {
         final List<String> items = Arrays.asList();
         final FakeAsyncFunction<Pair<String, Integer>, Integer> reducer = new FakeAsyncFunction<Pair<String, Integer>, Integer>() {
             @Override
@@ -834,7 +834,7 @@ public final class CollectionsAsyncTest {
     }
     
     @Test(timeout = CollectionsAsyncTest.LIMIT)
-    public void reduceWhenThereAreItems(TestContext context) {
+    public void reduceWhenThereAreItems(final TestContext context) {
         final List<String> items = Arrays.asList("1", "2", "3");
         final FakeAsyncFunction<Pair<String, Integer>, Integer> reducer = new FakeAsyncFunction<Pair<String, Integer>, Integer>() {
             @Override
@@ -860,7 +860,7 @@ public final class CollectionsAsyncTest {
     }
     
     @Test(timeout = CollectionsAsyncTest.LIMIT)
-    public void reduceWhenThereAreAnItemFails(TestContext context) {
+    public void reduceWhenThereAreAnItemFails(final TestContext context) {
         final List<String> items = Arrays.asList("1", "2", "3");
         final FakeFailingAsyncFunction<Pair<String, Integer>, Integer> reducer = new FakeFailingAsyncFunction<>(new Throwable("Failed"));
         final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
@@ -879,7 +879,7 @@ public final class CollectionsAsyncTest {
     }
     
     @Test(timeout = CollectionsAsyncTest.LIMIT)
-    public void reduceWhenThereAreLastItemFails(TestContext context) {
+    public void reduceWhenThereAreLastItemFails(final TestContext context) {
         final List<String> items = Arrays.asList("1", "2", "3");
         final FakeFailingAsyncFunction<Pair<String, Integer>, Integer> reducer = new FakeFailingAsyncFunction<>(2, null, new Throwable("Failed"));
         final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
@@ -898,7 +898,7 @@ public final class CollectionsAsyncTest {
     }
     
     @Test(timeout = CollectionsAsyncTest.LIMIT)
-    public void detectWhenThereAreNoItems(TestContext context) {
+    public void detectWhenThereAreNoItems(final TestContext context) {
         final List<String> items = Arrays.asList();
         final FakeAsyncFunction<String, Boolean> tester = new FakeAsyncFunction<String, Boolean>() {
             @Override
@@ -924,7 +924,7 @@ public final class CollectionsAsyncTest {
     }
     
     @Test(timeout = CollectionsAsyncTest.LIMIT)
-    public void detectAnItem(TestContext context) {
+    public void detectAnItem(final TestContext context) {
         final List<String> items = Arrays.asList("1", "2", "3");
         final FakeAsyncFunction<String, Boolean> tester = new FakeAsyncFunction<String, Boolean>() {
             @Override
@@ -949,7 +949,7 @@ public final class CollectionsAsyncTest {
     }
     
     @Test(timeout = CollectionsAsyncTest.LIMIT)
-    public void detectNoItem(TestContext context) {
+    public void detectNoItem(final TestContext context) {
         final List<String> items = Arrays.asList("1", "2", "3");
         final FakeAsyncFunction<String, Boolean> tester = new FakeAsyncFunction<String, Boolean>() {
             @Override
@@ -974,7 +974,7 @@ public final class CollectionsAsyncTest {
     }
     
     @Test(timeout = CollectionsAsyncTest.LIMIT)
-    public void detectWithAFailed(TestContext context) {
+    public void detectWithAFailed(final TestContext context) {
         final List<String> items = Arrays.asList("1", "2", "3");
         final FakeFailingAsyncFunction<String, Boolean> tester = new FakeFailingAsyncFunction<>(2, null, new Throwable("Failed"));
         final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
