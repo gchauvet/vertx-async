@@ -31,9 +31,8 @@ import io.vertx.ext.unit.junit.RunTestOnContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
 import io.zatarox.vertx.async.fakes.*;
 import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -54,14 +53,13 @@ public final class FlowsAsyncTest {
         final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
         final Async async = context.async();
 
-        FlowsAsync.series(rule.vertx(), Arrays.asList(), result -> {
+        FlowsAsync.series(rule.vertx(), Arrays.<Consumer<Handler<AsyncResult<Void>>>>asList(), result -> {
             handlerCallCount.setObject(handlerCallCount.getObject() + 1);
 
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
-            final List<Object> resultList = result.result();
-            context.assertNotNull(resultList);
-            context.assertTrue(resultList.isEmpty());
+            context.assertNotNull(result.result());
+            context.assertTrue(result.result().isEmpty());
             context.assertEquals(1, (int) handlerCallCount.getObject());
             async.complete();
         });
@@ -69,19 +67,18 @@ public final class FlowsAsyncTest {
 
     @Test(timeout = FlowsAsyncTest.LIMIT)
     public void seriesExecutesOneTask(final TestContext context) {
-        final FakeSuccessfulAsyncSupplier<Object> task1 = new FakeSuccessfulAsyncSupplier<>("Task 1");
+        final FakeSuccessfulAsyncSupplier<String> task1 = new FakeSuccessfulAsyncSupplier<>("Task 1");
         final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
         final Async async = context.async();
 
-        FlowsAsync.series(rule.vertx(), Arrays.asList(task1), result -> {
+        FlowsAsync.series(rule.vertx(), Arrays.<Consumer<Handler<AsyncResult<String>>>>asList(task1), result -> {
             handlerCallCount.setObject(handlerCallCount.getObject() + 1);
 
             context.assertEquals(1, task1.runCount());
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
-            final List<Object> resultList = result.result();
-            context.assertNotNull(resultList);
-            context.assertTrue(resultList.containsAll(Arrays.asList(task1.result())));
+            context.assertNotNull(result.result());
+            context.assertTrue(result.result().containsAll(Arrays.asList(task1.result())));
             context.assertEquals(1, (int) handlerCallCount.getObject());
             async.complete();
         });
@@ -89,21 +86,20 @@ public final class FlowsAsyncTest {
 
     @Test(timeout = FlowsAsyncTest.LIMIT)
     public void seriesExecutesTwoTasks(final TestContext context) {
-        final FakeSuccessfulAsyncSupplier<Object> task1 = new FakeSuccessfulAsyncSupplier<>("Task 1");
-        final FakeSuccessfulAsyncSupplier<Object> task2 = new FakeSuccessfulAsyncSupplier<>("Task 2");
+        final FakeSuccessfulAsyncSupplier<String> task1 = new FakeSuccessfulAsyncSupplier<>("Task 1");
+        final FakeSuccessfulAsyncSupplier<String> task2 = new FakeSuccessfulAsyncSupplier<>("Task 2");
         final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
         final Async async = context.async();
 
-        FlowsAsync.series(rule.vertx(), Arrays.asList(task1, task2), result -> {
+        FlowsAsync.series(rule.vertx(), Arrays.<Consumer<Handler<AsyncResult<String>>>>asList(task1, task2), result -> {
             handlerCallCount.setObject(handlerCallCount.getObject() + 1);
 
             context.assertEquals(1, task1.runCount());
             context.assertEquals(1, task2.runCount());
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
-            final List<Object> resultList = result.result();
-            context.assertNotNull(resultList);
-            context.assertTrue(resultList.containsAll(Arrays.asList(task1.result(), task2.result())));
+            context.assertNotNull(result.result());
+            context.assertTrue(result.result().containsAll(Arrays.asList(task1.result(), task2.result())));
             context.assertEquals(1, (int) handlerCallCount.getObject());
             async.complete();
         });
@@ -111,11 +107,11 @@ public final class FlowsAsyncTest {
 
     @Test(timeout = FlowsAsyncTest.LIMIT)
     public void seriesFailsWhenATaskFails(final TestContext context) {
-        final FakeFailingAsyncSupplier<Object> task1 = new FakeFailingAsyncSupplier<>(new Throwable("Failed"));
+        final FakeFailingAsyncSupplier<String> task1 = new FakeFailingAsyncSupplier<>(new Throwable("Failed"));
         final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
         final Async async = context.async();
 
-        FlowsAsync.series(rule.vertx(), Arrays.asList(task1), result -> {
+        FlowsAsync.series(rule.vertx(), Arrays.<Consumer<Handler<AsyncResult<String>>>>asList(task1), result -> {
             handlerCallCount.setObject(handlerCallCount.getObject() + 1);
 
             context.assertEquals(1, task1.runCount());
@@ -130,12 +126,12 @@ public final class FlowsAsyncTest {
 
     @Test(timeout = FlowsAsyncTest.LIMIT)
     public void seriesExecutesNoMoreTasksWhenATaskFails(final TestContext context) {
-        final FakeFailingAsyncSupplier<Object> task1 = new FakeFailingAsyncSupplier<>(new Throwable("Failed"));
-        final FakeSuccessfulAsyncSupplier<Object> task2 = new FakeSuccessfulAsyncSupplier<>("Task 2");
+        final FakeFailingAsyncSupplier<String> task1 = new FakeFailingAsyncSupplier<>(new Throwable("Failed"));
+        final FakeSuccessfulAsyncSupplier<String> task2 = new FakeSuccessfulAsyncSupplier<>("Task 2");
         final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
         final Async async = context.async();
 
-        FlowsAsync.series(rule.vertx(), Arrays.asList(task1, task2), result -> {
+        FlowsAsync.series(rule.vertx(), Arrays.<Consumer<Handler<AsyncResult<String>>>>asList(task1, task2), result -> {
             handlerCallCount.setObject(handlerCallCount.getObject() + 1);
 
             context.assertNotNull(result);
@@ -251,12 +247,9 @@ public final class FlowsAsyncTest {
     public void waterfallOneTask(final TestContext context) {
         final FakeSuccessfulAsyncFunction<Void, String> task1 = new FakeSuccessfulAsyncFunction<>("Task 1");
         final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
-        final List<BiConsumer<Object, Handler<AsyncResult<Object>>>> functions = new LinkedList<>();
         final Async async = context.async();
 
-        functions.add((BiConsumer) task1);
-
-        FlowsAsync.waterfall(rule.vertx(), functions, result -> {
+        FlowsAsync.waterfall(rule.vertx(), Arrays.<BiConsumer<Void, Handler<AsyncResult<String>>>>asList(task1), result -> {
             handlerCallCount.setObject(handlerCallCount.getObject() + 1);
 
             context.assertEquals(1, task1.runCount());
@@ -274,13 +267,9 @@ public final class FlowsAsyncTest {
         final FakeSuccessfulAsyncFunction<Void, String> task1 = new FakeSuccessfulAsyncFunction<>("Task 1");
         final FakeSuccessfulAsyncFunction<String, Integer> task2 = new FakeSuccessfulAsyncFunction<>(2);
         final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
-        final List<BiConsumer<Object, Handler<AsyncResult<Object>>>> functions = new LinkedList<>();
         final Async async = context.async();
 
-        functions.add((BiConsumer) task1);
-        functions.add((BiConsumer) task2);
-
-        FlowsAsync.waterfall(rule.vertx(), functions, result -> {
+        FlowsAsync.waterfall(rule.vertx(), Arrays.<BiConsumer<Object, Handler<AsyncResult<Object>>>>asList((BiConsumer) task1, (BiConsumer) task2), result -> {
             handlerCallCount.setObject(handlerCallCount.getObject() + 1);
 
             context.assertEquals(1, task1.runCount());
@@ -300,12 +289,9 @@ public final class FlowsAsyncTest {
     public void waterfallFailsWhenATaskFails(final TestContext context) {
         final FakeFailingAsyncFunction<Void, String> task1 = new FakeFailingAsyncFunction<>(new Throwable("Failed"));
         final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
-        final List<BiConsumer<Object, Handler<AsyncResult<Object>>>> functions = new LinkedList<>();
         final Async async = context.async();
 
-        functions.add((BiConsumer) task1);
-
-        FlowsAsync.waterfall(rule.vertx(), functions, result -> {
+        FlowsAsync.waterfall(rule.vertx(), Arrays.<BiConsumer<Object, Handler<AsyncResult<Object>>>>asList((BiConsumer) task1), result -> {
             handlerCallCount.setObject(handlerCallCount.getObject() + 1);
 
             context.assertEquals(1, (int) task1.runCount());
@@ -323,13 +309,9 @@ public final class FlowsAsyncTest {
         final FakeFailingAsyncFunction<Void, String> task1 = new FakeFailingAsyncFunction<>(new Throwable("Failed"));
         final FakeSuccessfulAsyncFunction<String, Integer> task2 = new FakeSuccessfulAsyncFunction<>(2);
         final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
-        final List<BiConsumer<Object, Handler<AsyncResult<Object>>>> functions = new LinkedList<>();
         final Async async = context.async();
 
-        functions.add((BiConsumer) task1);
-        functions.add((BiConsumer) task2);
-
-        FlowsAsync.waterfall(rule.vertx(), functions, result -> {
+        FlowsAsync.waterfall(rule.vertx(), Arrays.<BiConsumer<Object, Handler<AsyncResult<Object>>>>asList((BiConsumer) task1, (BiConsumer) task2), result -> {
             handlerCallCount.setObject(handlerCallCount.getObject() + 1);
 
             context.assertEquals(1, (int) task1.runCount());
@@ -348,13 +330,9 @@ public final class FlowsAsyncTest {
         final FakeSuccessfulAsyncFunction<Void, String> task1 = new FakeSuccessfulAsyncFunction<>("Task 1");
         final FakeFailingAsyncFunction<String, Integer> task2 = new FakeFailingAsyncFunction<>(new Throwable("Failed"));
         final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
-        final List<BiConsumer<Object, Handler<AsyncResult<Object>>>> functions = new LinkedList<>();
         final Async async = context.async();
 
-        functions.add((BiConsumer) task1);
-        functions.add((BiConsumer) task2);
-
-        FlowsAsync.waterfall(rule.vertx(), functions, result -> {
+        FlowsAsync.waterfall(rule.vertx(), Arrays.<BiConsumer<Object, Handler<AsyncResult<Object>>>>asList((BiConsumer) task1, (BiConsumer) task2), result -> {
             handlerCallCount.setObject(handlerCallCount.getObject() + 1);
 
             context.assertEquals(1, (int) task1.runCount());
@@ -375,14 +353,9 @@ public final class FlowsAsyncTest {
         final FakeFailingAsyncFunction<String, Integer> task2 = new FakeFailingAsyncFunction<>(new Throwable("Failed"));
         final FakeSuccessfulAsyncFunction<Integer, String> task3 = new FakeSuccessfulAsyncFunction<>("Task 3");
         final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
-        final List<BiConsumer<Object, Handler<AsyncResult<Object>>>> functions = new LinkedList<>();
         final Async async = context.async();
 
-        functions.add((BiConsumer) task1);
-        functions.add((BiConsumer) task2);
-        functions.add((BiConsumer) task3);
-
-        FlowsAsync.waterfall(rule.vertx(), functions, result -> {
+        FlowsAsync.waterfall(rule.vertx(), Arrays.<BiConsumer<Object, Handler<AsyncResult<Object>>>>asList((BiConsumer) task1, (BiConsumer) task2, (BiConsumer) task3), result -> {
             handlerCallCount.setObject(handlerCallCount.getObject() + 1);
 
             context.assertEquals(1, (int) task1.runCount());
