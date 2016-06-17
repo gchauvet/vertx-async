@@ -276,7 +276,7 @@ public final class CollectionsAsyncTest {
     }
 
     @Test(timeout = CollectionsAsyncTest.LIMIT)
-    public void mapCollectionWhenThereAreNoItemsToMap(final TestContext context) {
+    public void mapCollectionWhenThereAreNoItems(final TestContext context) {
         final List<Integer> items = Arrays.asList();
         final FakeAsyncFunction<Integer, Integer> each = new FakeAsyncFunction<Integer, Integer>() {
             @Override
@@ -319,7 +319,7 @@ public final class CollectionsAsyncTest {
     }
 
     @Test(timeout = CollectionsAsyncTest.LIMIT)
-    public void mapStillExecutesWhenThereAreThreeItemsToMap(final TestContext context) {
+    public void mapStillExecutesWhenThereAreThreeItems(final TestContext context) {
         final List<Integer> items = Arrays.asList(1, 3, 10);
         final FakeAsyncFunction<Integer, Integer> each = new FakeAsyncFunction<Integer, Integer>() {
             @Override
@@ -697,9 +697,9 @@ public final class CollectionsAsyncTest {
     }
 
     @Test(timeout = CollectionsAsyncTest.LIMIT)
-    public void transformCollectionStillExecutesWhenThereAreNoItemsToMap(final TestContext context) {
+    public void transformCollectionStillExecutesWhenThereAreNoItems(final TestContext context) {
         final List<Integer> items = Arrays.asList();
-        final FakeAsyncFunction<Integer, String> each = new FakeAsyncFunction<Integer, String>() {
+        final FakeAsyncFunction<Integer, String> mapper = new FakeAsyncFunction<Integer, String>() {
             @Override
             public void accept(Integer t, Handler<AsyncResult<String>> u) {
                 incrementRunCount();
@@ -710,22 +710,22 @@ public final class CollectionsAsyncTest {
         final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
         final Async async = context.async();
 
-        CollectionsAsync.transform(rule.vertx(), items, each, result -> {
+        CollectionsAsync.transform(rule.vertx(), items, mapper, result -> {
             handlerCallCount.setObject(handlerCallCount.getObject() + 1);
 
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
             context.assertTrue(result.result().isEmpty());
-            context.assertEquals(0, each.runCount());
+            context.assertEquals(0, mapper.runCount());
             context.assertEquals(1, (int) handlerCallCount.getObject());
             async.complete();
         });
     }
 
     @Test(timeout = CollectionsAsyncTest.LIMIT)
-    public void transformCollectionStillExecutesWhenThereAreThreeItemsToMap(final TestContext context) {
+    public void transformCollectionStillExecutesWhenThereAreThreeItems(final TestContext context) {
         final List<Integer> items = Arrays.asList(1, 3, 10);
-        final FakeAsyncFunction<Integer, String> each = new FakeAsyncFunction<Integer, String>() {
+        final FakeAsyncFunction<Integer, String> mapper = new FakeAsyncFunction<Integer, String>() {
             @Override
             public void accept(Integer t, Handler<AsyncResult<String>> u) {
                 incrementRunCount();
@@ -735,12 +735,12 @@ public final class CollectionsAsyncTest {
         final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
         final Async async = context.async();
 
-        CollectionsAsync.transform(rule.vertx(), items, each, result -> {
+        CollectionsAsync.transform(rule.vertx(), items, mapper, result -> {
             handlerCallCount.setObject(handlerCallCount.getObject() + 1);
 
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
-            context.assertEquals(3, each.runCount());
+            context.assertEquals(3, mapper.runCount());
             context.assertEquals(3, result.result().size());
             context.assertTrue(result.result().containsAll(Arrays.asList(Integer.toString(1 * 1), Integer.toString(3 * 3), Integer.toString(10 * 10))));
             context.assertEquals(1, (int) handlerCallCount.getObject());
@@ -749,9 +749,48 @@ public final class CollectionsAsyncTest {
     }
     
     @Test(timeout = CollectionsAsyncTest.LIMIT)
-    public void transformMapStillExecutesWhenThereAreNoItemsToMap(final TestContext context) {
+    public void transformCollectionFails(final TestContext context) {
+        final List<Integer> items = Arrays.asList(1, 3, 10);
+        final FakeFailingAsyncFunction<Integer, String> mapper = new FakeFailingAsyncFunction<>(new Throwable("Failed"));
+        final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
+        final Async async = context.async();
+
+        CollectionsAsync.transform(rule.vertx(), items, mapper, result -> {
+            handlerCallCount.setObject(handlerCallCount.getObject() + 1);
+
+            context.assertNotNull(result);
+            context.assertFalse(result.succeeded());
+            context.assertTrue(result.failed());
+            context.assertEquals(1, mapper.runCount());
+            context.assertTrue(result.cause() instanceof Throwable);
+            context.assertEquals(1, (int) handlerCallCount.getObject());
+            async.complete();
+        });
+    }
+    
+    @Test(timeout = CollectionsAsyncTest.LIMIT)
+    public void transformMapFails(final TestContext context) {
         final Map<Integer, String> items = new HashMap<>();
-        final FakeAsyncFunction<KeyValue<Integer, String>, KeyValue<String, Integer>> each = new FakeAsyncFunction<KeyValue<Integer, String>, KeyValue<String, Integer>>() {
+        final FakeAsyncFunction<KeyValue<Integer, String>, KeyValue<String, Integer>> mapper = new FakeFailingAsyncFunction<>(new Throwable("Failed"));
+        final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
+        final Async async = context.async();
+
+        CollectionsAsync.transform(rule.vertx(), items, mapper, result -> {
+            handlerCallCount.setObject(handlerCallCount.getObject() + 1);
+
+            context.assertNotNull(result);
+            context.assertTrue(result.succeeded());
+            context.assertTrue(result.result().isEmpty());
+            context.assertEquals(0, mapper.runCount());
+            context.assertEquals(1, (int) handlerCallCount.getObject());
+            async.complete();
+        });
+    }
+    
+    @Test(timeout = CollectionsAsyncTest.LIMIT)
+    public void transformMapStillExecutesWhenThereAreNoItems(final TestContext context) {
+        final Map<Integer, String> items = new HashMap<>();
+        final FakeAsyncFunction<KeyValue<Integer, String>, KeyValue<String, Integer>> mapper = new FakeAsyncFunction<KeyValue<Integer, String>, KeyValue<String, Integer>>() {
             @Override
             public void accept(KeyValue<Integer, String> in, Handler<AsyncResult<KeyValue<String, Integer>>> out) {
                 incrementRunCount();
@@ -762,22 +801,22 @@ public final class CollectionsAsyncTest {
         final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
         final Async async = context.async();
 
-        CollectionsAsync.transform(rule.vertx(), items, each, result -> {
+        CollectionsAsync.transform(rule.vertx(), items, mapper, result -> {
             handlerCallCount.setObject(handlerCallCount.getObject() + 1);
 
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
             context.assertTrue(result.result().isEmpty());
-            context.assertEquals(0, each.runCount());
+            context.assertEquals(0, mapper.runCount());
             context.assertEquals(1, (int) handlerCallCount.getObject());
             async.complete();
         });
     }
 
     @Test(timeout = CollectionsAsyncTest.LIMIT)
-    public void transformMapStillExecutesWhenThereAreThreeItemsToMap(final TestContext context) {
+    public void transformMapStillExecutesWhenThereAreThreeItems(final TestContext context) {
         final Map<Integer, String> items = new HashMap<>();
-        final FakeAsyncFunction<KeyValue<Integer, String>, KeyValue<String, Integer>> each = new FakeAsyncFunction<KeyValue<Integer, String>, KeyValue<String, Integer>>() {
+        final FakeAsyncFunction<KeyValue<Integer, String>, KeyValue<String, Integer>> mapper = new FakeAsyncFunction<KeyValue<Integer, String>, KeyValue<String, Integer>>() {
             @Override
             public void accept(KeyValue<Integer, String> in, Handler<AsyncResult<KeyValue<String, Integer>>> out) {
                 incrementRunCount();
@@ -792,12 +831,12 @@ public final class CollectionsAsyncTest {
         items.put(1, "One");
         items.put(2, "Two");
 
-        CollectionsAsync.transform(rule.vertx(), items, each, result -> {
+        CollectionsAsync.transform(rule.vertx(), items, mapper, result -> {
             handlerCallCount.setObject(handlerCallCount.getObject() + 1);
 
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
-            context.assertEquals(3, each.runCount());
+            context.assertEquals(3, mapper.runCount());
             context.assertEquals(3, result.result().size());
             context.assertEquals(0, result.result().get("Zero"));
             context.assertEquals(1, result.result().get("One"));
