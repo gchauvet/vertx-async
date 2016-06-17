@@ -774,14 +774,16 @@ public final class CollectionsAsyncTest {
         final FakeAsyncFunction<KeyValue<Integer, String>, KeyValue<String, Integer>> mapper = new FakeFailingAsyncFunction<>(new Throwable("Failed"));
         final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
         final Async async = context.async();
-
+        items.put(1, "One");
+        
         CollectionsAsync.transform(rule.vertx(), items, mapper, result -> {
             handlerCallCount.setObject(handlerCallCount.getObject() + 1);
 
             context.assertNotNull(result);
-            context.assertTrue(result.succeeded());
-            context.assertTrue(result.result().isEmpty());
-            context.assertEquals(0, mapper.runCount());
+            context.assertFalse(result.succeeded());
+            context.assertTrue(result.failed());
+            context.assertNull(result.result());
+            context.assertEquals(1, mapper.runCount());
             context.assertEquals(1, (int) handlerCallCount.getObject());
             async.complete();
         });
