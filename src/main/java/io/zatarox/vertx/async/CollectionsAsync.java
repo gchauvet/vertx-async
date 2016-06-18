@@ -83,7 +83,7 @@ public final class CollectionsAsync {
             }
         }
     }
-
+    
     /**
      * Like {@code each}, except that it passes the tuple key/value as argument
      * to the consumer.
@@ -100,7 +100,7 @@ public final class CollectionsAsync {
      * @param handler A callback which is called when all {@code consumer}
      * functions have finished, or an error occurs.
      */
-    public static <K, V> void forEachOf(final Vertx instance, final Map<K, V> iterable, final BiConsumer<KeyValue<K, V>, Handler<AsyncResult<Void>>> consumer, final Handler<AsyncResult<Void>> handler) {
+    public static <K, V> void each(final Vertx instance, final Map<K, V> iterable, final BiConsumer<KeyValue<K, V>, Handler<AsyncResult<Void>>> consumer, final Handler<AsyncResult<Void>> handler) {
         if (iterable.isEmpty()) {
             handler.handle(DefaultAsyncResult.succeed());
         } else {

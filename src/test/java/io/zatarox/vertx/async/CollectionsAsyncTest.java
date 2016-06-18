@@ -158,13 +158,13 @@ public final class CollectionsAsyncTest {
     }
     
     @Test(timeout = CollectionsAsyncTest.LIMIT)
-    public void forEachOfStillExecutesWhenThereAreNoItems(final TestContext context) {
+    public void eachOfStillExecutesWhenThereAreNoItems(final TestContext context) {
         final Map<String, Void> items = new HashMap<>();
         final FakeFailingAsyncFunction<KeyValue<String, Void>, Void> each = new FakeFailingAsyncFunction<>(new Throwable("Failed"));
         final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
         final Async async = context.async();
 
-        CollectionsAsync.forEachOf(rule.vertx(), items, each, result -> {
+        CollectionsAsync.each(rule.vertx(), items, each, result -> {
             handlerCallCount.setObject(handlerCallCount.getObject() + 1);
 
             context.assertNotNull(result);
@@ -177,14 +177,14 @@ public final class CollectionsAsyncTest {
     }
 
     @Test(timeout = CollectionsAsyncTest.LIMIT)
-    public void forEachOfExecutesForOneItem(final TestContext context) {
+    public void eachOfExecutesForOneItem(final TestContext context) {
         final Map<String, Integer> items = new HashMap<>();
         final FakeSuccessfulAsyncFunction<KeyValue<String, Integer>, Void> each = new FakeSuccessfulAsyncFunction<>(null);
         final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
         final Async async = context.async();
         items.put("One", 1);
 
-        CollectionsAsync.forEachOf(rule.vertx(), items, each, result -> {
+        CollectionsAsync.each(rule.vertx(), items, each, result -> {
             handlerCallCount.setObject(handlerCallCount.getObject() + 1);
 
             context.assertNotNull(result);
@@ -201,7 +201,7 @@ public final class CollectionsAsyncTest {
     }
 
     @Test(timeout = CollectionsAsyncTest.LIMIT)
-    public void forEachOfExecutesForTwoItems(final TestContext context) {
+    public void eachOfExecutesForTwoItems(final TestContext context) {
         final Map<String, Integer> items = new HashMap<>();
         final FakeSuccessfulAsyncFunction<KeyValue<String, Integer>, Void> each = new FakeSuccessfulAsyncFunction<>(null);
         final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
@@ -209,7 +209,7 @@ public final class CollectionsAsyncTest {
         items.put("One", 1);
         items.put("Two", 2);
         
-        CollectionsAsync.forEachOf(rule.vertx(), items, each, result -> {
+        CollectionsAsync.each(rule.vertx(), items, each, result -> {
             handlerCallCount.setObject(handlerCallCount.getObject() + 1);
 
             context.assertNotNull(result);
@@ -226,14 +226,14 @@ public final class CollectionsAsyncTest {
     }
 
     @Test(timeout = CollectionsAsyncTest.LIMIT)
-    public void forEachOfFailsWhenAnItemFails(final TestContext context) {
+    public void eachOfFailsWhenAnItemFails(final TestContext context) {
         final Map<String, Integer> items = new HashMap<>();
         final FakeFailingAsyncFunction<KeyValue<String, Integer>, Void> each = new FakeFailingAsyncFunction<>(new Throwable("Failed"));
         final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
         final Async async = context.async();
         items.put("One", 1);
 
-        CollectionsAsync.forEachOf(rule.vertx(), items, each, result -> {
+        CollectionsAsync.each(rule.vertx(), items, each, result -> {
             handlerCallCount.setObject(handlerCallCount.getObject() + 1);
 
             context.assertNotNull(result);
@@ -251,7 +251,7 @@ public final class CollectionsAsyncTest {
     }
 
     @Test(timeout = CollectionsAsyncTest.LIMIT)
-    public void forEachOfFailsNoMoreThanOnce(final TestContext context) {
+    public void eachOfFailsNoMoreThanOnce(final TestContext context) {
         final Map<String, Integer> items = new HashMap<>();
         final FakeFailingAsyncFunction<KeyValue<String, Integer>, Void> each = new FakeFailingAsyncFunction<>(new Throwable("Failed"));
         final ObjectWrapper<Integer> resultCount = new ObjectWrapper<>(0);
@@ -260,7 +260,7 @@ public final class CollectionsAsyncTest {
         items.put("One", 1);
         items.put("Two", 2);
         
-        CollectionsAsync.forEachOf(rule.vertx(), items, each, result -> {
+        CollectionsAsync.each(rule.vertx(), items, each, result -> {
             handlerCallCount.setObject(handlerCallCount.getObject() + 1);
 
             context.assertNotNull(result);
