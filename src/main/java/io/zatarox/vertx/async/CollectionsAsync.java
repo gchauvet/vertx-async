@@ -346,9 +346,7 @@ public final class CollectionsAsync {
      * {@code consumer} to return each successive step. {@code memo} is the
      * initial state of the reduction. This function only operates in series.
      *
-     * For performance reasons, it may make sense to split a call to this
-     * function into a parallel map, and then use the normal
-     * `Array.prototype.reduce` on the results. This function is for situations
+     * This function is for situations
      * where each step in the reduction needs to be async; if you can get the
      * data before reducing it, then it's probably a good idea to do so.
      *
@@ -359,7 +357,7 @@ public final class CollectionsAsync {
      * @param memo Initial state of the reduction.
      * @param function A function applied to each item in the array to produce
      * the next step in the reduction. The {@code function} is passed a
-     * `handler)` which accepts an optional error as its first argument, and the
+     * {@code handler} which accepts an optional error as its first argument, and the
      * state of the reduction as the second. If an error is passed to the
      * callback, the reduction is stopped and the main {@code handler} is
      * immediately called.
@@ -400,7 +398,7 @@ public final class CollectionsAsync {
      * @param instance Define Vertx instance.
      * @param collection A collection to iterate over.
      * @param function A truth test to apply to each item in {@code collection}.
-     * The iteratee is passed a `callback(err, truthValue)` which must be called
+     * The iteratee is passed a {@code callback} which must be called
      * with a boolean argument once it has completed.
      * @param handler A callback which is called as soon as any iteratee returns
      * {@code true}, or after all the {@code function} functions have finished.
@@ -472,6 +470,52 @@ public final class CollectionsAsync {
                             }
                         } else if (counter.getObject() == 0 && !stop.getObject()) {
                             handler.handle(DefaultAsyncResult.succeed(false));
+                        }
+                    } else {
+                        stop.setObject(true);
+                        handler.handle(DefaultAsyncResult.fail(event));
+                    }
+                }));
+
+                if (stop.getObject()) {
+                    break;
+                }
+            }
+        }
+    }
+
+    /**
+     * Returns {@code true} if every element in {@code collection} satisfies an
+     * async test. If any iteratee call returns {@code false}, the main
+     * {@code callback} is immediately called.
+     *
+     * @param <T> Define the manipulated type.
+     * @param instance Define Vertx instance.
+     * @param collection A collection to iterate over.
+     * @param function A truth test to apply to each item in the collection in
+     * parallel.
+     * @param handler A callback which is called after all the {code collection}
+     * functions have finished. Result will be either {@code true} or
+     * {@code false} depending on the values of the async tests.
+     */
+    public static <T> void every(final Vertx instance, final Collection<T> collection, final BiConsumer<T, Handler<AsyncResult<Boolean>>> function, final Handler<AsyncResult<Boolean>> handler) {
+        if (collection.isEmpty()) {
+            handler.handle(DefaultAsyncResult.succeed(false));
+        } else {
+            final ObjectWrapper<Boolean> stop = new ObjectWrapper<>(false);
+            final ObjectWrapper<Integer> counter = new ObjectWrapper<>(collection.size());
+            for (T item : collection) {
+                instance.runOnContext(aVoid -> function.accept(item, event -> {
+                    counter.setObject(counter.getObject() - 1);
+                    if (event.succeeded()) {
+                        // Prevent Unhandled exception in Netty
+                        if (null != event.result() && !event.result()) {
+                            if (!stop.getObject()) {
+                                stop.setObject(true);
+                                handler.handle(DefaultAsyncResult.succeed(false));
+                            }
+                        } else if (counter.getObject() == 0 && !stop.getObject()) {
+                            handler.handle(DefaultAsyncResult.succeed(true));
                         }
                     } else {
                         stop.setObject(true);

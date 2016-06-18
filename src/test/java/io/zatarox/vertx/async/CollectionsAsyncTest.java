@@ -1126,4 +1126,98 @@ public final class CollectionsAsyncTest {
             async.complete();
         });
     }
+    
+    @Test(timeout = CollectionsAsyncTest.LIMIT)
+    public void everyWhenThereAreNoItems(final TestContext context) {
+        final List<String> items = Arrays.asList();
+        final FakeAsyncFunction<String, Boolean> tester = new FakeAsyncFunction<String, Boolean>() {
+            @Override
+            public void accept(String in, Handler<AsyncResult<Boolean>> out) {
+                incrementRunCount();
+                consumedValues().add(in);
+                out.handle(DefaultAsyncResult.succeed(!"".equalsIgnoreCase(in)));
+            }
+        };
+        final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
+        final Async async = context.async();
+
+        CollectionsAsync.every(rule.vertx(), items, tester, result -> {
+            handlerCallCount.setObject(handlerCallCount.getObject() + 1);
+
+            context.assertNotNull(result);
+            context.assertTrue(result.succeeded());
+            context.assertFalse(result.result());
+            context.assertEquals(0, tester.runCount());
+            context.assertEquals(1, (int) handlerCallCount.getObject());
+            async.complete();
+        });
+    }
+    
+    @Test(timeout = CollectionsAsyncTest.LIMIT)
+    public void everyAllItem(final TestContext context) {
+        final List<String> items = Arrays.asList("1", "2", "3");
+        final FakeAsyncFunction<String, Boolean> tester = new FakeAsyncFunction<String, Boolean>() {
+            @Override
+            public void accept(String in, Handler<AsyncResult<Boolean>> out) {
+                incrementRunCount();
+                consumedValues().add(in);
+                out.handle(DefaultAsyncResult.succeed(!"".equalsIgnoreCase(in)));
+            }
+        };
+        final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
+        final Async async = context.async();
+
+        CollectionsAsync.every(rule.vertx(), items, tester, result -> {
+            handlerCallCount.setObject(handlerCallCount.getObject() + 1);
+
+            context.assertNotNull(result);
+            context.assertTrue(result.succeeded());
+            context.assertTrue(result.result());
+            context.assertEquals(1, (int) handlerCallCount.getObject());
+            async.complete();
+        });
+    }
+    
+    @Test(timeout = CollectionsAsyncTest.LIMIT)
+    public void everyNoAllItem(final TestContext context) {
+        final List<String> items = Arrays.asList("1", "2", "3");
+        final FakeAsyncFunction<String, Boolean> tester = new FakeAsyncFunction<String, Boolean>() {
+            @Override
+            public void accept(String in, Handler<AsyncResult<Boolean>> out) {
+                incrementRunCount();
+                consumedValues().add(in);
+                out.handle(DefaultAsyncResult.succeed(!"2".equalsIgnoreCase(in)));
+            }
+        };
+        final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
+        final Async async = context.async();
+
+        CollectionsAsync.every(rule.vertx(), items, tester, result -> {
+            handlerCallCount.setObject(handlerCallCount.getObject() + 1);
+
+            context.assertNotNull(result);
+            context.assertTrue(result.succeeded());
+            context.assertFalse(result.result());
+            context.assertEquals(1, (int) handlerCallCount.getObject());
+            async.complete();
+        });
+    }
+    
+    @Test(timeout = CollectionsAsyncTest.LIMIT)
+    public void everyWithAFailed(final TestContext context) {
+        final List<String> items = Arrays.asList("1", "2", "3");
+        final FakeFailingAsyncFunction<String, Boolean> tester = new FakeFailingAsyncFunction<>(2, null, new Throwable("Failed"));
+        final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
+        final Async async = context.async();
+
+        CollectionsAsync.every(rule.vertx(), items, tester, result -> {
+            handlerCallCount.setObject(handlerCallCount.getObject() + 1);
+
+            context.assertNotNull(result);
+            context.assertFalse(result.succeeded());
+            context.assertNull(result.result());
+            context.assertEquals(1, (int) handlerCallCount.getObject());
+            async.complete();
+        });
+    }
 }
