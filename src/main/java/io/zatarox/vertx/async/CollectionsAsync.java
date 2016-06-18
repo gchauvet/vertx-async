@@ -346,9 +346,9 @@ public final class CollectionsAsync {
      * {@code consumer} to return each successive step. {@code memo} is the
      * initial state of the reduction. This function only operates in series.
      *
-     * This function is for situations
-     * where each step in the reduction needs to be async; if you can get the
-     * data before reducing it, then it's probably a good idea to do so.
+     * This function is for situations where each step in the reduction needs to
+     * be async; if you can get the data before reducing it, then it's probably
+     * a good idea to do so.
      *
      * @param <I> Define the type of input data
      * @param <O> Define the type of output data
@@ -357,9 +357,9 @@ public final class CollectionsAsync {
      * @param memo Initial state of the reduction.
      * @param function A function applied to each item in the array to produce
      * the next step in the reduction. The {@code function} is passed a
-     * {@code handler} which accepts an optional error as its first argument, and the
-     * state of the reduction as the second. If an error is passed to the
-     * callback, the reduction is stopped and the main {@code handler} is
+     * {@code handler} which accepts an optional error as its first argument,
+     * and the state of the reduction as the second. If an error is passed to
+     * the callback, the reduction is stopped and the main {@code handler} is
      * immediately called.
      * @param handler
      */
@@ -398,8 +398,8 @@ public final class CollectionsAsync {
      * @param instance Define Vertx instance.
      * @param collection A collection to iterate over.
      * @param function A truth test to apply to each item in {@code collection}.
-     * The iteratee is passed a {@code callback} which must be called
-     * with a boolean argument once it has completed.
+     * The iteratee is passed a {@code callback} which must be called with a
+     * boolean argument once it has completed.
      * @param handler A callback which is called as soon as any iteratee returns
      * {@code true}, or after all the {@code function} functions have finished.
      * Result will be the first item in the array that passes the truth test
@@ -530,4 +530,50 @@ public final class CollectionsAsync {
         }
     }
 
+    /**
+     * Applies {@code consumer} to each item in {@code collection},
+     * concatenating the results. Returns the concatenated list. The
+     * {@code iteratee}s are called in parallel, and the results are
+     * concatenated as they return. There is no guarantee that the results array
+     * will be returned in the original order of {@code collection} passed to
+     * the {@code iteratee} function.
+     *
+     * @param <I> Define input type.
+     * @param <O> Define output type.
+     * @param instance Define Vertx instance.
+     * @param iterable A collection to iterate over.
+     * @param consumer
+     * @param handler
+     */
+    public static <I, O> void concat(final Vertx instance, final Collection<I> iterable, final BiConsumer<I, Handler<AsyncResult<Collection<O>>>> consumer, final Handler<AsyncResult<Collection<O>>> handler) {
+        final List<O> results = new ArrayList<>(iterable.size());
+        if (iterable.isEmpty()) {
+            handler.handle(DefaultAsyncResult.succeed(results));
+        } else {
+            final ObjectWrapper<Boolean> stop = new ObjectWrapper<>(false);
+            final ObjectWrapper<Integer> counter = new ObjectWrapper<>(iterable.size());
+            for (I item : iterable) {
+                instance.runOnContext(aVoid -> consumer.accept(item, result -> {
+                    counter.setObject(counter.getObject() - 1);
+                    if (result.failed()) {
+                        if (!stop.getObject()) {
+                            stop.setObject(true);
+                            handler.handle(DefaultAsyncResult.fail(result));
+                        }
+                    } else {
+                        if(result.result() != null) {
+                            results.addAll(result.result());
+                        }
+                        if (counter.getObject() == 0 && !stop.getObject()) {
+                            handler.handle(DefaultAsyncResult.succeed(results));
+                        }
+                    }
+                }));
+
+                if (stop.getObject()) {
+                    break;
+                }
+            }
+        }
+    }
 }
