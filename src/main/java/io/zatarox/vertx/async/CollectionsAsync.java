@@ -83,7 +83,7 @@ public final class CollectionsAsync {
             }
         }
     }
-    
+
     /**
      * Like {@code each}, except that it passes the tuple key/value as argument
      * to the consumer.
@@ -433,6 +433,53 @@ public final class CollectionsAsync {
                 }));
 
                 if (found.getObject()) {
+                    break;
+                }
+            }
+        }
+    }
+
+    /**
+     * Returns {@code true} if at least one element in the {@code collection}
+     * satisfies an async test. If any iteratee call returns {@code true}, the
+     * main {@code callback} is immediately called.
+     *
+     * @param <T> Define the manipulated type.
+     * @param instance Define Vertx instance.
+     * @param collection A collection to iterate over.
+     * @param function A truth test to apply to each item in the array in
+     * parallel.
+     * @param handler A callback which is called as soon as any iteratee returns
+     * {@code true}, or after all the iteratee functions have finished. Result
+     * will be either {@code true} or {@code false} depending on the values of
+     * the async tests.
+     */
+    public static <T> void some(final Vertx instance, final Collection<T> collection, final BiConsumer<T, Handler<AsyncResult<Boolean>>> function, final Handler<AsyncResult<Boolean>> handler) {
+        if (collection.isEmpty()) {
+            handler.handle(DefaultAsyncResult.succeed(false));
+        } else {
+            final ObjectWrapper<Boolean> stop = new ObjectWrapper<>(false);
+            final ObjectWrapper<Integer> counter = new ObjectWrapper<>(collection.size());
+            for (T item : collection) {
+                instance.runOnContext(aVoid -> function.accept(item, event -> {
+                    counter.setObject(counter.getObject() - 1);
+                    if (event.succeeded()) {
+                        // Prevent Unhandled exception in Netty
+                        if (null != event.result() && event.result()) {
+                            if (!stop.getObject()) {
+                                stop.setObject(true);
+                                handler.handle(DefaultAsyncResult.succeed(true));
+                            }
+                        } else if (counter.getObject() == 0 && !stop.getObject()) {
+                            handler.handle(DefaultAsyncResult.succeed(false));
+                        }
+                    } else {
+                        stop.setObject(true);
+                        handler.handle(DefaultAsyncResult.fail(event));
+                    }
+                }));
+
+                if (stop.getObject()) {
                     break;
                 }
             }
