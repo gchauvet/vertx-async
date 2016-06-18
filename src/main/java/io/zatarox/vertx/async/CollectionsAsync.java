@@ -62,22 +62,22 @@ public final class CollectionsAsync {
         if (iterable.isEmpty()) {
             handler.handle(DefaultAsyncResult.succeed());
         } else {
-            final ObjectWrapper<Boolean> failed = new ObjectWrapper<>(false);
+            final ObjectWrapper<Boolean> stop = new ObjectWrapper<>(false);
             final ObjectWrapper<Integer> counter = new ObjectWrapper<>(iterable.size());
             for (T item : iterable) {
                 instance.runOnContext(aVoid -> consumer.accept(item, result -> {
                     counter.setObject(counter.getObject() - 1);
                     if (result.failed()) {
-                        if (!failed.getObject()) {
+                        if (!stop.getObject()) {
+                            stop.setObject(true);
                             handler.handle(DefaultAsyncResult.fail(result));
-                            failed.setObject(true);
                         }
-                    } else if (counter.getObject() == 0 && !failed.getObject()) {
+                    } else if (counter.getObject() == 0 && !stop.getObject()) {
                         handler.handle(DefaultAsyncResult.succeed());
                     }
                 }));
 
-                if (failed.getObject()) {
+                if (stop.getObject()) {
                     break;
                 }
             }
@@ -104,22 +104,22 @@ public final class CollectionsAsync {
         if (iterable.isEmpty()) {
             handler.handle(DefaultAsyncResult.succeed());
         } else {
-            final ObjectWrapper<Boolean> failed = new ObjectWrapper<>(false);
+            final ObjectWrapper<Boolean> stop = new ObjectWrapper<>(false);
             final ObjectWrapper<Integer> counter = new ObjectWrapper<>(iterable.size());
             for (final Map.Entry<K, V> item : iterable.entrySet()) {
                 instance.runOnContext(aVoid -> consumer.accept(new KeyValue<>(item.getKey(), item.getValue()), result -> {
                     counter.setObject(counter.getObject() - 1);
                     if (result.failed()) {
-                        if (!failed.getObject()) {
+                        if (!stop.getObject()) {
+                            stop.setObject(true);
                             handler.handle(DefaultAsyncResult.fail(result));
-                            failed.setObject(true);
                         }
-                    } else if (counter.getObject() == 0 && !failed.getObject()) {
+                    } else if (counter.getObject() == 0 && !stop.getObject()) {
                         handler.handle(DefaultAsyncResult.succeed());
                     }
                 }));
 
-                if (failed.getObject()) {
+                if (stop.getObject()) {
                     break;
                 }
             }
@@ -158,7 +158,7 @@ public final class CollectionsAsync {
         if (iterable.isEmpty()) {
             handler.handle(DefaultAsyncResult.succeed(mapped));
         } else {
-            final ObjectWrapper<Boolean> failed = new ObjectWrapper<>(false);
+            final ObjectWrapper<Boolean> stop = new ObjectWrapper<>(false);
             final ObjectWrapper<Integer> counter = new ObjectWrapper<>(iterable.size());
 
             for (int i = 0; i < iterable.size(); i++) {
@@ -167,19 +167,19 @@ public final class CollectionsAsync {
                 instance.runOnContext(aVoid -> consumer.accept(item, result -> {
                     counter.setObject(counter.getObject() - 1);
                     if (result.failed()) {
-                        if (!failed.getObject()) {
+                        if (!stop.getObject()) {
+                            stop.setObject(true);
                             handler.handle(DefaultAsyncResult.fail(result));
-                            failed.setObject(true);
                         }
                     } else {
                         mapped.add(pos, result.result());
-                        if (counter.getObject() == 0 && !failed.getObject()) {
+                        if (counter.getObject() == 0 && !stop.getObject()) {
                             handler.handle(DefaultAsyncResult.succeed(mapped));
                         }
                     }
                 }));
 
-                if (failed.getObject()) {
+                if (stop.getObject()) {
                     break;
                 }
             }
@@ -205,27 +205,27 @@ public final class CollectionsAsync {
         if (iterable.isEmpty()) {
             handler.handle(DefaultAsyncResult.succeed(filtered));
         } else {
-            final ObjectWrapper<Boolean> failed = new ObjectWrapper<>(false);
+            final ObjectWrapper<Boolean> stop = new ObjectWrapper<>(false);
             final ObjectWrapper<Integer> counter = new ObjectWrapper<>(iterable.size());
             for (T item : iterable) {
                 instance.runOnContext(aVoid -> consumer.accept(item, result -> {
                     counter.setObject(counter.getObject() - 1);
                     if (result.failed()) {
-                        if (!failed.getObject()) {
+                        if (!stop.getObject()) {
+                            stop.setObject(true);
                             handler.handle(DefaultAsyncResult.fail(result));
-                            failed.setObject(true);
                         }
                     } else {
                         if (result.result()) {
                             filtered.add(item);
                         }
-                        if (counter.getObject() == 0 && !failed.getObject()) {
+                        if (counter.getObject() == 0 && !stop.getObject()) {
                             handler.handle(DefaultAsyncResult.succeed(filtered));
                         }
                     }
                 }));
 
-                if (failed.getObject()) {
+                if (stop.getObject()) {
                     break;
                 }
             }
@@ -409,7 +409,7 @@ public final class CollectionsAsync {
         if (collection.isEmpty()) {
             handler.handle(DefaultAsyncResult.succeed(null));
         } else {
-            final ObjectWrapper<Boolean> found = new ObjectWrapper<>(false);
+            final ObjectWrapper<Boolean> stop = new ObjectWrapper<>(false);
             final ObjectWrapper<Integer> counter = new ObjectWrapper<>(collection.size());
             for (T item : collection) {
                 instance.runOnContext(aVoid -> function.accept(item, event -> {
@@ -417,20 +417,20 @@ public final class CollectionsAsync {
                     if (event.succeeded()) {
                         // Prevent Unhandled exception in Netty
                         if (null != event.result() && event.result()) {
-                            if (!found.getObject()) {
-                                found.setObject(true);
+                            if (!stop.getObject()) {
+                                stop.setObject(true);
                                 handler.handle(DefaultAsyncResult.succeed(item));
                             }
-                        } else if (counter.getObject() == 0 && !found.getObject()) {
+                        } else if (counter.getObject() == 0 && !stop.getObject()) {
                             handler.handle(DefaultAsyncResult.succeed(null));
                         }
                     } else {
-                        found.setObject(true);
+                        stop.setObject(true);
                         handler.handle(DefaultAsyncResult.fail(event));
                     }
                 }));
 
-                if (found.getObject()) {
+                if (stop.getObject()) {
                     break;
                 }
             }
