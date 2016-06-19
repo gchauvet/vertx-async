@@ -238,8 +238,8 @@ public final class CollectionsAsync {
      * functions have finished.
      */
     public static <T> void reject(final Vertx instance, final Collection<T> iterable, final BiConsumer<T, Handler<AsyncResult<Boolean>>> consumer, final Handler<AsyncResult<Collection<T>>> handler) {
-        filter(instance, iterable, (T t, Handler<AsyncResult<Boolean>> u) -> {
-            consumer.accept(t, (Handler<AsyncResult<Boolean>>) (AsyncResult<Boolean> event) -> {
+        filter(instance, iterable, (t, u) -> {
+            consumer.accept(t, event -> {
                 if (event.succeeded()) {
                     u.handle(DefaultAsyncResult.succeed(!event.result()));
                 } else {
@@ -277,7 +277,7 @@ public final class CollectionsAsync {
                 if (!iterator.hasNext()) {
                     handler.handle(DefaultAsyncResult.succeed(result));
                 } else {
-                    consumer.accept(iterator.next(), (Handler<AsyncResult<O>>) (AsyncResult<O> event1) -> {
+                    consumer.accept(iterator.next(), event1 -> {
                         if (event1.succeeded()) {
                             result.add(event1.result());
                             instance.runOnContext(this);

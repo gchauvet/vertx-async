@@ -25,7 +25,7 @@ package io.zatarox.vertx.async;
 
 final class ObjectWrapper<T> {
 
-    private T object;
+    private volatile T object;
 
     public ObjectWrapper() {
     }
