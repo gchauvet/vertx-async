@@ -37,6 +37,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.javatuples.KeyValue;
 import org.javatuples.Pair;
 import org.junit.Rule;
@@ -60,17 +61,16 @@ public final class CollectionsAsyncTest {
     public void eachStillExecutesWhenThereAreNoItems(final TestContext context) {
         final List<String> items = Arrays.asList();
         final FakeFailingAsyncFunction<String, Void> each = new FakeFailingAsyncFunction<>(new Throwable("Failed"));
-        final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
+        final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
         CollectionsAsync.each(rule.vertx(), items, each, result -> {
-            handlerCallCount.setObject(handlerCallCount.getObject() + 1);
 
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
             context.assertNull(result.result());
             context.assertEquals(0, each.runCount());
-            context.assertEquals(1, (int) handlerCallCount.getObject());
+            context.assertEquals(1, handlerCallCount.incrementAndGet());
             async.complete();
         });
     }
@@ -80,11 +80,10 @@ public final class CollectionsAsyncTest {
     public void eachExecutesForOneItem(final TestContext context) {
         final List<String> items = Arrays.asList("One");
         final FakeSuccessfulAsyncFunction<String, Void> each = new FakeSuccessfulAsyncFunction<>(null);
-        final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
+        final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
         CollectionsAsync.each(rule.vertx(), items, each, result -> {
-            handlerCallCount.setObject(handlerCallCount.getObject() + 1);
 
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
@@ -92,7 +91,7 @@ public final class CollectionsAsyncTest {
 
             context.assertEquals(1, each.runCount());
             context.assertTrue(each.consumedValues().containsAll(Arrays.asList("One")));
-            context.assertEquals(1, (int) handlerCallCount.getObject());
+            context.assertEquals(1, handlerCallCount.incrementAndGet());
             async.complete();
         });
     }
@@ -102,11 +101,10 @@ public final class CollectionsAsyncTest {
     public void eachExecutesForTwoItems(final TestContext context) {
         final List<String> items = Arrays.asList("One", "Two");
         final FakeSuccessfulAsyncFunction<String, Void> each = new FakeSuccessfulAsyncFunction<>(null);
-        final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
+        final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
         CollectionsAsync.each(rule.vertx(), items, each, result -> {
-            handlerCallCount.setObject(handlerCallCount.getObject() + 1);
 
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
@@ -114,7 +112,7 @@ public final class CollectionsAsyncTest {
 
             context.assertEquals(2, each.runCount());
             context.assertTrue(each.consumedValues().containsAll(Arrays.asList("One", "Two")));
-            context.assertEquals(1, (int) handlerCallCount.getObject());
+            context.assertEquals(1, handlerCallCount.incrementAndGet());
             async.complete();
         });
     }
@@ -124,11 +122,10 @@ public final class CollectionsAsyncTest {
     public void eachFailsWhenAnItemFails(final TestContext context) {
         final List<String> items = Arrays.asList("One");
         final FakeFailingAsyncFunction<String, Void> each = new FakeFailingAsyncFunction<>(new Throwable("Failed"));
-        final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
+        final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
         CollectionsAsync.each(rule.vertx(), items, each, result -> {
-            handlerCallCount.setObject(handlerCallCount.getObject() + 1);
 
             context.assertNotNull(result);
             context.assertFalse(result.succeeded());
@@ -137,7 +134,7 @@ public final class CollectionsAsyncTest {
 
             context.assertEquals(1, each.runCount());
             context.assertTrue(each.consumedValues().containsAll(items));
-            context.assertEquals(1, (int) handlerCallCount.getObject());
+            context.assertEquals(1, handlerCallCount.incrementAndGet());
             async.complete();
         });
     }
@@ -147,21 +144,19 @@ public final class CollectionsAsyncTest {
     public void eachFailsNoMoreThanOnce(final TestContext context) {
         final List<String> items = Arrays.asList("One", "Two");
         final FakeFailingAsyncFunction<String, Void> each = new FakeFailingAsyncFunction<>(new Throwable("Failed"));
-        final ObjectWrapper<Integer> resultCount = new ObjectWrapper<>(0);
-        final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
+        final AtomicInteger resultCount = new AtomicInteger(0);
+        final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
         CollectionsAsync.each(rule.vertx(), items, each, result -> {
-            handlerCallCount.setObject(handlerCallCount.getObject() + 1);
 
             context.assertNotNull(result);
             context.assertFalse(result.succeeded());
             context.assertEquals(each.cause(), result.cause());
             context.assertNull(result.result());
 
-            resultCount.setObject(resultCount.getObject() + 1);
-            context.assertEquals(1, resultCount.getObject());
-            context.assertEquals(1, (int) handlerCallCount.getObject());
+            context.assertEquals(1, resultCount.incrementAndGet());
+            context.assertEquals(1, handlerCallCount.incrementAndGet());
             async.complete();
         });
     }
@@ -171,17 +166,16 @@ public final class CollectionsAsyncTest {
     public void eachOfStillExecutesWhenThereAreNoItems(final TestContext context) {
         final Map<String, Void> items = new HashMap<>();
         final FakeFailingAsyncFunction<KeyValue<String, Void>, Void> each = new FakeFailingAsyncFunction<>(new Throwable("Failed"));
-        final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
+        final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
         CollectionsAsync.each(rule.vertx(), items, each, result -> {
-            handlerCallCount.setObject(handlerCallCount.getObject() + 1);
 
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
             context.assertNull(result.result());
             context.assertEquals(0, each.runCount());
-            context.assertEquals(1, (int) handlerCallCount.getObject());
+            context.assertEquals(1, handlerCallCount.incrementAndGet());
             async.complete();
         });
     }
@@ -191,12 +185,11 @@ public final class CollectionsAsyncTest {
     public void eachOfExecutesForOneItem(final TestContext context) {
         final Map<String, Integer> items = new HashMap<>();
         final FakeSuccessfulAsyncFunction<KeyValue<String, Integer>, Void> each = new FakeSuccessfulAsyncFunction<>(null);
-        final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
+        final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
         items.put("One", 1);
 
         CollectionsAsync.each(rule.vertx(), items, each, result -> {
-            handlerCallCount.setObject(handlerCallCount.getObject() + 1);
 
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
@@ -206,7 +199,7 @@ public final class CollectionsAsyncTest {
             each.consumedValues().stream().forEach((item) -> {
                 context.assertEquals(item.getValue(), items.get(item.getKey()));
             });
-            context.assertEquals(1, (int) handlerCallCount.getObject());
+            context.assertEquals(1, handlerCallCount.incrementAndGet());
             async.complete();
         });
     }
@@ -216,13 +209,12 @@ public final class CollectionsAsyncTest {
     public void eachOfExecutesForTwoItems(final TestContext context) {
         final Map<String, Integer> items = new HashMap<>();
         final FakeSuccessfulAsyncFunction<KeyValue<String, Integer>, Void> each = new FakeSuccessfulAsyncFunction<>(null);
-        final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
+        final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
         items.put("One", 1);
         items.put("Two", 2);
 
         CollectionsAsync.each(rule.vertx(), items, each, result -> {
-            handlerCallCount.setObject(handlerCallCount.getObject() + 1);
 
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
@@ -232,7 +224,7 @@ public final class CollectionsAsyncTest {
             each.consumedValues().stream().forEach((item) -> {
                 context.assertEquals(item.getValue(), items.get(item.getKey()));
             });
-            context.assertEquals(1, (int) handlerCallCount.getObject());
+            context.assertEquals(1, handlerCallCount.incrementAndGet());
             async.complete();
         });
     }
@@ -242,12 +234,11 @@ public final class CollectionsAsyncTest {
     public void eachOfFailsWhenAnItemFails(final TestContext context) {
         final Map<String, Integer> items = new HashMap<>();
         final FakeFailingAsyncFunction<KeyValue<String, Integer>, Void> each = new FakeFailingAsyncFunction<>(new Throwable("Failed"));
-        final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
+        final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
         items.put("One", 1);
 
         CollectionsAsync.each(rule.vertx(), items, each, result -> {
-            handlerCallCount.setObject(handlerCallCount.getObject() + 1);
 
             context.assertNotNull(result);
             context.assertFalse(result.succeeded());
@@ -258,7 +249,7 @@ public final class CollectionsAsyncTest {
             each.consumedValues().stream().forEach((item) -> {
                 context.assertEquals(item.getValue(), items.get(item.getKey()));
             });
-            context.assertEquals(1, (int) handlerCallCount.getObject());
+            context.assertEquals(1, handlerCallCount.incrementAndGet());
             async.complete();
         });
     }
@@ -268,23 +259,21 @@ public final class CollectionsAsyncTest {
     public void eachOfFailsNoMoreThanOnce(final TestContext context) {
         final Map<String, Integer> items = new HashMap<>();
         final FakeFailingAsyncFunction<KeyValue<String, Integer>, Void> each = new FakeFailingAsyncFunction<>(new Throwable("Failed"));
-        final ObjectWrapper<Integer> resultCount = new ObjectWrapper<>(0);
-        final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
+        final AtomicInteger resultCount = new AtomicInteger(0);
+        final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
         items.put("One", 1);
         items.put("Two", 2);
 
         CollectionsAsync.each(rule.vertx(), items, each, result -> {
-            handlerCallCount.setObject(handlerCallCount.getObject() + 1);
 
             context.assertNotNull(result);
             context.assertFalse(result.succeeded());
             context.assertEquals(each.cause(), result.cause());
             context.assertNull(result.result());
 
-            resultCount.setObject(resultCount.getObject() + 1);
-            context.assertEquals(1, resultCount.getObject());
-            context.assertEquals(1, (int) handlerCallCount.getObject());
+            context.assertEquals(1, resultCount.incrementAndGet());
+            context.assertEquals(1, handlerCallCount.incrementAndGet());
             async.complete();
         });
     }
@@ -299,17 +288,16 @@ public final class CollectionsAsyncTest {
                 u.handle(DefaultAsyncResult.succeed(t * t));
             }
         };
-        final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
+        final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
         CollectionsAsync.map(rule.vertx(), items, each, result -> {
-            handlerCallCount.setObject(handlerCallCount.getObject() + 1);
 
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
             context.assertTrue(result.result().isEmpty());
             context.assertEquals(0, each.runCount());
-            context.assertEquals(1, (int) handlerCallCount.getObject());
+            context.assertEquals(1, handlerCallCount.incrementAndGet());
             async.complete();
         });
     }
@@ -319,17 +307,16 @@ public final class CollectionsAsyncTest {
     public void mapCollectionInFail(final TestContext context) {
         final List<Integer> items = Arrays.asList(1, 2, 3);
         final FakeFailingAsyncFunction<Integer, Integer> each = new FakeFailingAsyncFunction<>(new Throwable("Failed"));
-        final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
+        final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
         CollectionsAsync.map(rule.vertx(), items, each, result -> {
-            handlerCallCount.setObject(handlerCallCount.getObject() + 1);
 
             context.assertNotNull(result);
             context.assertFalse(result.succeeded());
             context.assertNull(result.result());
             context.assertEquals(1, each.runCount());
-            context.assertEquals(1, (int) handlerCallCount.getObject());
+            context.assertEquals(1, handlerCallCount.incrementAndGet());
             async.complete();
         });
     }
@@ -345,18 +332,17 @@ public final class CollectionsAsyncTest {
                 u.handle(DefaultAsyncResult.succeed(t * t));
             }
         };
-        final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
+        final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
         CollectionsAsync.map(rule.vertx(), items, each, result -> {
-            handlerCallCount.setObject(handlerCallCount.getObject() + 1);
 
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
             context.assertEquals(3, each.runCount());
             context.assertEquals(3, result.result().size());
             context.assertTrue(result.result().containsAll(Arrays.asList(1 * 1, 3 * 3, 10 * 10)));
-            context.assertEquals(1, (int) handlerCallCount.getObject());
+            context.assertEquals(1, handlerCallCount.incrementAndGet());
             async.complete();
         });
     }
@@ -366,17 +352,16 @@ public final class CollectionsAsyncTest {
     public void filterStillExecutesWhenThereAreNoItems(final TestContext context) {
         final List<String> items = Arrays.asList();
         final FakeFailingAsyncFunction<String, Boolean> filter = new FakeFailingAsyncFunction<>(new Throwable("Failed"));
-        final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
+        final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
         CollectionsAsync.filter(rule.vertx(), items, filter, result -> {
-            handlerCallCount.setObject(handlerCallCount.getObject() + 1);
 
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
             context.assertTrue(result.result().isEmpty());
             context.assertEquals(0, filter.runCount());
-            context.assertEquals(1, (int) handlerCallCount.getObject());
+            context.assertEquals(1, handlerCallCount.incrementAndGet());
             async.complete();
         });
     }
@@ -393,18 +378,17 @@ public final class CollectionsAsyncTest {
                 u.handle(DefaultAsyncResult.succeed("Two".equals(t)));
             }
         };
-        final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
+        final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
         CollectionsAsync.filter(rule.vertx(), items, filter, result -> {
-            handlerCallCount.setObject(handlerCallCount.getObject() + 1);
 
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
             context.assertTrue(result.result().isEmpty());
 
             context.assertEquals(1, filter.runCount());
-            context.assertEquals(1, (int) handlerCallCount.getObject());
+            context.assertEquals(1, handlerCallCount.incrementAndGet());
             async.complete();
         });
     }
@@ -421,11 +405,10 @@ public final class CollectionsAsyncTest {
                 u.handle(DefaultAsyncResult.succeed("Two".equals(t)));
             }
         };
-        final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
+        final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
         CollectionsAsync.filter(rule.vertx(), items, filter, result -> {
-            handlerCallCount.setObject(handlerCallCount.getObject() + 1);
 
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
@@ -434,7 +417,7 @@ public final class CollectionsAsyncTest {
 
             context.assertEquals(2, filter.runCount());
             context.assertTrue(filter.consumedValues().containsAll(Arrays.asList("One", "Two")));
-            context.assertEquals(1, (int) handlerCallCount.getObject());
+            context.assertEquals(1, handlerCallCount.incrementAndGet());
             async.complete();
         });
     }
@@ -444,11 +427,10 @@ public final class CollectionsAsyncTest {
     public void filterFailsWhenAnItemFails(final TestContext context) {
         final List<String> items = Arrays.asList("One");
         final FakeFailingAsyncFunction<String, Boolean> filter = new FakeFailingAsyncFunction<>(new Throwable("Failed"));
-        final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
+        final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
         CollectionsAsync.filter(rule.vertx(), items, filter, result -> {
-            handlerCallCount.setObject(handlerCallCount.getObject() + 1);
 
             context.assertNotNull(result);
             context.assertFalse(result.succeeded());
@@ -457,7 +439,7 @@ public final class CollectionsAsyncTest {
 
             context.assertEquals(1, filter.runCount());
             context.assertTrue(filter.consumedValues().containsAll(items));
-            context.assertEquals(1, (int) handlerCallCount.getObject());
+            context.assertEquals(1, handlerCallCount.incrementAndGet());
             async.complete();
         });
     }
@@ -474,11 +456,10 @@ public final class CollectionsAsyncTest {
                 u.handle(DefaultAsyncResult.succeed(false));
             }
         };
-        final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
+        final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
         CollectionsAsync.filter(rule.vertx(), items, filter, result -> {
-            handlerCallCount.setObject(handlerCallCount.getObject() + 1);
 
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
@@ -486,7 +467,7 @@ public final class CollectionsAsyncTest {
 
             context.assertEquals(3, filter.runCount());
             context.assertTrue(filter.consumedValues().containsAll(Arrays.asList("One", "Two", "Three")));
-            context.assertEquals(1, (int) handlerCallCount.getObject());
+            context.assertEquals(1, handlerCallCount.incrementAndGet());
             async.complete();
         });
     }
@@ -503,11 +484,10 @@ public final class CollectionsAsyncTest {
                 u.handle(DefaultAsyncResult.succeed(true));
             }
         };
-        final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
+        final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
         CollectionsAsync.filter(rule.vertx(), items, filter, result -> {
-            handlerCallCount.setObject(handlerCallCount.getObject() + 1);
 
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
@@ -515,7 +495,7 @@ public final class CollectionsAsyncTest {
 
             context.assertEquals(3, filter.runCount());
             context.assertTrue(filter.consumedValues().containsAll(Arrays.asList("One", "Two", "Three")));
-            context.assertEquals(1, (int) handlerCallCount.getObject());
+            context.assertEquals(1, handlerCallCount.incrementAndGet());
             async.complete();
         });
     }
@@ -525,21 +505,19 @@ public final class CollectionsAsyncTest {
     public void filterFailsNoMoreThanOnce(final TestContext context) {
         final List<String> items = Arrays.asList("One", "Two");
         final FakeFailingAsyncFunction<String, Boolean> filter = new FakeFailingAsyncFunction<>(new Throwable("Failed"));
-        final ObjectWrapper<Integer> resultCount = new ObjectWrapper<>(0);
-        final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
+        final AtomicInteger resultCount = new AtomicInteger(0);
+        final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
         CollectionsAsync.filter(rule.vertx(), items, filter, result -> {
-            handlerCallCount.setObject(handlerCallCount.getObject() + 1);
 
             context.assertNotNull(result);
             context.assertFalse(result.succeeded());
             context.assertEquals(filter.cause(), result.cause());
             context.assertNull(result.result());
 
-            resultCount.setObject(resultCount.getObject() + 1);
-            context.assertEquals(1, resultCount.getObject());
-            context.assertEquals(1, (int) handlerCallCount.getObject());
+            context.assertEquals(1, resultCount.incrementAndGet());
+            context.assertEquals(1, handlerCallCount.incrementAndGet());
             async.complete();
         });
     }
@@ -549,17 +527,16 @@ public final class CollectionsAsyncTest {
     public void rejectStillExecutesWhenThereAreNoItems(final TestContext context) {
         final List<String> items = Arrays.asList();
         final FakeFailingAsyncFunction<String, Boolean> filter = new FakeFailingAsyncFunction<>(new Throwable("Failed"));
-        final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
+        final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
         CollectionsAsync.reject(rule.vertx(), items, filter, result -> {
-            handlerCallCount.setObject(handlerCallCount.getObject() + 1);
 
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
             context.assertTrue(result.result().isEmpty());
             context.assertEquals(0, filter.runCount());
-            context.assertEquals(1, (int) handlerCallCount.getObject());
+            context.assertEquals(1, handlerCallCount.incrementAndGet());
             async.complete();
         });
     }
@@ -576,18 +553,17 @@ public final class CollectionsAsyncTest {
                 u.handle(DefaultAsyncResult.succeed("One".equals(t)));
             }
         };
-        final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
+        final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
         CollectionsAsync.reject(rule.vertx(), items, filter, result -> {
-            handlerCallCount.setObject(handlerCallCount.getObject() + 1);
 
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
             context.assertTrue(result.result().isEmpty());
 
             context.assertEquals(1, filter.runCount());
-            context.assertEquals(1, (int) handlerCallCount.getObject());
+            context.assertEquals(1, handlerCallCount.incrementAndGet());
             async.complete();
         });
     }
@@ -604,11 +580,10 @@ public final class CollectionsAsyncTest {
                 u.handle(DefaultAsyncResult.succeed("One".equals(t)));
             }
         };
-        final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
+        final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
         CollectionsAsync.reject(rule.vertx(), items, filter, result -> {
-            handlerCallCount.setObject(handlerCallCount.getObject() + 1);
 
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
@@ -617,7 +592,7 @@ public final class CollectionsAsyncTest {
 
             context.assertEquals(2, filter.runCount());
             context.assertTrue(filter.consumedValues().containsAll(Arrays.asList("One", "Two")));
-            context.assertEquals(1, (int) handlerCallCount.getObject());
+            context.assertEquals(1, handlerCallCount.incrementAndGet());
             async.complete();
         });
     }
@@ -627,11 +602,10 @@ public final class CollectionsAsyncTest {
     public void rejectFailsWhenAnItemFails(final TestContext context) {
         final List<String> items = Arrays.asList("One");
         final FakeFailingAsyncFunction<String, Boolean> filter = new FakeFailingAsyncFunction<>(new Throwable("Failed"));
-        final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
+        final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
         CollectionsAsync.filter(rule.vertx(), items, filter, result -> {
-            handlerCallCount.setObject(handlerCallCount.getObject() + 1);
 
             context.assertNotNull(result);
             context.assertFalse(result.succeeded());
@@ -640,7 +614,7 @@ public final class CollectionsAsyncTest {
 
             context.assertEquals(1, filter.runCount());
             context.assertTrue(filter.consumedValues().containsAll(items));
-            context.assertEquals(1, (int) handlerCallCount.getObject());
+            context.assertEquals(1, handlerCallCount.incrementAndGet());
             async.complete();
         });
     }
@@ -657,11 +631,10 @@ public final class CollectionsAsyncTest {
                 u.handle(DefaultAsyncResult.succeed(false));
             }
         };
-        final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
+        final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
         CollectionsAsync.reject(rule.vertx(), items, filter, result -> {
-            handlerCallCount.setObject(handlerCallCount.getObject() + 1);
 
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
@@ -669,7 +642,7 @@ public final class CollectionsAsyncTest {
 
             context.assertEquals(3, filter.runCount());
             context.assertTrue(filter.consumedValues().containsAll(Arrays.asList("One", "Two", "Three")));
-            context.assertEquals(1, (int) handlerCallCount.getObject());
+            context.assertEquals(1, handlerCallCount.incrementAndGet());
             async.complete();
         });
     }
@@ -686,11 +659,10 @@ public final class CollectionsAsyncTest {
                 u.handle(DefaultAsyncResult.succeed(false));
             }
         };
-        final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
+        final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
         CollectionsAsync.reject(rule.vertx(), items, filter, result -> {
-            handlerCallCount.setObject(handlerCallCount.getObject() + 1);
 
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
@@ -698,7 +670,7 @@ public final class CollectionsAsyncTest {
 
             context.assertEquals(3, filter.runCount());
             context.assertTrue(filter.consumedValues().containsAll(Arrays.asList("One", "Two", "Three")));
-            context.assertEquals(1, (int) handlerCallCount.getObject());
+            context.assertEquals(1, handlerCallCount.incrementAndGet());
             async.complete();
         });
     }
@@ -708,21 +680,19 @@ public final class CollectionsAsyncTest {
     public void rejectFailsNoMoreThanOnce(final TestContext context) {
         final List<String> items = Arrays.asList("One", "Two");
         final FakeFailingAsyncFunction<String, Boolean> filter = new FakeFailingAsyncFunction<>(new Throwable("Failed"));
-        final ObjectWrapper<Integer> resultCount = new ObjectWrapper<>(0);
-        final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
+        final AtomicInteger resultCount = new AtomicInteger(0);
+        final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
         CollectionsAsync.reject(rule.vertx(), items, filter, result -> {
-            handlerCallCount.setObject(handlerCallCount.getObject() + 1);
 
             context.assertNotNull(result);
             context.assertFalse(result.succeeded());
             context.assertEquals(filter.cause(), result.cause());
             context.assertNull(result.result());
 
-            resultCount.setObject(resultCount.getObject() + 1);
-            context.assertEquals(1, resultCount.getObject());
-            context.assertEquals(1, (int) handlerCallCount.getObject());
+            context.assertEquals(1, resultCount.incrementAndGet());
+            context.assertEquals(1, handlerCallCount.incrementAndGet());
             async.complete();
         });
     }
@@ -739,17 +709,16 @@ public final class CollectionsAsyncTest {
                 u.handle(DefaultAsyncResult.succeed(Integer.toString(t * t)));
             }
         };
-        final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
+        final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
         CollectionsAsync.transform(rule.vertx(), items, mapper, result -> {
-            handlerCallCount.setObject(handlerCallCount.getObject() + 1);
 
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
             context.assertTrue(result.result().isEmpty());
             context.assertEquals(0, mapper.runCount());
-            context.assertEquals(1, (int) handlerCallCount.getObject());
+            context.assertEquals(1, handlerCallCount.incrementAndGet());
             async.complete();
         });
     }
@@ -765,18 +734,17 @@ public final class CollectionsAsyncTest {
                 u.handle(DefaultAsyncResult.succeed(Integer.toString(t * t)));
             }
         };
-        final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
+        final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
         CollectionsAsync.transform(rule.vertx(), items, mapper, result -> {
-            handlerCallCount.setObject(handlerCallCount.getObject() + 1);
 
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
             context.assertEquals(3, mapper.runCount());
             context.assertEquals(3, result.result().size());
             context.assertTrue(result.result().containsAll(Arrays.asList(Integer.toString(1 * 1), Integer.toString(3 * 3), Integer.toString(10 * 10))));
-            context.assertEquals(1, (int) handlerCallCount.getObject());
+            context.assertEquals(1, handlerCallCount.incrementAndGet());
             async.complete();
         });
     }
@@ -786,18 +754,17 @@ public final class CollectionsAsyncTest {
     public void transformCollectionFails(final TestContext context) {
         final List<Integer> items = Arrays.asList(1, 3, 10);
         final FakeFailingAsyncFunction<Integer, String> mapper = new FakeFailingAsyncFunction<>(new Throwable("Failed"));
-        final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
+        final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
         CollectionsAsync.transform(rule.vertx(), items, mapper, result -> {
-            handlerCallCount.setObject(handlerCallCount.getObject() + 1);
 
             context.assertNotNull(result);
             context.assertFalse(result.succeeded());
             context.assertTrue(result.failed());
             context.assertEquals(1, mapper.runCount());
             context.assertTrue(result.cause() instanceof Throwable);
-            context.assertEquals(1, (int) handlerCallCount.getObject());
+            context.assertEquals(1, handlerCallCount.incrementAndGet());
             async.complete();
         });
     }
@@ -807,19 +774,18 @@ public final class CollectionsAsyncTest {
     public void transformMapFails(final TestContext context) {
         final Map<Integer, String> items = new HashMap<>();
         final FakeAsyncFunction<KeyValue<Integer, String>, KeyValue<String, Integer>> mapper = new FakeFailingAsyncFunction<>(new Throwable("Failed"));
-        final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
+        final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
         items.put(1, "One");
 
         CollectionsAsync.transform(rule.vertx(), items, mapper, result -> {
-            handlerCallCount.setObject(handlerCallCount.getObject() + 1);
 
             context.assertNotNull(result);
             context.assertFalse(result.succeeded());
             context.assertTrue(result.failed());
             context.assertNull(result.result());
             context.assertEquals(1, mapper.runCount());
-            context.assertEquals(1, (int) handlerCallCount.getObject());
+            context.assertEquals(1, handlerCallCount.incrementAndGet());
             async.complete();
         });
     }
@@ -836,17 +802,16 @@ public final class CollectionsAsyncTest {
                 out.handle(DefaultAsyncResult.succeed(new KeyValue<>(in.getValue(), in.getKey())));
             }
         };
-        final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
+        final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
         CollectionsAsync.transform(rule.vertx(), items, mapper, result -> {
-            handlerCallCount.setObject(handlerCallCount.getObject() + 1);
 
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
             context.assertTrue(result.result().isEmpty());
             context.assertEquals(0, mapper.runCount());
-            context.assertEquals(1, (int) handlerCallCount.getObject());
+            context.assertEquals(1, handlerCallCount.incrementAndGet());
             async.complete();
         });
     }
@@ -863,7 +828,7 @@ public final class CollectionsAsyncTest {
                 out.handle(DefaultAsyncResult.succeed(new KeyValue<>(in.getValue(), in.getKey())));
             }
         };
-        final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
+        final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
         items.put(0, "Zero");
@@ -871,7 +836,6 @@ public final class CollectionsAsyncTest {
         items.put(2, "Two");
 
         CollectionsAsync.transform(rule.vertx(), items, mapper, result -> {
-            handlerCallCount.setObject(handlerCallCount.getObject() + 1);
 
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
@@ -880,7 +844,7 @@ public final class CollectionsAsyncTest {
             context.assertEquals(0, result.result().get("Zero"));
             context.assertEquals(1, result.result().get("One"));
             context.assertEquals(2, result.result().get("Two"));
-            context.assertEquals(1, (int) handlerCallCount.getObject());
+            context.assertEquals(1, handlerCallCount.incrementAndGet());
             async.complete();
         });
     }
@@ -897,17 +861,16 @@ public final class CollectionsAsyncTest {
                 out.handle(DefaultAsyncResult.succeed(Integer.valueOf(in.getValue0()) + in.getValue1()));
             }
         };
-        final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
+        final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
         CollectionsAsync.reduce(rule.vertx(), items, 0, reducer, result -> {
-            handlerCallCount.setObject(handlerCallCount.getObject() + 1);
 
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
             context.assertEquals(0, result.result());
             context.assertEquals(0, reducer.runCount());
-            context.assertEquals(1, (int) handlerCallCount.getObject());
+            context.assertEquals(1, handlerCallCount.incrementAndGet());
             async.complete();
         });
     }
@@ -924,17 +887,16 @@ public final class CollectionsAsyncTest {
                 out.handle(DefaultAsyncResult.succeed(Integer.valueOf(in.getValue0()) + in.getValue1()));
             }
         };
-        final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
+        final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
         CollectionsAsync.reduce(rule.vertx(), items, 0, reducer, result -> {
-            handlerCallCount.setObject(handlerCallCount.getObject() + 1);
 
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
             context.assertEquals(6, result.result());
             context.assertEquals(3, reducer.runCount());
-            context.assertEquals(1, (int) handlerCallCount.getObject());
+            context.assertEquals(1, handlerCallCount.incrementAndGet());
             async.complete();
         });
     }
@@ -944,17 +906,16 @@ public final class CollectionsAsyncTest {
     public void reduceWhenThereAreAnItemFails(final TestContext context) {
         final List<String> items = Arrays.asList("1", "2", "3");
         final FakeFailingAsyncFunction<Pair<String, Integer>, Integer> reducer = new FakeFailingAsyncFunction<>(new Throwable("Failed"));
-        final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
+        final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
         CollectionsAsync.reduce(rule.vertx(), items, 0, reducer, result -> {
-            handlerCallCount.setObject(handlerCallCount.getObject() + 1);
 
             context.assertNotNull(result);
             context.assertFalse(result.succeeded());
             context.assertNull(result.result());
             context.assertEquals(1, reducer.runCount());
-            context.assertEquals(1, (int) handlerCallCount.getObject());
+            context.assertEquals(1, handlerCallCount.incrementAndGet());
             async.complete();
         });
     }
@@ -964,17 +925,16 @@ public final class CollectionsAsyncTest {
     public void reduceWhenThereAreLastItemFails(final TestContext context) {
         final List<String> items = Arrays.asList("1", "2", "3");
         final FakeFailingAsyncFunction<Pair<String, Integer>, Integer> reducer = new FakeFailingAsyncFunction<>(2, null, new Throwable("Failed"));
-        final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
+        final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
         CollectionsAsync.reduce(rule.vertx(), items, 0, reducer, result -> {
-            handlerCallCount.setObject(handlerCallCount.getObject() + 1);
 
             context.assertNotNull(result);
             context.assertFalse(result.succeeded());
             context.assertNull(result.result());
             context.assertEquals(3, reducer.runCount());
-            context.assertEquals(1, (int) handlerCallCount.getObject());
+            context.assertEquals(1, handlerCallCount.incrementAndGet());
             async.complete();
         });
     }
@@ -991,17 +951,16 @@ public final class CollectionsAsyncTest {
                 out.handle(DefaultAsyncResult.succeed(!"".equalsIgnoreCase(in)));
             }
         };
-        final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
+        final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
         CollectionsAsync.detect(rule.vertx(), items, tester, result -> {
-            handlerCallCount.setObject(handlerCallCount.getObject() + 1);
 
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
             context.assertNull(result.result());
             context.assertEquals(0, tester.runCount());
-            context.assertEquals(1, (int) handlerCallCount.getObject());
+            context.assertEquals(1, handlerCallCount.incrementAndGet());
             async.complete();
         });
     }
@@ -1018,16 +977,15 @@ public final class CollectionsAsyncTest {
                 out.handle(DefaultAsyncResult.succeed("2".equalsIgnoreCase(in)));
             }
         };
-        final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
+        final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
         CollectionsAsync.detect(rule.vertx(), items, tester, result -> {
-            handlerCallCount.setObject(handlerCallCount.getObject() + 1);
 
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
             context.assertEquals("2", result.result());
-            context.assertEquals(1, (int) handlerCallCount.getObject());
+            context.assertEquals(1, handlerCallCount.incrementAndGet());
             async.complete();
         });
     }
@@ -1044,16 +1002,15 @@ public final class CollectionsAsyncTest {
                 out.handle(DefaultAsyncResult.succeed("".equalsIgnoreCase(in)));
             }
         };
-        final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
+        final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
         CollectionsAsync.detect(rule.vertx(), items, tester, result -> {
-            handlerCallCount.setObject(handlerCallCount.getObject() + 1);
 
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
             context.assertNull(result.result());
-            context.assertEquals(1, (int) handlerCallCount.getObject());
+            context.assertEquals(1, handlerCallCount.incrementAndGet());
             async.complete();
         });
     }
@@ -1063,17 +1020,16 @@ public final class CollectionsAsyncTest {
     public void detectWithAFailed(final TestContext context) {
         final List<String> items = Arrays.asList("1", "2", "3");
         final FakeFailingAsyncFunction<String, Boolean> tester = new FakeFailingAsyncFunction<>(2, null, new Throwable("Failed"));
-        final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
+        final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
         CollectionsAsync.detect(rule.vertx(), items, tester, result -> {
-            handlerCallCount.setObject(handlerCallCount.getObject() + 1);
 
             context.assertNotNull(result);
             context.assertTrue(result.cause() instanceof Throwable);
             context.assertFalse(result.succeeded());
             context.assertNull(result.result());
-            context.assertEquals(1, (int) handlerCallCount.getObject());
+            context.assertEquals(1, handlerCallCount.incrementAndGet());
             async.complete();
         });
     }
@@ -1090,17 +1046,16 @@ public final class CollectionsAsyncTest {
                 out.handle(DefaultAsyncResult.succeed(!"".equalsIgnoreCase(in)));
             }
         };
-        final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
+        final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
         CollectionsAsync.some(rule.vertx(), items, tester, result -> {
-            handlerCallCount.setObject(handlerCallCount.getObject() + 1);
 
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
             context.assertFalse(result.result());
             context.assertEquals(0, tester.runCount());
-            context.assertEquals(1, (int) handlerCallCount.getObject());
+            context.assertEquals(1, handlerCallCount.incrementAndGet());
             async.complete();
         });
     }
@@ -1117,16 +1072,15 @@ public final class CollectionsAsyncTest {
                 out.handle(DefaultAsyncResult.succeed("2".equalsIgnoreCase(in)));
             }
         };
-        final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
+        final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
         CollectionsAsync.some(rule.vertx(), items, tester, result -> {
-            handlerCallCount.setObject(handlerCallCount.getObject() + 1);
 
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
             context.assertTrue(result.result());
-            context.assertEquals(1, (int) handlerCallCount.getObject());
+            context.assertEquals(1, handlerCallCount.incrementAndGet());
             async.complete();
         });
     }
@@ -1143,16 +1097,15 @@ public final class CollectionsAsyncTest {
                 out.handle(DefaultAsyncResult.succeed("".equalsIgnoreCase(in)));
             }
         };
-        final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
+        final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
         CollectionsAsync.some(rule.vertx(), items, tester, result -> {
-            handlerCallCount.setObject(handlerCallCount.getObject() + 1);
 
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
             context.assertFalse(result.result());
-            context.assertEquals(1, (int) handlerCallCount.getObject());
+            context.assertEquals(1, handlerCallCount.incrementAndGet());
             async.complete();
         });
     }
@@ -1162,16 +1115,15 @@ public final class CollectionsAsyncTest {
     public void someWithAFailed(final TestContext context) {
         final List<String> items = Arrays.asList("1", "2", "3");
         final FakeFailingAsyncFunction<String, Boolean> tester = new FakeFailingAsyncFunction<>(2, null, new Throwable("Failed"));
-        final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
+        final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
         CollectionsAsync.some(rule.vertx(), items, tester, result -> {
-            handlerCallCount.setObject(handlerCallCount.getObject() + 1);
 
             context.assertNotNull(result);
             context.assertFalse(result.succeeded());
             context.assertNull(result.result());
-            context.assertEquals(1, (int) handlerCallCount.getObject());
+            context.assertEquals(1, handlerCallCount.incrementAndGet());
             async.complete();
         });
     }
@@ -1188,17 +1140,16 @@ public final class CollectionsAsyncTest {
                 out.handle(DefaultAsyncResult.succeed(!"".equalsIgnoreCase(in)));
             }
         };
-        final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
+        final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
         CollectionsAsync.every(rule.vertx(), items, tester, result -> {
-            handlerCallCount.setObject(handlerCallCount.getObject() + 1);
 
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
             context.assertFalse(result.result());
             context.assertEquals(0, tester.runCount());
-            context.assertEquals(1, (int) handlerCallCount.getObject());
+            context.assertEquals(1, handlerCallCount.incrementAndGet());
             async.complete();
         });
     }
@@ -1215,16 +1166,15 @@ public final class CollectionsAsyncTest {
                 out.handle(DefaultAsyncResult.succeed(!"".equalsIgnoreCase(in)));
             }
         };
-        final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
+        final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
         CollectionsAsync.every(rule.vertx(), items, tester, result -> {
-            handlerCallCount.setObject(handlerCallCount.getObject() + 1);
 
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
             context.assertTrue(result.result());
-            context.assertEquals(1, (int) handlerCallCount.getObject());
+            context.assertEquals(1, handlerCallCount.incrementAndGet());
             async.complete();
         });
     }
@@ -1241,16 +1191,15 @@ public final class CollectionsAsyncTest {
                 out.handle(DefaultAsyncResult.succeed(!"2".equalsIgnoreCase(in)));
             }
         };
-        final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
+        final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
         CollectionsAsync.every(rule.vertx(), items, tester, result -> {
-            handlerCallCount.setObject(handlerCallCount.getObject() + 1);
 
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
             context.assertFalse(result.result());
-            context.assertEquals(1, (int) handlerCallCount.getObject());
+            context.assertEquals(1, handlerCallCount.incrementAndGet());
             async.complete();
         });
     }
@@ -1260,16 +1209,15 @@ public final class CollectionsAsyncTest {
     public void everyWithAFailed(final TestContext context) {
         final List<String> items = Arrays.asList("1", "2", "3");
         final FakeFailingAsyncFunction<String, Boolean> tester = new FakeFailingAsyncFunction<>(2, null, new Throwable("Failed"));
-        final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
+        final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
         CollectionsAsync.every(rule.vertx(), items, tester, result -> {
-            handlerCallCount.setObject(handlerCallCount.getObject() + 1);
 
             context.assertNotNull(result);
             context.assertFalse(result.succeeded());
             context.assertNull(result.result());
-            context.assertEquals(1, (int) handlerCallCount.getObject());
+            context.assertEquals(1, handlerCallCount.incrementAndGet());
             async.complete();
         });
     }
@@ -1290,17 +1238,16 @@ public final class CollectionsAsyncTest {
                 out.handle(DefaultAsyncResult.succeed(result));
             }
         };
-        final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
+        final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
         CollectionsAsync.concat(rule.vertx(), items, tester, result -> {
-            handlerCallCount.setObject(handlerCallCount.getObject() + 1);
 
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
             context.assertTrue(result.result().isEmpty());
             context.assertEquals(0, tester.runCount());
-            context.assertEquals(1, (int) handlerCallCount.getObject());
+            context.assertEquals(1, handlerCallCount.incrementAndGet());
             async.complete();
         });
     }
@@ -1321,17 +1268,16 @@ public final class CollectionsAsyncTest {
                 out.handle(DefaultAsyncResult.succeed(result));
             }
         };
-        final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
+        final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
         CollectionsAsync.concat(rule.vertx(), items, tester, result -> {
-            handlerCallCount.setObject(handlerCallCount.getObject() + 1);
 
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
             context.assertEquals(11, result.result().size());
             context.assertEquals(3, tester.runCount());
-            context.assertEquals(1, (int) handlerCallCount.getObject());
+            context.assertEquals(1, handlerCallCount.incrementAndGet());
             async.complete();
         });
     }
@@ -1341,18 +1287,17 @@ public final class CollectionsAsyncTest {
     public void concatFailed(final TestContext context) {
         final List<String> items = Arrays.asList("One", "Two", "Three");
         final FakeAsyncFunction<String, Collection<Boolean>> tester = new FakeFailingAsyncFunction<>(2, null, new Throwable("Failed"));
-        final ObjectWrapper<Integer> handlerCallCount = new ObjectWrapper<>(0);
+        final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
         CollectionsAsync.concat(rule.vertx(), items, tester, result -> {
-            handlerCallCount.setObject(handlerCallCount.getObject() + 1);
 
             context.assertNotNull(result);
             context.assertTrue(result.failed());
             context.assertTrue(result.cause() instanceof Throwable);
             context.assertNull(result.result());
             context.assertEquals(3, tester.runCount());
-            context.assertEquals(1, (int) handlerCallCount.getObject());
+            context.assertEquals(1, handlerCallCount.incrementAndGet());
             async.complete();
         });
     }

@@ -27,6 +27,9 @@ import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
 import java.util.stream.Stream;
 import org.javatuples.*;
@@ -63,22 +66,21 @@ public final class CollectionsAsync {
         if (iterable.isEmpty()) {
             handler.handle(DefaultAsyncResult.succeed());
         } else {
-            final ObjectWrapper<Boolean> stop = new ObjectWrapper<>(false);
-            final ObjectWrapper<Integer> counter = new ObjectWrapper<>(iterable.size());
+            final AtomicBoolean stop = new AtomicBoolean(false);
+            final AtomicInteger counter = new AtomicInteger(iterable.size());
             for (T item : iterable) {
                 instance.runOnContext(aVoid -> consumer.accept(item, result -> {
-                    counter.setObject(counter.getObject() - 1);
                     if (result.failed()) {
-                        if (!stop.getObject()) {
-                            stop.setObject(true);
+                        if (!stop.get()) {
+                            stop.set(true);
                             handler.handle(DefaultAsyncResult.fail(result));
                         }
-                    } else if (counter.getObject() == 0 && !stop.getObject()) {
+                    } else if (counter.decrementAndGet() == 0 && !stop.get()) {
                         handler.handle(DefaultAsyncResult.succeed());
                     }
                 }));
 
-                if (stop.getObject()) {
+                if (stop.get()) {
                     break;
                 }
             }
@@ -105,22 +107,21 @@ public final class CollectionsAsync {
         if (iterable.isEmpty()) {
             handler.handle(DefaultAsyncResult.succeed());
         } else {
-            final ObjectWrapper<Boolean> stop = new ObjectWrapper<>(false);
-            final ObjectWrapper<Integer> counter = new ObjectWrapper<>(iterable.size());
+            final AtomicBoolean stop = new AtomicBoolean(false);
+            final AtomicInteger counter = new AtomicInteger(iterable.size());
             for (final Map.Entry<K, V> item : iterable.entrySet()) {
                 instance.runOnContext(aVoid -> consumer.accept(new KeyValue<>(item.getKey(), item.getValue()), result -> {
-                    counter.setObject(counter.getObject() - 1);
                     if (result.failed()) {
-                        if (!stop.getObject()) {
-                            stop.setObject(true);
+                        if (!stop.get()) {
+                            stop.set(true);
                             handler.handle(DefaultAsyncResult.fail(result));
                         }
-                    } else if (counter.getObject() == 0 && !stop.getObject()) {
+                    } else if (counter.decrementAndGet() == 0 && !stop.get()) {
                         handler.handle(DefaultAsyncResult.succeed());
                     }
                 }));
 
-                if (stop.getObject()) {
+                if (stop.get()) {
                     break;
                 }
             }
@@ -159,28 +160,27 @@ public final class CollectionsAsync {
         if (iterable.isEmpty()) {
             handler.handle(DefaultAsyncResult.succeed(mapped));
         } else {
-            final ObjectWrapper<Boolean> stop = new ObjectWrapper<>(false);
-            final ObjectWrapper<Integer> counter = new ObjectWrapper<>(iterable.size());
+            final AtomicBoolean stop = new AtomicBoolean(false);
+            final AtomicInteger counter = new AtomicInteger(iterable.size());
 
             for (int i = 0; i < iterable.size(); i++) {
                 final I item = iterable.get(i);
                 final int pos = i;
                 instance.runOnContext(aVoid -> consumer.accept(item, result -> {
-                    counter.setObject(counter.getObject() - 1);
                     if (result.failed()) {
-                        if (!stop.getObject()) {
-                            stop.setObject(true);
+                        if (!stop.get()) {
+                            stop.set(true);
                             handler.handle(DefaultAsyncResult.fail(result));
                         }
                     } else {
                         mapped.add(pos, result.result());
-                        if (counter.getObject() == 0 && !stop.getObject()) {
+                        if (counter.decrementAndGet() == 0 && !stop.get()) {
                             handler.handle(DefaultAsyncResult.succeed(mapped));
                         }
                     }
                 }));
 
-                if (stop.getObject()) {
+                if (stop.get()) {
                     break;
                 }
             }
@@ -206,27 +206,27 @@ public final class CollectionsAsync {
         if (iterable.isEmpty()) {
             handler.handle(DefaultAsyncResult.succeed(filtered));
         } else {
-            final ObjectWrapper<Boolean> stop = new ObjectWrapper<>(false);
-            final ObjectWrapper<Integer> counter = new ObjectWrapper<>(iterable.size());
+            final AtomicBoolean stop = new AtomicBoolean(false);
+            final AtomicInteger counter = new AtomicInteger(iterable.size());
+
             for (T item : iterable) {
                 instance.runOnContext(aVoid -> consumer.accept(item, result -> {
-                    counter.setObject(counter.getObject() - 1);
                     if (result.failed()) {
-                        if (!stop.getObject()) {
-                            stop.setObject(true);
+                        if (!stop.get()) {
+                            stop.set(true);
                             handler.handle(DefaultAsyncResult.fail(result));
                         }
                     } else {
                         if (result.result()) {
                             filtered.add(item);
                         }
-                        if (counter.getObject() == 0 && !stop.getObject()) {
+                        if (counter.decrementAndGet() == 0 && !stop.get()) {
                             handler.handle(DefaultAsyncResult.succeed(filtered));
                         }
                     }
                 }));
 
-                if (stop.getObject()) {
+                if (stop.get()) {
                     break;
                 }
             }
@@ -366,18 +366,19 @@ public final class CollectionsAsync {
      */
     public static <I, O> void reduce(final Vertx instance, final Collection<I> collection, final O memo, final BiConsumer<Pair<I, O>, Handler<AsyncResult<O>>> function, final Handler<AsyncResult<O>> handler) {
         final Iterator<I> iterator = collection.iterator();
-        final ObjectWrapper<O> value = new ObjectWrapper<>(memo);
+        final AtomicReference<O> value = new AtomicReference<>(memo);
+
         instance.runOnContext(new Handler<Void>() {
             @Override
             public void handle(Void event) {
                 if (!iterator.hasNext()) {
-                    handler.handle(DefaultAsyncResult.succeed(value.getObject()));
+                    handler.handle(DefaultAsyncResult.succeed(value.get()));
                 } else {
-                    function.accept(new Pair<>(iterator.next(), value.getObject()), event1 -> {
+                    function.accept(new Pair<>(iterator.next(), value.get()), event1 -> {
                         if (event1.failed()) {
                             handler.handle(DefaultAsyncResult.fail(event1));
                         } else {
-                            value.setObject(event1.result());
+                            value.set(event1.result());
                             instance.runOnContext((Void) -> {
                                 instance.runOnContext(this);
                             });
@@ -410,28 +411,27 @@ public final class CollectionsAsync {
         if (collection.isEmpty()) {
             handler.handle(DefaultAsyncResult.succeed(null));
         } else {
-            final ObjectWrapper<Boolean> stop = new ObjectWrapper<>(false);
-            final ObjectWrapper<Integer> counter = new ObjectWrapper<>(collection.size());
+            final AtomicBoolean stop = new AtomicBoolean(false);
+            final AtomicInteger counter = new AtomicInteger(collection.size());
             for (T item : collection) {
                 instance.runOnContext(aVoid -> function.accept(item, event -> {
-                    counter.setObject(counter.getObject() - 1);
                     if (event.succeeded()) {
                         // Prevent Unhandled exception in Netty
                         if (null != event.result() && event.result()) {
-                            if (!stop.getObject()) {
-                                stop.setObject(true);
+                            if (!stop.get()) {
+                                stop.set(true);
                                 handler.handle(DefaultAsyncResult.succeed(item));
                             }
-                        } else if (counter.getObject() == 0 && !stop.getObject()) {
+                        } else if (counter.decrementAndGet() == 0 && !stop.get()) {
                             handler.handle(DefaultAsyncResult.succeed(null));
                         }
                     } else {
-                        stop.setObject(true);
+                        stop.set(true);
                         handler.handle(DefaultAsyncResult.fail(event));
                     }
                 }));
 
-                if (stop.getObject()) {
+                if (stop.get()) {
                     break;
                 }
             }
@@ -457,28 +457,28 @@ public final class CollectionsAsync {
         if (collection.isEmpty()) {
             handler.handle(DefaultAsyncResult.succeed(false));
         } else {
-            final ObjectWrapper<Boolean> stop = new ObjectWrapper<>(false);
-            final ObjectWrapper<Integer> counter = new ObjectWrapper<>(collection.size());
+            final AtomicBoolean stop = new AtomicBoolean(false);
+            final AtomicInteger counter = new AtomicInteger(collection.size());
+
             for (T item : collection) {
                 instance.runOnContext(aVoid -> function.accept(item, event -> {
-                    counter.setObject(counter.getObject() - 1);
                     if (event.succeeded()) {
                         // Prevent Unhandled exception in Netty
                         if (null != event.result() && event.result()) {
-                            if (!stop.getObject()) {
-                                stop.setObject(true);
+                            if (!stop.get()) {
+                                stop.set(true);
                                 handler.handle(DefaultAsyncResult.succeed(true));
                             }
-                        } else if (counter.getObject() == 0 && !stop.getObject()) {
+                        } else if (counter.decrementAndGet() == 0 && !stop.get()) {
                             handler.handle(DefaultAsyncResult.succeed(false));
                         }
                     } else {
-                        stop.setObject(true);
+                        stop.set(true);
                         handler.handle(DefaultAsyncResult.fail(event));
                     }
                 }));
 
-                if (stop.getObject()) {
+                if (stop.get()) {
                     break;
                 }
             }
@@ -503,28 +503,27 @@ public final class CollectionsAsync {
         if (collection.isEmpty()) {
             handler.handle(DefaultAsyncResult.succeed(false));
         } else {
-            final ObjectWrapper<Boolean> stop = new ObjectWrapper<>(false);
-            final ObjectWrapper<Integer> counter = new ObjectWrapper<>(collection.size());
+            final AtomicBoolean stop = new AtomicBoolean(false);
+            final AtomicInteger counter = new AtomicInteger(collection.size());
             for (T item : collection) {
                 instance.runOnContext(aVoid -> function.accept(item, event -> {
-                    counter.setObject(counter.getObject() - 1);
                     if (event.succeeded()) {
                         // Prevent Unhandled exception in Netty
                         if (null != event.result() && !event.result()) {
-                            if (!stop.getObject()) {
-                                stop.setObject(true);
+                            if (!stop.get()) {
+                                stop.set(true);
                                 handler.handle(DefaultAsyncResult.succeed(false));
                             }
-                        } else if (counter.getObject() == 0 && !stop.getObject()) {
+                        } else if (counter.decrementAndGet() == 0 && !stop.get()) {
                             handler.handle(DefaultAsyncResult.succeed(true));
                         }
                     } else {
-                        stop.setObject(true);
+                        stop.set(true);
                         handler.handle(DefaultAsyncResult.fail(event));
                     }
                 }));
 
-                if (stop.getObject()) {
+                if (stop.get()) {
                     break;
                 }
             }
@@ -551,27 +550,27 @@ public final class CollectionsAsync {
         if (iterable.isEmpty()) {
             handler.handle(DefaultAsyncResult.succeed(results));
         } else {
-            final ObjectWrapper<Boolean> stop = new ObjectWrapper<>(false);
-            final ObjectWrapper<Integer> counter = new ObjectWrapper<>(iterable.size());
+            final AtomicBoolean stop = new AtomicBoolean(false);
+            final AtomicInteger counter = new AtomicInteger(iterable.size());
+
             for (I item : iterable) {
                 instance.runOnContext(aVoid -> consumer.accept(item, result -> {
-                    counter.setObject(counter.getObject() - 1);
                     if (result.failed()) {
-                        if (!stop.getObject()) {
-                            stop.setObject(true);
+                        if (!stop.get()) {
+                            stop.set(true);
                             handler.handle(DefaultAsyncResult.fail(result));
                         }
                     } else {
                         if (result.result() != null) {
                             results.addAll(result.result());
                         }
-                        if (counter.getObject() == 0 && !stop.getObject()) {
+                        if (counter.decrementAndGet() == 0 && !stop.get()) {
                             handler.handle(DefaultAsyncResult.succeed(results));
                         }
                     }
                 }));
 
-                if (stop.getObject()) {
+                if (stop.get()) {
                     break;
                 }
             }

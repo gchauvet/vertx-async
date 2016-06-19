@@ -27,6 +27,7 @@ import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
@@ -108,13 +109,12 @@ public final class FlowsAsync {
     public static <T> void retry(final Vertx instance, final Consumer<Handler<AsyncResult<T>>> task, final long times, final Handler<AsyncResult<T>> handler) {
         instance.runOnContext((Void) -> {
             task.accept((Handler<AsyncResult<T>>) new Handler<AsyncResult<T>>() {
-                private final ObjectWrapper<Integer> count = new ObjectWrapper<>(0);
+                private final AtomicInteger count = new AtomicInteger(0);
 
                 @Override
                 public void handle(AsyncResult<T> result) {
                     if (result.failed()) {
-                        count.setObject(count.getObject() + 1);
-                        if (count.getObject() > times) {
+                        if (count.incrementAndGet()> times) {
                             handler.handle(DefaultAsyncResult.fail(result));
                         } else {
                             instance.runOnContext((Void) -> {
