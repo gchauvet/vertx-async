@@ -28,6 +28,7 @@ import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import java.util.*;
 import java.util.function.BiConsumer;
+import java.util.stream.Stream;
 import org.javatuples.*;
 
 public final class CollectionsAsync {
@@ -561,7 +562,7 @@ public final class CollectionsAsync {
                             handler.handle(DefaultAsyncResult.fail(result));
                         }
                     } else {
-                        if(result.result() != null) {
+                        if (result.result() != null) {
                             results.addAll(result.result());
                         }
                         if (counter.getObject() == 0 && !stop.getObject()) {
@@ -575,5 +576,46 @@ public final class CollectionsAsync {
                 }
             }
         }
+    }
+
+    /**
+     * Sorts a list by the results of running each {@code collection} value
+     * through the internal comparator.
+     *
+     * @param <T> Define the manipulated type.
+     * @param instance Define Vertx instance.
+     * @param iterable A collection to iterate over.
+     * @param handler A callback which is called after all the `iteratee`
+     * functions have finished, or an error occurs. Results is the items from
+     * the original {@code collection} sorted by the values returned by the
+     * `iteratee` calls.
+     */
+    public static <T> void sort(final Vertx instance, final Collection<T> iterable, final Handler<AsyncResult<Collection<T>>> handler) {
+        sort(instance, iterable, null, handler);
+    }
+
+    /**
+     * Sorts a list by the results of running each {@code collection} value
+     * through an async {@code comparator}.
+     *
+     * @param <T> Define the manipulated type.
+     * @param instance Define Vertx instance.
+     * @param iterable A collection to iterate over.
+     * @param comparator A function used as comparator.
+     * @param handler A callback which is called after all the `iteratee`
+     * functions have finished, or an error occurs. Results is the items from
+     * the original {@code collection} sorted by the values returned by the
+     * `iteratee` calls.
+     */
+    public static <T> void sort(final Vertx instance, final Collection<T> iterable, final Comparator<T> comparator, final Handler<AsyncResult<Collection<T>>> handler) {
+        instance.runOnContext((Void event) -> {
+            Stream<T> stream = iterable.parallelStream();
+            if (comparator != null) {
+                stream = stream.sorted(comparator);
+            } else {
+                stream = stream.sorted();
+            }
+            handler.handle(DefaultAsyncResult.succeed(new ArrayList<>(Arrays.asList((T[]) stream.toArray()))));
+        });
     }
 }

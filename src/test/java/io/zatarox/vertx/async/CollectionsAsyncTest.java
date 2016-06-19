@@ -33,6 +33,7 @@ import io.zatarox.vertx.async.fakes.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -1299,6 +1300,45 @@ public final class CollectionsAsyncTest {
             context.assertNull(result.result());
             context.assertEquals(3, tester.runCount());
             context.assertEquals(1, (int) handlerCallCount.getObject());
+            async.complete();
+        });
+    }
+    
+    @Test(timeout = CollectionsAsyncTest.LIMIT)
+    public void sortNoItems(final TestContext context) {
+        final List<Integer> items = Arrays.asList();
+        final Async async = context.async();
+        CollectionsAsync.sort(rule.vertx(), items, (AsyncResult<Collection<Integer>> result) -> {
+            context.assertNotNull(result);
+            context.assertFalse(result.failed());
+            context.assertTrue(result.succeeded());
+            context.assertTrue(result.result().isEmpty());
+            async.complete();
+        });
+    }
+    
+    @Test(timeout = CollectionsAsyncTest.LIMIT)
+    public void sortItems(final TestContext context) {
+        final List<Integer> items = Arrays.asList(3, 2, 1);
+        final Async async = context.async();
+        CollectionsAsync.sort(rule.vertx(), items, (AsyncResult<Collection<Integer>> result) -> {
+            context.assertNotNull(result);
+            context.assertFalse(result.failed());
+            context.assertTrue(result.succeeded());
+            context.assertEquals(Arrays.asList(1, 2, 3), result.result());
+            async.complete();
+        });
+    }
+    
+    @Test(timeout = CollectionsAsyncTest.LIMIT)
+    public void sortItemsWithValidator(final TestContext context) {
+        final List<Integer> items = Arrays.asList(2, 3, 1);
+        final Async async = context.async();
+        CollectionsAsync.sort(rule.vertx(), items, (Integer t, Integer t1) -> t1.compareTo(t),(AsyncResult<Collection<Integer>> result) -> {
+            context.assertNotNull(result);
+            context.assertFalse(result.failed());
+            context.assertTrue(result.succeeded());
+            context.assertEquals(Arrays.asList(3, 2, 1), result.result());
             async.complete();
         });
     }
