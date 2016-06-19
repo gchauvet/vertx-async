@@ -608,7 +608,7 @@ public final class CollectionsAsync {
      * `iteratee` calls.
      */
     public static <T> void sort(final Vertx instance, final Collection<T> iterable, final Comparator<T> comparator, final Handler<AsyncResult<Collection<T>>> handler) {
-        instance.runOnContext((Void event) -> {
+        instance.runOnContext(event -> {
             Stream<T> stream = iterable.parallelStream();
             if (comparator != null) {
                 stream = stream.sorted(comparator);

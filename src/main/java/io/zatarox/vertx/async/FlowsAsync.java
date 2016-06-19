@@ -178,7 +178,7 @@ public final class FlowsAsync {
             @Override
             public void handle(Void event) {
                 if (iterator.hasNext()) {
-                    iterator.next().accept(result, (Handler<AsyncResult<O>>) (AsyncResult<O> event1) -> {
+                    iterator.next().accept(result, event1 -> {
                         if (event1.succeeded()) {
                             result = (I) event1.result();
                             instance.runOnContext(this);
