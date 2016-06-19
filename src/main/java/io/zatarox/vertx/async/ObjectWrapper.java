@@ -34,11 +34,11 @@ final class ObjectWrapper<T> {
         this.object = object;
     }
 
-    public void setObject(T object) {
+    public synchronized void setObject(T object) {
         this.object = object;
     }
 
-    public T getObject() {
+    public synchronized T getObject() {
         return object;
     }
 }

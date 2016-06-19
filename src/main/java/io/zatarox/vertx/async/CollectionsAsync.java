@@ -65,23 +65,22 @@ public final class CollectionsAsync {
         } else {
             final ObjectWrapper<Boolean> stop = new ObjectWrapper<>(false);
             final ObjectWrapper<Integer> counter = new ObjectWrapper<>(iterable.size());
-            for (T item : iterable) {
-                instance.runOnContext(aVoid -> consumer.accept(item, result -> {
-                    counter.setObject(counter.getObject() - 1);
-                    if (result.failed()) {
-                        if (!stop.getObject()) {
-                            stop.setObject(true);
-                            handler.handle(DefaultAsyncResult.fail(result));
-                        }
-                    } else if (counter.getObject() == 0 && !stop.getObject()) {
-                        handler.handle(DefaultAsyncResult.succeed());
-                    }
-                }));
 
-                if (stop.getObject()) {
-                    break;
-                }
-            }
+            instance.runOnContext(event -> {
+                iterable.parallelStream().forEach(t -> {
+                    consumer.accept(t, result -> {
+                        counter.setObject(counter.getObject() - 1);
+                        if (result.failed()) {
+                            if (!stop.getObject()) {
+                                stop.setObject(true);
+                                handler.handle(DefaultAsyncResult.fail(result));
+                            }
+                        } else if (counter.getObject() == 0 && !stop.getObject()) {
+                            handler.handle(DefaultAsyncResult.succeed());
+                        }
+                    });
+                });
+            });
         }
     }
 
@@ -107,23 +106,21 @@ public final class CollectionsAsync {
         } else {
             final ObjectWrapper<Boolean> stop = new ObjectWrapper<>(false);
             final ObjectWrapper<Integer> counter = new ObjectWrapper<>(iterable.size());
-            for (final Map.Entry<K, V> item : iterable.entrySet()) {
-                instance.runOnContext(aVoid -> consumer.accept(new KeyValue<>(item.getKey(), item.getValue()), result -> {
-                    counter.setObject(counter.getObject() - 1);
-                    if (result.failed()) {
-                        if (!stop.getObject()) {
-                            stop.setObject(true);
-                            handler.handle(DefaultAsyncResult.fail(result));
+            instance.runOnContext(event -> {
+                iterable.entrySet().parallelStream().forEach((t) -> {
+                    consumer.accept(new KeyValue<>(t.getKey(), t.getValue()), result -> {
+                        counter.setObject(counter.getObject() - 1);
+                        if (result.failed()) {
+                            if (!stop.getObject()) {
+                                stop.setObject(true);
+                                handler.handle(DefaultAsyncResult.fail(result));
+                            }
+                        } else if (counter.getObject() == 0 && !stop.getObject()) {
+                            handler.handle(DefaultAsyncResult.succeed());
                         }
-                    } else if (counter.getObject() == 0 && !stop.getObject()) {
-                        handler.handle(DefaultAsyncResult.succeed());
-                    }
-                }));
-
-                if (stop.getObject()) {
-                    break;
-                }
-            }
+                    });
+                });
+            });
         }
     }
 
@@ -162,28 +159,24 @@ public final class CollectionsAsync {
             final ObjectWrapper<Boolean> stop = new ObjectWrapper<>(false);
             final ObjectWrapper<Integer> counter = new ObjectWrapper<>(iterable.size());
 
-            for (int i = 0; i < iterable.size(); i++) {
-                final I item = iterable.get(i);
-                final int pos = i;
-                instance.runOnContext(aVoid -> consumer.accept(item, result -> {
-                    counter.setObject(counter.getObject() - 1);
-                    if (result.failed()) {
-                        if (!stop.getObject()) {
-                            stop.setObject(true);
-                            handler.handle(DefaultAsyncResult.fail(result));
+            instance.runOnContext(event -> {
+                iterable.parallelStream().forEachOrdered(item -> {
+                    instance.runOnContext(aVoid -> consumer.accept(item, result -> {
+                        counter.setObject(counter.getObject() - 1);
+                        if (result.failed()) {
+                            if (!stop.getObject()) {
+                                stop.setObject(true);
+                                handler.handle(DefaultAsyncResult.fail(result));
+                            }
+                        } else {
+                            mapped.add(result.result());
+                            if (counter.getObject() == 0 && !stop.getObject()) {
+                                handler.handle(DefaultAsyncResult.succeed(mapped));
+                            }
                         }
-                    } else {
-                        mapped.add(pos, result.result());
-                        if (counter.getObject() == 0 && !stop.getObject()) {
-                            handler.handle(DefaultAsyncResult.succeed(mapped));
-                        }
-                    }
-                }));
-
-                if (stop.getObject()) {
-                    break;
-                }
-            }
+                    }));
+                });
+            });
         }
     }
 
@@ -208,28 +201,26 @@ public final class CollectionsAsync {
         } else {
             final ObjectWrapper<Boolean> stop = new ObjectWrapper<>(false);
             final ObjectWrapper<Integer> counter = new ObjectWrapper<>(iterable.size());
-            for (T item : iterable) {
-                instance.runOnContext(aVoid -> consumer.accept(item, result -> {
-                    counter.setObject(counter.getObject() - 1);
-                    if (result.failed()) {
-                        if (!stop.getObject()) {
-                            stop.setObject(true);
-                            handler.handle(DefaultAsyncResult.fail(result));
+            instance.runOnContext(event -> {
+                iterable.parallelStream().forEach(item -> {
+                    consumer.accept(item, result -> {
+                        counter.setObject(counter.getObject() - 1);
+                        if (result.failed()) {
+                            if (!stop.getObject()) {
+                                stop.setObject(true);
+                                handler.handle(DefaultAsyncResult.fail(result));
+                            }
+                        } else {
+                            if(result.result()) {
+                                filtered.add(item);
+                            }
+                            if (counter.getObject() == 0 && !stop.getObject()) {
+                                handler.handle(DefaultAsyncResult.succeed(filtered));
+                            }
                         }
-                    } else {
-                        if (result.result()) {
-                            filtered.add(item);
-                        }
-                        if (counter.getObject() == 0 && !stop.getObject()) {
-                            handler.handle(DefaultAsyncResult.succeed(filtered));
-                        }
-                    }
-                }));
-
-                if (stop.getObject()) {
-                    break;
-                }
-            }
+                    });
+                });
+            });
         }
     }
 
