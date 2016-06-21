@@ -27,7 +27,7 @@ See our wiki (:construction:).
 * filter
 * reject
 * reduce
-* transform`](#transform)
+* transform
 * detect
 * sort
 * some
@@ -53,5 +53,5 @@ See our wiki (:construction:).
 * retry :construction:
 * retryable :construction:
 * iterator :construction:
-* times
-* race
+* times :construction:
+* race :construction:
