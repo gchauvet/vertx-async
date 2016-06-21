@@ -33,7 +33,8 @@ import java.util.function.Consumer;
 
 public final class FlowsAsync {
 
-    private FlowsAsync() {
+    private FlowsAsync() throws InstantiationException {
+        throw new InstantiationException();
     }
 
     /**
@@ -114,7 +115,7 @@ public final class FlowsAsync {
                 @Override
                 public void handle(AsyncResult<T> result) {
                     if (result.failed()) {
-                        if (count.incrementAndGet()> times) {
+                        if (count.incrementAndGet() > times) {
                             handler.handle(DefaultAsyncResult.fail(result));
                         } else {
                             instance.runOnContext((Void) -> {

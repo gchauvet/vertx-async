@@ -36,7 +36,8 @@ import org.javatuples.*;
 
 public final class CollectionsAsync {
 
-    private CollectionsAsync() {
+    private CollectionsAsync() throws InstantiationException {
+        throw new InstantiationException();
     }
 
     /**

@@ -32,6 +32,8 @@ import io.vertx.ext.unit.junit.RepeatRule;
 import io.vertx.ext.unit.junit.RunTestOnContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
 import io.zatarox.vertx.async.fakes.*;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -58,6 +60,13 @@ public final class CollectionsAsyncTest {
     public RepeatRule repeater = new RepeatRule();
     @Rule
     public RunTestOnContext rule = new RunTestOnContext();
+
+    @Test(expected = InvocationTargetException.class)
+    public void testPrivateConstructor() throws Exception {
+        final Constructor<CollectionsAsync> c = CollectionsAsync.class.getDeclaredConstructor();
+        c.setAccessible(true);
+        c.newInstance();
+    }
 
     @Test(timeout = CollectionsAsyncTest.TIMEOUT_LIMIT)
     @Repeat(CollectionsAsyncTest.REPEAT_LIMIT)

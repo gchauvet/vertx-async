@@ -32,6 +32,8 @@ import io.vertx.ext.unit.junit.RepeatRule;
 import io.vertx.ext.unit.junit.RunTestOnContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
 import io.zatarox.vertx.async.fakes.*;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
@@ -54,6 +56,13 @@ public final class FlowsAsyncTest {
     @Rule
     public RunTestOnContext rule = new RunTestOnContext();
 
+    @Test(expected = InvocationTargetException.class)
+    public void testPrivateConstructor() throws Exception {
+        final Constructor<FlowsAsync> c = FlowsAsync.class.getDeclaredConstructor();
+        c.setAccessible(true);
+        c.newInstance();
+    }
+    
     @Test(timeout = FlowsAsyncTest.TIMEOUT_LIMIT)
     @Repeat(FlowsAsyncTest.REPEAT_LIMIT)
     public void seriesStillExecutesWhenThereAreNoTasks(final TestContext context) {
