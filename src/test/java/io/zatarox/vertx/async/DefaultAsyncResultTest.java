@@ -26,6 +26,8 @@ package io.zatarox.vertx.async;
 import io.vertx.core.AsyncResult;
 import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
+import io.vertx.ext.unit.junit.Repeat;
+import io.vertx.ext.unit.junit.RepeatRule;
 import io.vertx.ext.unit.junit.RunTestOnContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
 import org.junit.Rule;
@@ -34,16 +36,20 @@ import org.junit.runner.RunWith;
 
 @RunWith(VertxUnitRunner.class)
 public final class DefaultAsyncResultTest {
-    
+
     /**
-     * Timelimit
+     * Limits
      */
-    private static final int LIMIT = 1000;
-    
+    private static final int TIMEOUT_LIMIT = 1000;
+    private static final int REPEAT_LIMIT = 100;
+
+    @Rule
+    public RepeatRule repeater = new RepeatRule();
     @Rule
     public RunTestOnContext rule = new RunTestOnContext();
 
-    @Test(timeout = DefaultAsyncResultTest.LIMIT)
+    @Test(timeout = DefaultAsyncResultTest.TIMEOUT_LIMIT)
+    @Repeat(DefaultAsyncResultTest.REPEAT_LIMIT)
     public void validFailedException(final TestContext context) {
         final Async async = context.async();
         final AsyncResult<Void> instance = DefaultAsyncResult.fail(new UnsupportedOperationException());
@@ -54,8 +60,9 @@ public final class DefaultAsyncResultTest {
             async.complete();
         });
     }
-    
-        @Test(timeout = DefaultAsyncResultTest.LIMIT)
+
+    @Test(timeout = DefaultAsyncResultTest.TIMEOUT_LIMIT)
+    @Repeat(DefaultAsyncResultTest.REPEAT_LIMIT)
     public void validFaileAsyncResult(final TestContext context) {
         final Async async = context.async();
         final AsyncResult<Void> instance = DefaultAsyncResult.fail(DefaultAsyncResult.fail(new UnsupportedOperationException()));
@@ -66,8 +73,9 @@ public final class DefaultAsyncResultTest {
             async.complete();
         });
     }
-    
-    @Test(timeout = DefaultAsyncResultTest.LIMIT, expected = IllegalArgumentException.class)
+
+    @Test(timeout = DefaultAsyncResultTest.TIMEOUT_LIMIT, expected = IllegalArgumentException.class)
+    @Repeat(DefaultAsyncResultTest.REPEAT_LIMIT)
     public void unvalidFailed(final TestContext context) {
         final Async async = context.async();
         final AsyncResult<Void> instance = DefaultAsyncResult.fail((Throwable) null);
@@ -77,8 +85,9 @@ public final class DefaultAsyncResultTest {
             async.complete();
         });
     }
-    
-    @Test(timeout = DefaultAsyncResultTest.LIMIT)
+
+    @Test(timeout = DefaultAsyncResultTest.TIMEOUT_LIMIT)
+    @Repeat(DefaultAsyncResultTest.REPEAT_LIMIT)
     public void validVoidSuccess(final TestContext context) {
         final Async async = context.async();
         final AsyncResult<Void> instance = DefaultAsyncResult.succeed();
@@ -90,8 +99,9 @@ public final class DefaultAsyncResultTest {
             async.complete();
         });
     }
-    
-    @Test(timeout = DefaultAsyncResultTest.LIMIT)
+
+    @Test(timeout = DefaultAsyncResultTest.TIMEOUT_LIMIT)
+    @Repeat(DefaultAsyncResultTest.REPEAT_LIMIT)
     public void validValueSuccess(final TestContext context) {
         final Async async = context.async();
         final AsyncResult<Integer> instance = DefaultAsyncResult.succeed(73);
@@ -102,5 +112,5 @@ public final class DefaultAsyncResultTest {
             context.assertEquals(73, instance.result());
             async.complete();
         });
-    }   
+    }
 }

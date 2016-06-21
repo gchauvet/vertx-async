@@ -28,6 +28,7 @@ import io.vertx.core.Handler;
 import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.Repeat;
+import io.vertx.ext.unit.junit.RepeatRule;
 import io.vertx.ext.unit.junit.RunTestOnContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
 import io.zatarox.vertx.async.fakes.*;
@@ -51,8 +52,10 @@ public final class CollectionsAsyncTest {
      * Limits
      */
     private static final int TIMEOUT_LIMIT = 1000;
-    private static final int REPEAT_LIMIT = 10000;
+    private static final int REPEAT_LIMIT = 100;
 
+    @Rule
+    public RepeatRule repeater = new RepeatRule();
     @Rule
     public RunTestOnContext rule = new RunTestOnContext();
 
