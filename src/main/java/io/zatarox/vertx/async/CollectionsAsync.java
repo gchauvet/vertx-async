@@ -71,7 +71,7 @@ public final class CollectionsAsync {
             final AtomicInteger counter = new AtomicInteger(iterable.size());
             for (T item : iterable) {
                 instance.runOnContext(aVoid -> consumer.accept(item, result -> {
-                    if (result.failed()) {
+                    if (result.failed() || stop.get()) {
                         if (!stop.get()) {
                             stop.set(true);
                             handler.handle(DefaultAsyncResult.fail(result));
@@ -80,10 +80,6 @@ public final class CollectionsAsync {
                         handler.handle(DefaultAsyncResult.succeed());
                     }
                 }));
-
-                if (stop.get()) {
-                    break;
-                }
             }
         }
     }
