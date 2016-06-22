@@ -385,5 +385,102 @@ public final class FlowsAsyncTest {
             async.complete();
         });
     }
+    
+    @Test(timeout = FlowsAsyncTest.TIMEOUT_LIMIT)
+    @Repeat(FlowsAsyncTest.REPEAT_LIMIT)
+    public void parallelStillExecutesWhenThereAreNoTasks(final TestContext context) {
+        final AtomicInteger handlerCallCount = new AtomicInteger(0);
+        final Async async = context.async();
+
+        FlowsAsync.parallel(rule.vertx(), Arrays.<Consumer<Handler<AsyncResult<Void>>>>asList(), result -> {
+
+            context.assertNotNull(result);
+            context.assertTrue(result.succeeded());
+            context.assertNotNull(result.result());
+            context.assertTrue(result.result().isEmpty());
+            context.assertEquals(1, handlerCallCount.incrementAndGet());
+            async.complete();
+        });
+    }
+
+    @Test(timeout = FlowsAsyncTest.TIMEOUT_LIMIT)
+    @Repeat(FlowsAsyncTest.REPEAT_LIMIT)
+    public void parallelExecutesOneTask(final TestContext context) {
+        final FakeSuccessfulAsyncSupplier<String> task1 = new FakeSuccessfulAsyncSupplier<>("Task 1");
+        final AtomicInteger handlerCallCount = new AtomicInteger(0);
+        final Async async = context.async();
+
+        FlowsAsync.parallel(rule.vertx(), Arrays.<Consumer<Handler<AsyncResult<String>>>>asList(task1), result -> {
+
+            context.assertEquals(1, task1.runCount());
+            context.assertNotNull(result);
+            context.assertTrue(result.succeeded());
+            context.assertNotNull(result.result());
+            context.assertTrue(result.result().containsAll(Arrays.asList(task1.result())));
+            context.assertEquals(1, handlerCallCount.incrementAndGet());
+            async.complete();
+        });
+    }
+
+    @Test(timeout = FlowsAsyncTest.TIMEOUT_LIMIT)
+    @Repeat(FlowsAsyncTest.REPEAT_LIMIT)
+    public void parallelExecutesTwoTasks(final TestContext context) {
+        final FakeSuccessfulAsyncSupplier<String> task1 = new FakeSuccessfulAsyncSupplier<>("Task 1");
+        final FakeSuccessfulAsyncSupplier<String> task2 = new FakeSuccessfulAsyncSupplier<>("Task 2");
+        final AtomicInteger handlerCallCount = new AtomicInteger(0);
+        final Async async = context.async();
+
+        FlowsAsync.parallel(rule.vertx(), Arrays.<Consumer<Handler<AsyncResult<String>>>>asList(task1, task2), result -> {
+
+            context.assertEquals(1, task1.runCount());
+            context.assertEquals(1, task2.runCount());
+            context.assertNotNull(result);
+            context.assertTrue(result.succeeded());
+            context.assertNotNull(result.result());
+            context.assertTrue(result.result().containsAll(Arrays.asList(task1.result(), task2.result())));
+            context.assertEquals(1, handlerCallCount.incrementAndGet());
+            async.complete();
+        });
+    }
+
+    @Test(timeout = FlowsAsyncTest.TIMEOUT_LIMIT)
+    @Repeat(FlowsAsyncTest.REPEAT_LIMIT)
+    public void parallelFailsWhenATaskFails(final TestContext context) {
+        final FakeFailingAsyncSupplier<String> task1 = new FakeFailingAsyncSupplier<>(new Throwable("Failed"));
+        final AtomicInteger handlerCallCount = new AtomicInteger(0);
+        final Async async = context.async();
+
+        FlowsAsync.parallel(rule.vertx(), Arrays.<Consumer<Handler<AsyncResult<String>>>>asList(task1), result -> {
+
+            context.assertEquals(1, task1.runCount());
+            context.assertNotNull(result);
+            context.assertFalse(result.succeeded());
+            context.assertEquals(task1.cause(), result.cause());
+            context.assertNull(result.result());
+            context.assertEquals(1, handlerCallCount.incrementAndGet());
+            async.complete();
+        });
+    }
+
+    @Test(timeout = FlowsAsyncTest.TIMEOUT_LIMIT)
+    @Repeat(FlowsAsyncTest.REPEAT_LIMIT)
+    public void parallelExecutesNoMoreTasksWhenATaskFails(final TestContext context) {
+        final FakeFailingAsyncSupplier<String> task1 = new FakeFailingAsyncSupplier<>(new Throwable("Failed"));
+        final FakeSuccessfulAsyncSupplier<String> task2 = new FakeSuccessfulAsyncSupplier<>("Task 2");
+        final AtomicInteger handlerCallCount = new AtomicInteger(0);
+        final Async async = context.async();
+
+        FlowsAsync.parallel(rule.vertx(), Arrays.<Consumer<Handler<AsyncResult<String>>>>asList(task1, task2), result -> {
+
+            context.assertNotNull(result);
+            context.assertFalse(result.succeeded());
+            context.assertEquals(task1.cause(), result.cause());
+            context.assertNull(result.result());
+            context.assertEquals(1, (int) task1.runCount());
+            context.assertEquals(0, (int) task2.runCount());
+            context.assertEquals(1, handlerCallCount.incrementAndGet());
+            async.complete();
+        });
+    }
 
 }

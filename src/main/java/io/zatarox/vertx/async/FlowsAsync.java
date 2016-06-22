@@ -27,6 +27,7 @@ import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -192,5 +193,54 @@ public final class FlowsAsync {
                 }
             }
         });
+    }
+
+    /**
+     * Run the {@code tasks} collection of functions in parallel, without waiting
+     * until the previous function has completed. If any of the functions pass
+     * an error to its callback, the main {@code handler} is immediately called with
+     * the value of the error. Once the {@code tasks} have completed, the results are
+     * passed to the final {@code handler} as an array.
+     *
+     * **Note:** {@code parallel} is about kicking-off I/O tasks in parallel, not
+     * about parallel execution of code. If your tasks do not use any timers or
+     * perform any I/O, they will actually be executed in series. Any
+     * synchronous setup sections for each task will happen one after the other.
+     *
+     * @param <T> Define the manipulated data type.
+     * @param instance Define Vertx instance.
+     * @param tasks Collection of tasks to run.
+     * @param handler A callback to run once all the functions have completed
+     * successfully. This function gets a results array (or object) containing
+     * all the result arguments passed to the task callbacks.
+     */
+    public static <T> void parallel(final Vertx instance, List<Consumer<Handler<AsyncResult<T>>>> tasks, final Handler<AsyncResult<List<T>>> handler) {
+        final List<T> results = new ArrayList<>(tasks.size());
+        if (tasks.isEmpty()) {
+            handler.handle(DefaultAsyncResult.succeed(results));
+        } else {
+            instance.runOnContext(event -> {
+                final AtomicBoolean stop = new AtomicBoolean(false);
+                final AtomicInteger counter = new AtomicInteger(tasks.size());
+
+                for (int i = 0; i < tasks.size(); i++) {
+                    final Consumer<Handler<AsyncResult<T>>> task = tasks.get(i);
+                    final int pos = i;
+                    instance.runOnContext(aVoid -> task.accept(result -> {
+                        if (result.failed() || stop.get()) {
+                            if (!stop.get()) {
+                                stop.set(true);
+                                handler.handle(DefaultAsyncResult.fail(result));
+                            }
+                        } else {
+                            results.add(pos, result.result());
+                            if (counter.decrementAndGet() == 0 && !stop.get()) {
+                                handler.handle(DefaultAsyncResult.succeed(results));
+                            }
+                        }
+                    }));
+                }
+            });
+        }
     }
 }
