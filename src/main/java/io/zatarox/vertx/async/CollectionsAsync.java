@@ -108,7 +108,7 @@ public final class CollectionsAsync {
             final AtomicInteger counter = new AtomicInteger(iterable.size());
             for (final Map.Entry<K, V> item : iterable.entrySet()) {
                 instance.runOnContext(aVoid -> consumer.accept(new KeyValue<>(item.getKey(), item.getValue()), result -> {
-                    if (result.failed()) {
+                    if (result.failed() || stop.get()) {
                         if (!stop.get()) {
                             stop.set(true);
                             handler.handle(DefaultAsyncResult.fail(result));
@@ -117,10 +117,6 @@ public final class CollectionsAsync {
                         handler.handle(DefaultAsyncResult.succeed());
                     }
                 }));
-
-                if (stop.get()) {
-                    break;
-                }
             }
         }
     }
