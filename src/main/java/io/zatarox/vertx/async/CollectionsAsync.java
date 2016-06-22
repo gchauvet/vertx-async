@@ -168,7 +168,7 @@ public final class CollectionsAsync {
                 final I item = iterable.get(i);
                 final int pos = i;
                 instance.runOnContext(aVoid -> consumer.accept(item, result -> {
-                    if (result.failed()) {
+                    if (result.failed() || stop.get()) {
                         if (!stop.get()) {
                             stop.set(true);
                             handler.handle(DefaultAsyncResult.fail(result));
@@ -180,10 +180,6 @@ public final class CollectionsAsync {
                         }
                     }
                 }));
-
-                if (stop.get()) {
-                    break;
-                }
             }
         }
     }
@@ -212,7 +208,7 @@ public final class CollectionsAsync {
 
             for (T item : iterable) {
                 instance.runOnContext(aVoid -> consumer.accept(item, result -> {
-                    if (result.failed()) {
+                    if (result.failed() || stop.get()) {
                         if (!stop.get()) {
                             stop.set(true);
                             handler.handle(DefaultAsyncResult.fail(result));
@@ -226,10 +222,6 @@ public final class CollectionsAsync {
                         }
                     }
                 }));
-
-                if (stop.get()) {
-                    break;
-                }
             }
         }
     }
@@ -418,7 +410,7 @@ public final class CollectionsAsync {
                 instance.runOnContext(aVoid -> function.accept(item, event -> {
                     if (event.succeeded()) {
                         // Prevent Unhandled exception in Netty
-                        if (null != event.result() && event.result()) {
+                        if (null != event.result() && event.result() || stop.get()) {
                             if (!stop.get()) {
                                 stop.set(true);
                                 handler.handle(DefaultAsyncResult.succeed(item));
@@ -431,10 +423,6 @@ public final class CollectionsAsync {
                         handler.handle(DefaultAsyncResult.fail(event));
                     }
                 }));
-
-                if (stop.get()) {
-                    break;
-                }
             }
         }
     }
@@ -465,7 +453,7 @@ public final class CollectionsAsync {
                 instance.runOnContext(aVoid -> function.accept(item, event -> {
                     if (event.succeeded()) {
                         // Prevent Unhandled exception in Netty
-                        if (null != event.result() && event.result()) {
+                        if (null != event.result() && event.result() || stop.get()) {
                             if (!stop.get()) {
                                 stop.set(true);
                                 handler.handle(DefaultAsyncResult.succeed(true));
@@ -478,10 +466,6 @@ public final class CollectionsAsync {
                         handler.handle(DefaultAsyncResult.fail(event));
                     }
                 }));
-
-                if (stop.get()) {
-                    break;
-                }
             }
         }
     }
@@ -510,7 +494,7 @@ public final class CollectionsAsync {
                 instance.runOnContext(aVoid -> function.accept(item, event -> {
                     if (event.succeeded()) {
                         // Prevent Unhandled exception in Netty
-                        if (null != event.result() && !event.result()) {
+                        if (null != event.result() && !event.result() || stop.get()) {
                             if (!stop.get()) {
                                 stop.set(true);
                                 handler.handle(DefaultAsyncResult.succeed(false));
@@ -523,10 +507,6 @@ public final class CollectionsAsync {
                         handler.handle(DefaultAsyncResult.fail(event));
                     }
                 }));
-
-                if (stop.get()) {
-                    break;
-                }
             }
         }
     }
@@ -556,7 +536,7 @@ public final class CollectionsAsync {
 
             for (I item : iterable) {
                 instance.runOnContext(aVoid -> consumer.accept(item, result -> {
-                    if (result.failed()) {
+                    if (result.failed() || stop.get()) {
                         if (!stop.get()) {
                             stop.set(true);
                             handler.handle(DefaultAsyncResult.fail(result));
@@ -570,10 +550,6 @@ public final class CollectionsAsync {
                         }
                     }
                 }));
-
-                if (stop.get()) {
-                    break;
-                }
             }
         }
     }
