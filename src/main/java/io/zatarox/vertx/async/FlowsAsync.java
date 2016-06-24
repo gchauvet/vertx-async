@@ -89,8 +89,8 @@ public final class FlowsAsync {
      *
      * @param <T> Define the manipulated data type.
      * @param instance Define Vertx instance.
-     * @param task A function which receives two arguments: (1) a `callback(err,
-     * result)` which must be called when finished, passing {@code err} (which
+     * @param task A function which receives two arguments: (1) a {@code task}
+     * which must be called when finished, passing {@code err} (which
      * can be {@code null}) and the {@code result} of the function's execution,
      * and (2) a {@code results} object, containing the results of the
      * previously executed functions (if nested inside another control flow).

@@ -545,10 +545,10 @@ public final class CollectionsAsync {
      * @param <T> Define the manipulated type.
      * @param instance Define Vertx instance.
      * @param iterable A collection to iterate over.
-     * @param handler A callback which is called after all the `iteratee`
+     * @param handler A callback which is called after all the {@code iterable}
      * functions have finished, or an error occurs. Results is the items from
      * the original {@code collection} sorted by the values returned by the
-     * `iteratee` calls.
+     * {@ code iterable} calls.
      */
     public static <T> void sort(final Vertx instance, final Collection<T> iterable, final Handler<AsyncResult<Collection<T>>> handler) {
         sort(instance, iterable, null, handler);
@@ -562,10 +562,10 @@ public final class CollectionsAsync {
      * @param instance Define Vertx instance.
      * @param iterable A collection to iterate over.
      * @param comparator A function used as comparator.
-     * @param handler A callback which is called after all the `iteratee`
+     * @param handler A callback which is called after all {@code comparator}
      * functions have finished, or an error occurs. Results is the items from
      * the original {@code collection} sorted by the values returned by the
-     * `iteratee` calls.
+     * {@code comparator} calls.
      */
     public static <T> void sort(final Vertx instance, final Collection<T> iterable, final Comparator<T> comparator, final Handler<AsyncResult<Collection<T>>> handler) {
         instance.runOnContext(event -> {
