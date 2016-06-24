@@ -6,6 +6,10 @@ vertx-async is a portage of caolan/async nodejs module to [Vert.x](http://vertx.
 
 Async provides many methods that include the usual 'functional' suspects (`map`, `reduce`, `filter`, `each`…) as well as some common patterns for asynchronous control flow (`parallel`, `series`, `waterfall`…). All these functions assume you follow the vert.x convention of providing a single callback as the last argument of your asynchronous function -- a callback which expects an Error as its first argument -- and calling the callback once.
 
+<p align="center">
+<img style="width:100%" src="https://i.chzbgr.com/full/5068754944/hBECA40C8"></a>
+</p>
+
 ## Quick Examples
 
 TODO
