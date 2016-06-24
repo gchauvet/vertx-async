@@ -51,7 +51,7 @@ There are many more functions available so take a look at the wiki for a full li
 
 ### Multiple callbacks
 
-Make sure to always calling the callback instead of a {@code return} procedural programming statement style, otherwise you will cause multiple callbacks and unpredictable behavior in many cases.
+Make sure to always calling the callback instead of a `return` procedural programming statement style, otherwise you will cause multiple callbacks and unpredictable behavior in many cases.
 
 ## Documentation
 
