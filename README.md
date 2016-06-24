@@ -12,7 +12,40 @@ Async provides many methods that include the usual 'functional' suspects (`map`,
 
 ## Quick Examples
 
-TODO
+### Each
+
+#### On a collection
+```java
+    @Override
+    public void start(final Future<Void> startFuture) {
+        CollectionsAsync.each(this.getVertx(), Arrays.asList(1, 2, 3, 4, 5, 6, 7), (item, handler) -> {
+            System.out.println("get " + item);
+            handler.handle(DefaultAsyncResult.succeed());
+        }, e -> {
+            System.out.println("done.");
+            startFuture.complete(e.result());
+        });
+    }
+```
+
+#### On a map
+```java
+    @Override
+    public void start(final Future<Void> startFuture) {
+        final Map<String, Integer> values = new HashMap<>();
+        for(int i = 0; i < 50; i++) {
+            values.put(Integer.toString(i), i);
+        }
+        
+        CollectionsAsync.each(this.getVertx(), values, (item, handler) -> {
+            System.out.println(item.getKey() + " -> " + item.getValue());
+            handler.handle(DefaultAsyncResult.succeed());
+        }, e -> {
+            System.out.println("done.");
+            startFuture.complete(e.result());
+        });
+    }
+```
 
 There are many more functions available so take a look at the wiki for a full list. This module aims to be comprehensive, so if you feel anything is missing please create a GitHub issue for it.
 
