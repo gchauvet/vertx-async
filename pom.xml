@@ -11,8 +11,9 @@
     <url>https://github.com/gchauvet/vertx-async</url>
     <licenses>
         <license>
-            <name>MIT</name>
-            <url>http://opensource.org/licenses/MIT</url>
+            <name>Apache License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
         </license>
     </licenses>
     <developers>
@@ -21,12 +22,6 @@
             <email>gchauvet@zatarox.com</email>
             <organization>gchauvet</organization>
             <organizationUrl>http://github.com/gchauvet</organizationUrl>
-        </developer>
-        <developer>
-            <name>Simon Dean</name>
-            <email>simon@simondean.org</email>
-            <organization>simondean</organization>
-            <organizationUrl>https://github.com/simondean</organizationUrl>
         </developer>
     </developers>
     <scm>
@@ -107,7 +102,7 @@
                     <plugin>
                         <groupId>org.sonatype.plugins</groupId>
                         <artifactId>nexus-staging-maven-plugin</artifactId>
-                        <version>1.6.3</version>
+                        <version>1.6.7</version>
                         <extensions>true</extensions>
                         <configuration>
                             <serverId>ossrh</serverId>
@@ -118,7 +113,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-source-plugin</artifactId>
-                        <version>2.2.1</version>
+                        <version>3.0.0</version>
                         <executions>
                             <execution>
                                 <id>attach-sources</id>
@@ -131,7 +126,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-javadoc-plugin</artifactId>
-                        <version>2.9.1</version>
+                        <version>2.10.4</version>
                         <executions>
                             <execution>
                                 <id>attach-javadocs</id>
@@ -144,7 +139,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-gpg-plugin</artifactId>
-                        <version>1.5</version>
+                        <version>1.6</version>
                         <executions>
                             <execution>
                                 <id>sign-artifacts</id>
