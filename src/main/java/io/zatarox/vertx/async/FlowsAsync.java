@@ -270,4 +270,36 @@ public final class FlowsAsync {
             }
         });
     }
+
+    /**
+     * Repeatedly call `fn` until `test` returns `true`. Calls `callback` when
+     * stopped, or an error occurs. `callback` will be passed an error and any
+     * arguments passed to the final `fn`'s callback.
+     *
+     * @param instance Define Vertx instance.
+     * @param tester synchronous truth test to perform after each execution of
+     * {@code consumer}.
+     * @param consumer A function which is called each time {@code tester}
+     * passes.
+     * @param handler A callback which is called after the test function has
+     * failed and repeated execution of {@code consumer} has stopped.
+     */
+    public static void until(final Vertx instance, final BooleanSupplier tester, Consumer<Handler<AsyncResult<Void>>> consumer, final Handler<AsyncResult<Void>> handler) {
+        instance.runOnContext(new Handler<Void>() {
+            @Override
+            public void handle(Void e) {
+                consumer.accept(e1 -> {
+                    if (e1.succeeded()) {
+                        if (tester.getAsBoolean()) {
+                            instance.runOnContext(this);
+                        } else {
+                            handler.handle(DefaultAsyncResult.succeed());
+                        }
+                    } else {
+                        handler.handle(DefaultAsyncResult.fail(e1));
+                    }
+                });
+            }
+        });
+    }
 }
