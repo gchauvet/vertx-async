@@ -61,7 +61,7 @@ public final class CollectionsAsync {
         } else {
             final AtomicBoolean stop = new AtomicBoolean(false);
             final AtomicInteger counter = new AtomicInteger(iterable.size());
-            for (T item : iterable) {
+            iterable.stream().forEach((item) -> {
                 instance.runOnContext(aVoid -> consumer.accept(item, result -> {
                     if (result.failed() || stop.get()) {
                         if (!stop.get()) {
@@ -72,7 +72,7 @@ public final class CollectionsAsync {
                         handler.handle(DefaultAsyncResult.succeed());
                     }
                 }));
-            }
+            });
         }
     }
 
@@ -98,7 +98,7 @@ public final class CollectionsAsync {
         } else {
             final AtomicBoolean stop = new AtomicBoolean(false);
             final AtomicInteger counter = new AtomicInteger(iterable.size());
-            for (final Map.Entry<K, V> item : iterable.entrySet()) {
+            iterable.entrySet().stream().forEach((item) -> {
                 instance.runOnContext(aVoid -> consumer.accept(new KeyValue<>(item.getKey(), item.getValue()), result -> {
                     if (result.failed() || stop.get()) {
                         if (!stop.get()) {
@@ -109,7 +109,7 @@ public final class CollectionsAsync {
                         handler.handle(DefaultAsyncResult.succeed());
                     }
                 }));
-            }
+            });
         }
     }
 
@@ -190,7 +190,7 @@ public final class CollectionsAsync {
             final AtomicBoolean stop = new AtomicBoolean(false);
             final AtomicInteger counter = new AtomicInteger(iterable.size());
 
-            for (T item : iterable) {
+            iterable.stream().forEach((item) -> {
                 instance.runOnContext(aVoid -> consumer.accept(item, result -> {
                     if (result.failed() || stop.get()) {
                         if (!stop.get()) {
@@ -206,7 +206,7 @@ public final class CollectionsAsync {
                         }
                     }
                 }));
-            }
+            });
         }
     }
 
@@ -254,10 +254,10 @@ public final class CollectionsAsync {
      * functions have finished. Result is the transformed accumulator.
      */
     public static <I, O> void transform(final Vertx instance, final Collection<I> iterable, final BiConsumer<I, Handler<AsyncResult<O>>> consumer, final Handler<AsyncResult<Collection<O>>> handler) {
-        final Iterator<I> iterator = iterable.iterator();
-        final List<O> result = new ArrayList<>(iterable.size());
-
         instance.runOnContext(new Handler<Void>() {
+            final Iterator<I> iterator = iterable.iterator();
+            final List<O> result = new ArrayList<>(iterable.size());
+        
             @Override
             public void handle(Void event) {
                 if (!iterator.hasNext()) {
@@ -296,10 +296,10 @@ public final class CollectionsAsync {
      * functions have finished. Result is the transformed accumulator.
      */
     public static <K, V, T, R> void transform(final Vertx instance, final Map<K, V> iterable, final BiConsumer<KeyValue<K, V>, Handler<AsyncResult<KeyValue<T, R>>>> consumer, final Handler<AsyncResult<Map<T, R>>> handler) {
-        final Iterator<Map.Entry<K, V>> iterator = iterable.entrySet().iterator();
-        final Map<T, R> results = new HashMap<>(iterable.size());
-
         instance.runOnContext(new Handler<Void>() {
+            final Iterator<Map.Entry<K, V>> iterator = iterable.entrySet().iterator();
+            final Map<T, R> results = new HashMap<>(iterable.size());
+
             @Override
             public void handle(Void event) {
                 if (!iterator.hasNext()) {
@@ -342,10 +342,10 @@ public final class CollectionsAsync {
      * @param handler
      */
     public static <I, O> void reduce(final Vertx instance, final Collection<I> collection, final O memo, final BiConsumer<Pair<I, O>, Handler<AsyncResult<O>>> function, final Handler<AsyncResult<O>> handler) {
-        final Iterator<I> iterator = collection.iterator();
-        final AtomicReference<O> value = new AtomicReference<>(memo);
-
         instance.runOnContext(new Handler<Void>() {
+            final Iterator<I> iterator = collection.iterator();
+            final AtomicReference<O> value = new AtomicReference<>(memo);
+        
             @Override
             public void handle(Void event) {
                 if (!iterator.hasNext()) {
@@ -390,7 +390,7 @@ public final class CollectionsAsync {
         } else {
             final AtomicBoolean stop = new AtomicBoolean(false);
             final AtomicInteger counter = new AtomicInteger(collection.size());
-            for (T item : collection) {
+            collection.stream().forEach((item) -> {
                 instance.runOnContext(aVoid -> function.accept(item, event -> {
                     if (event.succeeded()) {
                         // Prevent Unhandled exception in Netty
@@ -407,7 +407,7 @@ public final class CollectionsAsync {
                         handler.handle(DefaultAsyncResult.fail(event));
                     }
                 }));
-            }
+            });
         }
     }
 
@@ -433,7 +433,7 @@ public final class CollectionsAsync {
             final AtomicBoolean stop = new AtomicBoolean(false);
             final AtomicInteger counter = new AtomicInteger(collection.size());
 
-            for (T item : collection) {
+            collection.stream().forEach((item) -> {
                 instance.runOnContext(aVoid -> function.accept(item, event -> {
                     if (event.succeeded()) {
                         // Prevent Unhandled exception in Netty
@@ -450,7 +450,7 @@ public final class CollectionsAsync {
                         handler.handle(DefaultAsyncResult.fail(event));
                     }
                 }));
-            }
+            });
         }
     }
 
@@ -474,7 +474,7 @@ public final class CollectionsAsync {
         } else {
             final AtomicBoolean stop = new AtomicBoolean(false);
             final AtomicInteger counter = new AtomicInteger(collection.size());
-            for (T item : collection) {
+            collection.stream().forEach((item) -> {
                 instance.runOnContext(aVoid -> function.accept(item, event -> {
                     if (event.succeeded()) {
                         // Prevent Unhandled exception in Netty
@@ -491,7 +491,7 @@ public final class CollectionsAsync {
                         handler.handle(DefaultAsyncResult.fail(event));
                     }
                 }));
-            }
+            });
         }
     }
 
@@ -518,7 +518,7 @@ public final class CollectionsAsync {
             final AtomicBoolean stop = new AtomicBoolean(false);
             final AtomicInteger counter = new AtomicInteger(iterable.size());
 
-            for (I item : iterable) {
+            iterable.stream().forEach((item) -> {
                 instance.runOnContext(aVoid -> consumer.accept(item, result -> {
                     if (result.failed() || stop.get()) {
                         if (!stop.get()) {
@@ -534,7 +534,7 @@ public final class CollectionsAsync {
                         }
                     }
                 }));
-            }
+            });
         }
     }
 

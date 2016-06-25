@@ -52,10 +52,10 @@ public final class FlowsAsync {
      * the result arguments passed to the {@code task} handlers.
      */
     public static <T> void series(final Vertx instance, Collection<Consumer<Handler<AsyncResult<T>>>> tasks, final Handler<AsyncResult<List<T>>> handler) {
-        final Iterator<Consumer<Handler<AsyncResult<T>>>> iterator = tasks.iterator();
-        final List<T> results = new ArrayList<>(tasks.size());
+        instance.runOnContext(new Handler<Void>() {
+            final Iterator<Consumer<Handler<AsyncResult<T>>>> iterator = tasks.iterator();
+            final List<T> results = new ArrayList<>(tasks.size());
 
-        final Handler<Void> internal = new Handler<Void>() {
             @Override
             public void handle(Void event) {
                 if (!iterator.hasNext()) {
@@ -76,8 +76,7 @@ public final class FlowsAsync {
                     task.accept(taskHandler);
                 }
             }
-        };
-        instance.runOnContext(internal);
+        });
     }
 
     /**
@@ -188,15 +187,16 @@ public final class FlowsAsync {
     }
 
     /**
-     * Run the {@code tasks} collection of functions in parallel, without waiting
-     * until the previous function has completed. If any of the functions pass
-     * an error to its callback, the main {@code handler} is immediately called with
-     * the value of the error. Once the {@code tasks} have completed, the results are
-     * passed to the final {@code handler} as an array.
+     * Run the {@code tasks} collection of functions in parallel, without
+     * waiting until the previous function has completed. If any of the
+     * functions pass an error to its callback, the main {@code handler} is
+     * immediately called with the value of the error. Once the {@code tasks}
+     * have completed, the results are passed to the final {@code handler} as an
+     * array.
      *
-     * **Note:** {@code parallel} is about kicking-off I/O tasks in parallel, not
-     * about parallel execution of code. If your tasks do not use any timers or
-     * perform any I/O, they will actually be executed in series. Any
+     * **Note:** {@code parallel} is about kicking-off I/O tasks in parallel,
+     * not about parallel execution of code. If your tasks do not use any timers
+     * or perform any I/O, they will actually be executed in series. Any
      * synchronous setup sections for each task will happen one after the other.
      *
      * @param <T> Define the manipulated data type.
