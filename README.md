@@ -2,6 +2,7 @@
 [![Build Status via Travis CI](https://travis-ci.org/gchauvet/vertx-async.svg?branch=master)](https://travis-ci.org/gchauvet/vertx-async)
 [![Coverage Status](https://coveralls.io/repos/github/gchauvet/vertx-async/badge.svg?branch=master)](https://coveralls.io/github/gchauvet/vertx-async?branch=master)
 [![Dependency Status](https://www.versioneye.com/user/projects/576e250f7bc681003c4900b1/badge.svg?style=flat-square)](https://www.versioneye.com/user/projects/576e250f7bc681003c4900b1)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.zatarox/vertx-async/badge.svg)](https://maven-badges.herokuapp.com/maven-central/io.zatarox/vertx-async)
 
 vertx-async is a portage of caolan/async nodejs module to [Vert.x](http://vertx.io/) module that provides helper methods for common async patterns.
 
