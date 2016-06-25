@@ -12,6 +12,17 @@ Async provides many methods that include the usual 'functional' suspects (`map`,
 <img style="width:100%" src="https://i.chzbgr.com/full/5068754944/hBECA40C8"></a>
 </p>
 
+## Installation
+
+vertx-async snapshots are available on OSSRH repository:
+```xml
+    <dependency>
+        <groupId>io.zatarox</groupId>
+        <artifactId>vertx-async</artifactId>
+        <version>0.XX.XX-SNAPSHOT</version>
+    </dependency>
+```
+
 ## Quick Examples
 
 ### Each
