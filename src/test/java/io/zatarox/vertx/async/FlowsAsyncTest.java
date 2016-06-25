@@ -29,6 +29,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
+import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 import org.junit.Rule;
 import org.junit.Test;
@@ -471,6 +472,49 @@ public final class FlowsAsyncTest {
             context.assertEquals(1, (int) task1.runCount());
             context.assertEquals(0, (int) task2.runCount());
             context.assertEquals(1, handlerCallCount.incrementAndGet());
+            async.complete();
+        });
+    }
+    
+    @Test(timeout = FlowsAsyncTest.TIMEOUT_LIMIT)
+    @Repeat(FlowsAsyncTest.REPEAT_LIMIT)
+    public void whilstExecutesEmpty(final TestContext context) {
+        final AtomicInteger counter = new AtomicInteger();
+        final Async async = context.async();
+        FlowsAsync.whilst(rule.vertx(), () -> counter.incrementAndGet() < 1, (Handler<AsyncResult<Void>> t) -> {
+            t.handle(DefaultAsyncResult.fail(new IllegalAccessException()));
+        }, e -> {
+            context.assertTrue(e.succeeded());
+            context.assertEquals(1, counter.get());
+            async.complete();
+        });
+    }
+    
+    @Test(timeout = FlowsAsyncTest.TIMEOUT_LIMIT)
+    @Repeat(FlowsAsyncTest.REPEAT_LIMIT)
+    public void whilstExecutesMany(final TestContext context) {
+        final AtomicInteger counter = new AtomicInteger();
+        final Async async = context.async();
+        FlowsAsync.whilst(rule.vertx(), () -> counter.incrementAndGet() < 100, t -> {
+            t.handle(DefaultAsyncResult.succeed());
+        }, e -> {
+            context.assertTrue(e.succeeded());
+            context.assertEquals(100, counter.get());
+            async.complete();
+        });
+    }
+    
+    @Test(timeout = FlowsAsyncTest.TIMEOUT_LIMIT)
+    @Repeat(FlowsAsyncTest.REPEAT_LIMIT)
+    public void whilstExecutesAnException(final TestContext context) {
+        final AtomicInteger counter = new AtomicInteger();
+        final Async async = context.async();
+        FlowsAsync.whilst(rule.vertx(), () -> counter.incrementAndGet() < 100, (Handler<AsyncResult<Void>> t) -> {
+            t.handle(DefaultAsyncResult.fail(new IllegalAccessException()));
+        }, e -> {
+            context.assertFalse(e.succeeded());
+            context.assertTrue(e.cause() instanceof IllegalAccessException);
+            context.assertEquals(1, counter.get());
             async.complete();
         });
     }

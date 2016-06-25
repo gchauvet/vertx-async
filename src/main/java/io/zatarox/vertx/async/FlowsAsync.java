@@ -22,6 +22,7 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
+import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 
 public final class FlowsAsync {
@@ -234,5 +235,39 @@ public final class FlowsAsync {
                 }
             });
         }
+    }
+
+    /**
+     * Repeatedly call {@code consumer}, while {@code tester} returns
+     * {@code true}. Calls {@code handler} when stopped, or an error occurs.
+     *
+     * @param instance Define Vertx instance.
+     * @param tester synchronous truth test to perform before each execution of
+     * {@code consumer}.
+     * @param consumer A function which is called each time {@code tester}
+     * passes.
+     * @param handler A callback which is called after the test function has
+     * failed and repeated execution of {@code consumer} has stopped.
+     */
+    public static void whilst(final Vertx instance, final BooleanSupplier tester, Consumer<Handler<AsyncResult<Void>>> consumer, final Handler<AsyncResult<Void>> handler) {
+        instance.runOnContext(new Handler<Void>() {
+            final AtomicBoolean stop = new AtomicBoolean(false);
+
+            @Override
+            public void handle(Void e) {
+                if (tester.getAsBoolean()) {
+                    consumer.accept(e1 -> {
+                        if (e1.succeeded()) {
+                            instance.runOnContext(this);
+                        } else {
+                            stop.set(true);
+                            handler.handle(DefaultAsyncResult.fail(e1));
+                        }
+                    });
+                } else if (!stop.get()) {
+                    handler.handle(DefaultAsyncResult.succeed());
+                }
+            }
+        });
     }
 }

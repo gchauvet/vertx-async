@@ -5,7 +5,7 @@
     <groupId>io.zatarox</groupId>
     <artifactId>vertx-async</artifactId>
     <packaging>jar</packaging>
-    <version>0.16.0-SNAPSHOT</version>
+    <version>0.17.0-SNAPSHOT</version>
     <name>[Vertx] Async</name>
     <description>Async helpers for Vert.x</description>
     <url>https://github.com/gchauvet/vertx-async</url>
