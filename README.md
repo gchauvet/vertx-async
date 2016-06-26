@@ -71,37 +71,13 @@ Make sure to always calling the callback instead of a `return` procedural progra
 See our wiki (:construction:).
 
 ### Collections
-
-* each
-* map
-* filter
-* reject
-* reduce
-* transform
-* detect
-* sort
-* some
-* every
-* concat
+|   |   |   |   |   |   |   |   |   |   |   |
+|---|---|---|---|---|---|---|---|---|---|---|
+| each  | map  | filter  | reject  | reduce  | transform  | detect  | sort  | some  | every  | concat |
 
 ### Control Flow
-
-* series
-* parallel
-* whilst :construction:
-* until
-* during :construction:
-* forever
-* waterfall
-* compose :construction:
-* seq :construction:
-* applyEach :construction:
-* queue :construction:
-* cargo :construction:
-* auto :construction:
-* autoInject :construction:
-* retry :construction:
-* retryable :construction:
-* iterator :construction:
-* times :construction:
-* race :construction:
+|   |   |   |   |   |   |   |   |   |   |   |
+|---|---|---|---|---|---|---|---|---|---|---|
+| series  | parallel  | whilst  | until  | during:construction:  | forever  | waterfall  | compose:construction: |  |  |  |
+| cargo:construction: | auto:construction: | autoInject:construction: | retry:construction: | retryable:construction: | iterator:construction: | times:construction: | race:construction: |  |  |  |
+| queue:construction: | seq:construction: | applyEach:construction: |  |  |  |  |  |  |  |  |
