@@ -242,8 +242,8 @@ public final class FlowsAsync {
      * {@code true}. Calls {@code handler} when stopped, or an error occurs.
      *
      * @param instance Define Vertx instance.
-     * @param tester synchronous truth test to perform before each execution of
-     * {@code consumer}.
+     * @param tester A synchronous truth test to perform before each execution
+     * of {@code consumer}.
      * @param consumer A function which is called each time {@code tester}
      * passes.
      * @param handler A callback which is called after the test function has
