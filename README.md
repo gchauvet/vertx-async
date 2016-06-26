@@ -76,8 +76,8 @@ See our wiki (:construction:).
 | each  | map  | filter  | reject  | reduce  | transform  | detect  | sort  | some  | every  | concat |
 
 ### Control Flow
-|   |   |   |   |   |   |   |   |   |   |   |
-|---|---|---|---|---|---|---|---|---|---|---|
-| series  | parallel  | whilst  | until  | during:construction:  | forever  | waterfall  | compose:construction: |  |  |  |
-| cargo:construction: | auto:construction: | autoInject:construction: | retry:construction: | retryable:construction: | iterator:construction: | times:construction: | race:construction: |  |  |  |
-| queue:construction: | seq:construction: | applyEach:construction: |  |  |  |  |  |  |  |  |
+|   |   |   |   |   |   |   |   |
+|---|---|---|---|---|---|---|---|
+| series  | parallel  | whilst  | until  | during:construction:  | forever  | waterfall  | compose:construction: |
+| cargo:construction: | auto:construction: | autoInject:construction: | retry:construction: | retryable:construction: | iterator:construction: | times:construction: | race:construction: |
+| queue:construction: | seq:construction: | applyEach:construction: |  |  |  |  |  |
