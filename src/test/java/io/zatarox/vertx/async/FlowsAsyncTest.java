@@ -564,9 +564,9 @@ public final class FlowsAsyncTest {
     
     @Test(timeout = FlowsAsyncTest.TIMEOUT_LIMIT)
     @Repeat(FlowsAsyncTest.REPEAT_LIMIT)
-    public void composeWithoutFunctionsExecutes(final TestContext context) {
+    public void seqWithoutFunctionsExecutes(final TestContext context) {
         final Async async = context.async();
-        final BiConsumer<Object, Handler<AsyncResult<Void>>> result = FlowsAsync.compose(rule.vertx());
+        final BiConsumer<Object, Handler<AsyncResult<Void>>> result = FlowsAsync.seq(rule.vertx());
         
         context.assertNotNull(result);
         rule.vertx().runOnContext(e -> {
@@ -579,10 +579,10 @@ public final class FlowsAsyncTest {
 
     @Test(timeout = FlowsAsyncTest.TIMEOUT_LIMIT)
     @Repeat(FlowsAsyncTest.REPEAT_LIMIT)
-    public void composeFunctions(final TestContext context) {
+    public void seqFunctions(final TestContext context) {
         final Async async = context.async();
 
-        final BiConsumer<Integer, Handler<AsyncResult<Integer>>> result = FlowsAsync.compose(rule.vertx(),
+        final BiConsumer<Integer, Handler<AsyncResult<Integer>>> result = FlowsAsync.seq(rule.vertx(),
                 (t, u) -> {
                     u.handle(DefaultAsyncResult.succeed(t + 1));
                 }, (t, u) -> {
@@ -601,10 +601,10 @@ public final class FlowsAsyncTest {
     
     @Test(timeout = FlowsAsyncTest.TIMEOUT_LIMIT)
     @Repeat(FlowsAsyncTest.REPEAT_LIMIT)
-    public void composeFunctionsWithException(final TestContext context) {
+    public void seqFunctionsWithException(final TestContext context) {
         final Async async = context.async();
 
-        final BiConsumer<Integer, Handler<AsyncResult<Integer>>> result = FlowsAsync.compose(rule.vertx(),
+        final BiConsumer<Integer, Handler<AsyncResult<Integer>>> result = FlowsAsync.seq(rule.vertx(),
                 (t, u) -> {
                     u.handle(DefaultAsyncResult.succeed(t + 1));
                 }, (t, u) -> {

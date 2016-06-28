@@ -91,10 +91,10 @@ public final class FlowsAsync {
      * @param <T> Define the manipulated data type.
      * @param instance Define Vertx instance.
      * @param task A function which receives two arguments: (1) a {@code task}
-     * which must be called when finished, passing {@code err} (which
-     * can be {@code null}) and the {@code result} of the function's execution,
-     * and (2) a {@code results} object, containing the results of the
-     * previously executed functions (if nested inside another control flow).
+     * which must be called when finished, passing {@code err} (which can be
+     * {@code null}) and the {@code result} of the function's execution, and (2)
+     * a {@code results} object, containing the results of the previously
+     * executed functions (if nested inside another control flow).
      * @param times The number of attempts to make before giving up.
      * @param handler An optional callback which is called when the task has
      * succeeded, or after the final failed attempt. It receives the {@code err}
@@ -302,35 +302,34 @@ public final class FlowsAsync {
             }
         });
     }
-    
+
     /**
      * Creates a function which is a composition of the passed asynchronous
-     * functions. Each function consumes the return value of the function that
-     * follows. Composing functions f(), g(), and h() would produce the result
-     * of f(g(h())), only this version uses callbacks to obtain the return
-     * values.
+     * functions. Each function consumes the return value of the previous
+     * function.
+     *
      * @param <I> Define input data type of functions
      * @param <O> Define ouput data type of functions
      * @param instance Define Vertx instance.
-     * @param functions Asynchronous functions to compose
+     * @param functions Asynchronous functions to seq
      * @return
      */
-    public static<I, O> BiConsumer<I, Handler<AsyncResult<O>>> compose(final Vertx instance, final BiConsumer<I, Handler<AsyncResult<O>>>... functions) {
+    public static <I, O> BiConsumer<I, Handler<AsyncResult<O>>> seq(final Vertx instance, final BiConsumer<I, Handler<AsyncResult<O>>>... functions) {
         return new BiConsumer<I, Handler<AsyncResult<O>>>() {
             private final Iterator<BiConsumer<I, Handler<AsyncResult<O>>>> iterator = Arrays.asList(functions).iterator();
             private final AtomicReference<BiConsumer<I, Handler<AsyncResult<O>>>> current = new AtomicReference(null);
-            
+
             @Override
             public void accept(final I t, final Handler<AsyncResult<O>> u) {
-                if(iterator.hasNext()) {
+                if (iterator.hasNext()) {
                     current.set(iterator.next());
                     instance.runOnContext(e1 -> {
                         current.get().accept(t, e2 -> {
-                             if(e2.succeeded()) {
-                                    this.accept((I) e2.result(), u);
-                                } else {
-                                    u.handle(DefaultAsyncResult.fail(e2));
-                                }
+                            if (e2.succeeded()) {
+                                this.accept((I) e2.result(), u);
+                            } else {
+                                u.handle(DefaultAsyncResult.fail(e2));
+                            }
                         });
                     });
                 } else {
