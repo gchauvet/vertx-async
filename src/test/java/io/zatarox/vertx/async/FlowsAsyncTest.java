@@ -254,7 +254,6 @@ public final class FlowsAsyncTest {
     @Repeat(FlowsAsyncTest.REPEAT_LIMIT)
     public void waterfallOneTask(final TestContext context) {
         final FakeSuccessfulAsyncFunction<Void, String> task1 = new FakeSuccessfulAsyncFunction<>("Task 1");
-        final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
         FlowsAsync.waterfall(rule.vertx(), Arrays.<BiConsumer<Void, Handler<AsyncResult<String>>>>asList(task1), result -> {
@@ -619,6 +618,63 @@ public final class FlowsAsyncTest {
                 context.assertNull(e1.result());
                 async.complete();
             });
+        });
+    }
+    
+    @Test(timeout = FlowsAsyncTest.TIMEOUT_LIMIT)
+    @Repeat(FlowsAsyncTest.REPEAT_LIMIT)
+    public void timesWhenThereAreNoItems(final TestContext context) {
+        final AtomicInteger handlerCallCount = new AtomicInteger(0);
+        final Async async = context.async();
+
+        FlowsAsync.times(rule.vertx(), (Integer) 0, new BiConsumer<Integer, Handler<AsyncResult<String>>>() {
+            @Override
+            public void accept(Integer value, Handler<AsyncResult<String>> handler) {
+                handlerCallCount.incrementAndGet();
+                handler.handle(DefaultAsyncResult.succeed(value.toString()));
+            }
+        }, result -> {
+            context.assertNotNull(result);
+            context.assertTrue(result.succeeded());
+            context.assertTrue(result.result().isEmpty());
+            context.assertEquals(0, handlerCallCount.get());
+            async.complete();
+        });
+    }
+
+    @Test(timeout = FlowsAsyncTest.TIMEOUT_LIMIT)
+    @Repeat(FlowsAsyncTest.REPEAT_LIMIT)
+    public void timesInFail(final TestContext context) {
+        final FakeFailingAsyncFunction function = new FakeFailingAsyncFunction<>(2, null, new Throwable("Failed"));
+        final Async async = context.async();
+
+        FlowsAsync.times(rule.vertx(), 3, function, result -> {
+            context.assertNotNull(result);
+            context.assertFalse(result.succeeded());
+            context.assertNull(result.result());
+            context.assertEquals(3, function.runCount());
+            async.complete();
+        });
+    }
+
+    @Test(timeout = FlowsAsyncTest.TIMEOUT_LIMIT)
+    @Repeat(FlowsAsyncTest.REPEAT_LIMIT)
+    public void timesWithThreeIteration(final TestContext context) {
+        final AtomicInteger counter = new AtomicInteger(0);
+        final Async async = context.async();
+
+        FlowsAsync.times(rule.vertx(), 3, new BiConsumer<Integer, Handler<AsyncResult<String>>>() {
+            @Override
+            public void accept(Integer value, Handler<AsyncResult<String>> handler) {
+                counter.incrementAndGet();
+                handler.handle(DefaultAsyncResult.succeed(value.toString()));
+            }
+        }, result -> {
+            context.assertNotNull(result);
+            context.assertTrue(result.succeeded());
+            context.assertEquals(Arrays.asList("0", "1", "2"), result.result());
+            context.assertEquals(3, counter.get());
+            async.complete();
         });
     }
 

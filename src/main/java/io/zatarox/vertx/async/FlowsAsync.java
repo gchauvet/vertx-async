@@ -338,4 +338,45 @@ public final class FlowsAsync {
             }
         };
     }
+
+    /**
+     * Calls the {@code consumer} function {@code counter} times, and
+     * accumulates results in the same manner you would use with
+     * {@link #CollectionsAsync.map}.
+     *
+     * @param <T> Define the manipulated type.
+     * @param instance The Vertx instance to use.
+     * @param counter The number of times to run the function.
+     * @param consumer The function to call {@code n} times. Invoked with the
+     * iteration index and a callback.
+     * @param handler A callback which is called after the test function has
+     * failed and repeated execution of {@code consumer} has stopped.
+     */
+    public static <T> void times(final Vertx instance, final int counter, final BiConsumer<Integer, Handler<AsyncResult<T>>> consumer, final Handler<AsyncResult<List<T>>> handler) {
+        final List<T> mapped = new ArrayList<>(counter);
+        if (counter < 1) {
+            handler.handle(DefaultAsyncResult.succeed(mapped));
+        } else {
+            final AtomicBoolean stop = new AtomicBoolean(false);
+            final AtomicInteger execution = new AtomicInteger(counter);
+
+            for (int i = 0; i < counter; i++) {
+                final int pos = i;
+                instance.runOnContext(aVoid -> consumer.accept(pos, result -> {
+                    if (result.failed() || stop.get()) {
+                        if (!stop.get()) {
+                            stop.set(true);
+                            handler.handle(DefaultAsyncResult.fail(result));
+                        }
+                    } else {
+                        mapped.add(pos, result.result());
+                        if (execution.decrementAndGet() < 1 && !stop.get()) {
+                            handler.handle(DefaultAsyncResult.succeed(mapped));
+                        }
+                    }
+                }));
+            }
+        }
+    }
+
 }
