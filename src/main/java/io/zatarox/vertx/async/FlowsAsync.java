@@ -21,6 +21,7 @@ import io.vertx.core.Vertx;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
@@ -300,5 +301,42 @@ public final class FlowsAsync {
                 });
             }
         });
+    }
+    
+    /**
+     * Creates a function which is a composition of the passed asynchronous
+     * functions. Each function consumes the return value of the function that
+     * follows. Composing functions f(), g(), and h() would produce the result
+     * of f(g(h())), only this version uses callbacks to obtain the return
+     * values.
+     * @param <I> Define input data type of functions
+     * @param <O> Define ouput data type of functions
+     * @param instance Define Vertx instance.
+     * @param functions Asynchronous functions to compose
+     * @return
+     */
+    public static<I, O> BiConsumer<I, Handler<AsyncResult<O>>> compose(final Vertx instance, final BiConsumer<I, Handler<AsyncResult<O>>>... functions) {
+        return new BiConsumer<I, Handler<AsyncResult<O>>>() {
+            private final Iterator<BiConsumer<I, Handler<AsyncResult<O>>>> iterator = Arrays.asList(functions).iterator();
+            private final AtomicReference<BiConsumer<I, Handler<AsyncResult<O>>>> current = new AtomicReference(null);
+            
+            @Override
+            public void accept(final I t, final Handler<AsyncResult<O>> u) {
+                if(iterator.hasNext()) {
+                    current.set(iterator.next());
+                    instance.runOnContext(e1 -> {
+                        current.get().accept(t, e2 -> {
+                             if(e2.succeeded()) {
+                                    this.accept((I) e2.result(), u);
+                                } else {
+                                    u.handle(DefaultAsyncResult.fail(e2));
+                                }
+                        });
+                    });
+                } else {
+                    u.handle(DefaultAsyncResult.succeed((O) t));
+                }
+            }
+        };
     }
 }

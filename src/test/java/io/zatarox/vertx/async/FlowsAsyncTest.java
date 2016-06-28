@@ -561,5 +561,65 @@ public final class FlowsAsyncTest {
             async.complete();
         });
     }
+    
+    @Test(timeout = FlowsAsyncTest.TIMEOUT_LIMIT)
+    @Repeat(FlowsAsyncTest.REPEAT_LIMIT)
+    public void composeWithoutFunctionsExecutes(final TestContext context) {
+        final Async async = context.async();
+        final BiConsumer<Object, Handler<AsyncResult<Void>>> result = FlowsAsync.compose(rule.vertx());
+        
+        context.assertNotNull(result);
+        rule.vertx().runOnContext(e -> {
+            result.accept(null, e1 -> {
+                context.assertTrue(e1.succeeded());
+                async.complete();
+            });
+        });
+    }
+
+    @Test(timeout = FlowsAsyncTest.TIMEOUT_LIMIT)
+    @Repeat(FlowsAsyncTest.REPEAT_LIMIT)
+    public void composeFunctions(final TestContext context) {
+        final Async async = context.async();
+
+        final BiConsumer<Integer, Handler<AsyncResult<Integer>>> result = FlowsAsync.compose(rule.vertx(),
+                (t, u) -> {
+                    u.handle(DefaultAsyncResult.succeed(t + 1));
+                }, (t, u) -> {
+                    u.handle(DefaultAsyncResult.succeed(t * 4));
+                });
+
+        context.assertNotNull(result);
+        rule.vertx().runOnContext(e -> {
+            result.accept(3, e1 -> {
+                context.assertTrue(e1.succeeded());
+                context.assertEquals(16, e1.result());
+                async.complete();
+            });
+        });
+    }
+    
+    @Test(timeout = FlowsAsyncTest.TIMEOUT_LIMIT)
+    @Repeat(FlowsAsyncTest.REPEAT_LIMIT)
+    public void composeFunctionsWithException(final TestContext context) {
+        final Async async = context.async();
+
+        final BiConsumer<Integer, Handler<AsyncResult<Integer>>> result = FlowsAsync.compose(rule.vertx(),
+                (t, u) -> {
+                    u.handle(DefaultAsyncResult.succeed(t + 1));
+                }, (t, u) -> {
+                    u.handle(DefaultAsyncResult.fail(new IllegalArgumentException()));
+                });
+
+        context.assertNotNull(result);
+        rule.vertx().runOnContext(e -> {
+            result.accept(3, e1 -> {
+                context.assertFalse(e1.succeeded());
+                context.assertTrue(e1.cause() instanceof IllegalArgumentException);
+                context.assertNull(e1.result());
+                async.complete();
+            });
+        });
+    }
 
 }

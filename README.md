@@ -78,6 +78,6 @@ See our wiki (:construction:).
 ### Control Flow
 |   |   |   |   |   |   |   |   |
 |---|---|---|---|---|---|---|---|
-| series  | parallel  | whilst  | until  | during:construction:  | forever  | waterfall  | compose:construction: |
+| series  | parallel  | whilst  | until  | during:construction:  | forever  | waterfall  | compose |
 | cargo:construction: | auto:construction: | autoInject:construction: | retry:construction: | retryable:construction: | iterator:construction: | times:construction: | race:construction: |
 | queue:construction: | seq:construction: | applyEach:construction: |  |  |  |  |  |
