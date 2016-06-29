@@ -69,7 +69,6 @@ public final class CollectionsAsyncTest {
         final Async async = context.async();
 
         CollectionsAsync.each(items, each, result -> {
-
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
             context.assertNull(result.result());
@@ -88,7 +87,6 @@ public final class CollectionsAsyncTest {
         final Async async = context.async();
 
         CollectionsAsync.each(items, each, result -> {
-
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
             context.assertNull(result.result());
@@ -109,7 +107,6 @@ public final class CollectionsAsyncTest {
         final Async async = context.async();
 
         CollectionsAsync.each(items, each, result -> {
-
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
             context.assertNull(result.result());
@@ -130,7 +127,6 @@ public final class CollectionsAsyncTest {
         final Async async = context.async();
 
         CollectionsAsync.each(items, each, result -> {
-
             context.assertNotNull(result);
             context.assertFalse(result.succeeded());
             context.assertEquals(each.cause(), result.cause());
@@ -153,7 +149,6 @@ public final class CollectionsAsyncTest {
         final Async async = context.async();
 
         CollectionsAsync.each(items, each, result -> {
-
             context.assertNotNull(result);
             context.assertFalse(result.succeeded());
             context.assertEquals(each.cause(), result.cause());
@@ -174,7 +169,6 @@ public final class CollectionsAsyncTest {
         final Async async = context.async();
 
         CollectionsAsync.each(items, each, result -> {
-
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
             context.assertNull(result.result());
@@ -194,7 +188,6 @@ public final class CollectionsAsyncTest {
         items.put("One", 1);
 
         CollectionsAsync.each(items, each, result -> {
-
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
             context.assertNull(result.result());
@@ -219,7 +212,6 @@ public final class CollectionsAsyncTest {
         items.put("Two", 2);
 
         CollectionsAsync.each(items, each, result -> {
-
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
             context.assertNull(result.result());
@@ -243,7 +235,6 @@ public final class CollectionsAsyncTest {
         items.put("One", 1);
 
         CollectionsAsync.each(items, each, result -> {
-
             context.assertNotNull(result);
             context.assertFalse(result.succeeded());
             context.assertEquals(each.cause(), result.cause());
@@ -270,7 +261,6 @@ public final class CollectionsAsyncTest {
         items.put("Two", 2);
 
         CollectionsAsync.each(items, each, result -> {
-
             context.assertNotNull(result);
             context.assertFalse(result.succeeded());
             context.assertEquals(each.cause(), result.cause());
@@ -296,7 +286,6 @@ public final class CollectionsAsyncTest {
         final Async async = context.async();
 
         CollectionsAsync.map(items, each, result -> {
-
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
             context.assertTrue(result.result().isEmpty());
@@ -315,7 +304,6 @@ public final class CollectionsAsyncTest {
         final Async async = context.async();
 
         CollectionsAsync.map(items, each, result -> {
-
             context.assertNotNull(result);
             context.assertFalse(result.succeeded());
             context.assertNull(result.result());
@@ -340,7 +328,6 @@ public final class CollectionsAsyncTest {
         final Async async = context.async();
 
         CollectionsAsync.map(items, each, result -> {
-
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
             context.assertEquals(3, each.runCount());
@@ -360,7 +347,6 @@ public final class CollectionsAsyncTest {
         final Async async = context.async();
 
         CollectionsAsync.filter(items, filter, result -> {
-
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
             context.assertTrue(result.result().isEmpty());
@@ -386,7 +372,6 @@ public final class CollectionsAsyncTest {
         final Async async = context.async();
 
         CollectionsAsync.filter(items, filter, result -> {
-
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
             context.assertTrue(result.result().isEmpty());
@@ -413,7 +398,6 @@ public final class CollectionsAsyncTest {
         final Async async = context.async();
 
         CollectionsAsync.filter(items, filter, result -> {
-
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
             context.assertTrue(1 == result.result().size());
@@ -435,7 +419,6 @@ public final class CollectionsAsyncTest {
         final Async async = context.async();
 
         CollectionsAsync.filter(items, filter, result -> {
-
             context.assertNotNull(result);
             context.assertFalse(result.succeeded());
             context.assertEquals(filter.cause(), result.cause());
@@ -464,7 +447,6 @@ public final class CollectionsAsyncTest {
         final Async async = context.async();
 
         CollectionsAsync.filter(items, filter, result -> {
-
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
             context.assertTrue(result.result().isEmpty());
@@ -492,7 +474,6 @@ public final class CollectionsAsyncTest {
         final Async async = context.async();
 
         CollectionsAsync.filter(items, filter, result -> {
-
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
             context.assertEquals(3, result.result().size());
@@ -514,7 +495,6 @@ public final class CollectionsAsyncTest {
         final Async async = context.async();
 
         CollectionsAsync.filter(items, filter, result -> {
-
             context.assertNotNull(result);
             context.assertFalse(result.succeeded());
             context.assertEquals(filter.cause(), result.cause());
@@ -535,7 +515,6 @@ public final class CollectionsAsyncTest {
         final Async async = context.async();
 
         CollectionsAsync.reject(items, filter, result -> {
-
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
             context.assertTrue(result.result().isEmpty());
@@ -561,7 +540,6 @@ public final class CollectionsAsyncTest {
         final Async async = context.async();
 
         CollectionsAsync.reject(items, filter, result -> {
-
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
             context.assertTrue(result.result().isEmpty());
@@ -588,7 +566,6 @@ public final class CollectionsAsyncTest {
         final Async async = context.async();
 
         CollectionsAsync.reject(items, filter, result -> {
-
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
             context.assertTrue(1 == result.result().size());
@@ -610,7 +587,6 @@ public final class CollectionsAsyncTest {
         final Async async = context.async();
 
         CollectionsAsync.filter(items, filter, result -> {
-
             context.assertNotNull(result);
             context.assertFalse(result.succeeded());
             context.assertEquals(filter.cause(), result.cause());
@@ -639,7 +615,6 @@ public final class CollectionsAsyncTest {
         final Async async = context.async();
 
         CollectionsAsync.reject(items, filter, result -> {
-
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
             context.assertEquals(3, result.result().size());
@@ -667,7 +642,6 @@ public final class CollectionsAsyncTest {
         final Async async = context.async();
 
         CollectionsAsync.reject(items, filter, result -> {
-
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
             context.assertEquals(3, result.result().size());
@@ -689,7 +663,6 @@ public final class CollectionsAsyncTest {
         final Async async = context.async();
 
         CollectionsAsync.reject(items, filter, result -> {
-
             context.assertNotNull(result);
             context.assertFalse(result.succeeded());
             context.assertEquals(filter.cause(), result.cause());
@@ -717,7 +690,6 @@ public final class CollectionsAsyncTest {
         final Async async = context.async();
 
         CollectionsAsync.transform(items, mapper, result -> {
-
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
             context.assertTrue(result.result().isEmpty());
@@ -742,7 +714,6 @@ public final class CollectionsAsyncTest {
         final Async async = context.async();
 
         CollectionsAsync.transform(items, mapper, result -> {
-
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
             context.assertEquals(3, mapper.runCount());
@@ -762,7 +733,6 @@ public final class CollectionsAsyncTest {
         final Async async = context.async();
 
         CollectionsAsync.transform(items, mapper, result -> {
-
             context.assertNotNull(result);
             context.assertFalse(result.succeeded());
             context.assertTrue(result.failed());
@@ -783,7 +753,6 @@ public final class CollectionsAsyncTest {
         items.put(1, "One");
 
         CollectionsAsync.transform(items, mapper, result -> {
-
             context.assertNotNull(result);
             context.assertFalse(result.succeeded());
             context.assertTrue(result.failed());
@@ -810,7 +779,6 @@ public final class CollectionsAsyncTest {
         final Async async = context.async();
 
         CollectionsAsync.transform(items, mapper, result -> {
-
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
             context.assertTrue(result.result().isEmpty());
@@ -840,7 +808,6 @@ public final class CollectionsAsyncTest {
         items.put(2, "Two");
 
         CollectionsAsync.transform(items, mapper, result -> {
-
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
             context.assertEquals(3, mapper.runCount());
@@ -869,7 +836,6 @@ public final class CollectionsAsyncTest {
         final Async async = context.async();
 
         CollectionsAsync.reduce(items, 0, reducer, result -> {
-
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
             context.assertEquals(0, result.result());
@@ -895,7 +861,6 @@ public final class CollectionsAsyncTest {
         final Async async = context.async();
 
         CollectionsAsync.reduce(items, 0, reducer, result -> {
-
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
             context.assertEquals(6, result.result());
@@ -914,7 +879,6 @@ public final class CollectionsAsyncTest {
         final Async async = context.async();
 
         CollectionsAsync.reduce(items, 0, reducer, result -> {
-
             context.assertNotNull(result);
             context.assertFalse(result.succeeded());
             context.assertNull(result.result());
@@ -933,7 +897,6 @@ public final class CollectionsAsyncTest {
         final Async async = context.async();
 
         CollectionsAsync.reduce(items, 0, reducer, result -> {
-
             context.assertNotNull(result);
             context.assertFalse(result.succeeded());
             context.assertNull(result.result());
@@ -959,7 +922,6 @@ public final class CollectionsAsyncTest {
         final Async async = context.async();
 
         CollectionsAsync.detect(items, tester, result -> {
-
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
             context.assertNull(result.result());
@@ -985,7 +947,6 @@ public final class CollectionsAsyncTest {
         final Async async = context.async();
 
         CollectionsAsync.detect(items, tester, result -> {
-
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
             context.assertEquals("2", result.result());
@@ -1010,7 +971,6 @@ public final class CollectionsAsyncTest {
         final Async async = context.async();
 
         CollectionsAsync.detect(items, tester, result -> {
-
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
             context.assertNull(result.result());
@@ -1028,7 +988,6 @@ public final class CollectionsAsyncTest {
         final Async async = context.async();
 
         CollectionsAsync.detect(items, tester, result -> {
-
             context.assertNotNull(result);
             context.assertTrue(result.cause() instanceof Throwable);
             context.assertFalse(result.succeeded());
@@ -1054,7 +1013,6 @@ public final class CollectionsAsyncTest {
         final Async async = context.async();
 
         CollectionsAsync.some(items, tester, result -> {
-
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
             context.assertFalse(result.result());
@@ -1080,7 +1038,6 @@ public final class CollectionsAsyncTest {
         final Async async = context.async();
 
         CollectionsAsync.some(items, tester, result -> {
-
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
             context.assertTrue(result.result());
@@ -1105,7 +1062,6 @@ public final class CollectionsAsyncTest {
         final Async async = context.async();
 
         CollectionsAsync.some(items, tester, result -> {
-
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
             context.assertFalse(result.result());
@@ -1123,7 +1079,6 @@ public final class CollectionsAsyncTest {
         final Async async = context.async();
 
         CollectionsAsync.some(items, tester, result -> {
-
             context.assertNotNull(result);
             context.assertFalse(result.succeeded());
             context.assertNull(result.result());
@@ -1148,7 +1103,6 @@ public final class CollectionsAsyncTest {
         final Async async = context.async();
 
         CollectionsAsync.every(items, tester, result -> {
-
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
             context.assertFalse(result.result());
@@ -1174,7 +1128,6 @@ public final class CollectionsAsyncTest {
         final Async async = context.async();
 
         CollectionsAsync.every(items, tester, result -> {
-
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
             context.assertTrue(result.result());
@@ -1199,7 +1152,6 @@ public final class CollectionsAsyncTest {
         final Async async = context.async();
 
         CollectionsAsync.every(items, tester, result -> {
-
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
             context.assertFalse(result.result());
@@ -1217,7 +1169,6 @@ public final class CollectionsAsyncTest {
         final Async async = context.async();
 
         CollectionsAsync.every(items, tester, result -> {
-
             context.assertNotNull(result);
             context.assertFalse(result.succeeded());
             context.assertNull(result.result());
@@ -1276,7 +1227,6 @@ public final class CollectionsAsyncTest {
         final Async async = context.async();
 
         CollectionsAsync.concat(items, tester, result -> {
-
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
             context.assertEquals(11, result.result().size());
@@ -1295,7 +1245,6 @@ public final class CollectionsAsyncTest {
         final Async async = context.async();
 
         CollectionsAsync.concat(items, tester, result -> {
-
             context.assertNotNull(result);
             context.assertTrue(result.failed());
             context.assertTrue(result.cause() instanceof Throwable);
@@ -1311,7 +1260,7 @@ public final class CollectionsAsyncTest {
     public void sortNoItems(final TestContext context) {
         final List<Integer> items = Arrays.asList();
         final Async async = context.async();
-        CollectionsAsync.sort(items, (AsyncResult<Collection<Integer>> result) -> {
+        CollectionsAsync.sort(items, result -> {
             context.assertNotNull(result);
             context.assertFalse(result.failed());
             context.assertTrue(result.succeeded());
@@ -1325,7 +1274,7 @@ public final class CollectionsAsyncTest {
     public void sortItems(final TestContext context) {
         final List<Integer> items = Arrays.asList(3, 2, 1);
         final Async async = context.async();
-        CollectionsAsync.sort(items, (AsyncResult<Collection<Integer>> result) -> {
+        CollectionsAsync.sort(items, result -> {
             context.assertNotNull(result);
             context.assertFalse(result.failed());
             context.assertTrue(result.succeeded());
@@ -1339,7 +1288,7 @@ public final class CollectionsAsyncTest {
     public void sortItemsWithValidator(final TestContext context) {
         final List<Integer> items = Arrays.asList(2, 3, 1);
         final Async async = context.async();
-        CollectionsAsync.sort(items, (Integer t, Integer t1) -> t1.compareTo(t), (AsyncResult<Collection<Integer>> result) -> {
+        CollectionsAsync.sort(items, (a, b) -> b.compareTo(a), (AsyncResult<Collection<Integer>> result) -> {
             context.assertNotNull(result);
             context.assertFalse(result.failed());
             context.assertTrue(result.succeeded());

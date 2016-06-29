@@ -479,7 +479,7 @@ public final class FlowsAsyncTest {
     public void whilstExecutesEmpty(final TestContext context) {
         final AtomicInteger counter = new AtomicInteger();
         final Async async = context.async();
-        FlowsAsync.whilst(() -> counter.incrementAndGet() < 1, (Handler<AsyncResult<Void>> t) -> {
+        FlowsAsync.whilst(() -> counter.incrementAndGet() < 1, t -> {
             t.handle(DefaultAsyncResult.fail(new IllegalAccessException()));
         }, e -> {
             context.assertTrue(e.succeeded());
@@ -507,7 +507,7 @@ public final class FlowsAsyncTest {
     public void whilstExecutesAnException(final TestContext context) {
         final AtomicInteger counter = new AtomicInteger();
         final Async async = context.async();
-        FlowsAsync.whilst(() -> counter.incrementAndGet() < 2, (Handler<AsyncResult<Void>> t) -> {
+        FlowsAsync.whilst(() -> counter.incrementAndGet() < 2, t -> {
             t.handle(DefaultAsyncResult.fail(new IllegalAccessException()));
         }, e -> {
             context.assertFalse(e.succeeded());
@@ -522,7 +522,7 @@ public final class FlowsAsyncTest {
     public void untilExecutesEmpty(final TestContext context) {
         final AtomicInteger counter = new AtomicInteger();
         final Async async = context.async();
-        FlowsAsync.until(() -> false, (Handler<AsyncResult<Void>> t) -> {
+        FlowsAsync.until(() -> false, t -> {
             counter.incrementAndGet();
             t.handle(DefaultAsyncResult.succeed());
         }, e -> {
@@ -551,7 +551,7 @@ public final class FlowsAsyncTest {
     public void untilExecutesAnException(final TestContext context) {
         final AtomicInteger counter = new AtomicInteger();
         final Async async = context.async();
-        FlowsAsync.until(() -> counter.incrementAndGet() < 2, (Handler<AsyncResult<Void>> t) -> {
+        FlowsAsync.until(() -> counter.incrementAndGet() < 2, t -> {
             t.handle(DefaultAsyncResult.fail(new IllegalAccessException()));
         }, e -> {
             context.assertFalse(e.succeeded());
@@ -627,12 +627,9 @@ public final class FlowsAsyncTest {
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
-        FlowsAsync.times((Integer) 0, new BiConsumer<Integer, Handler<AsyncResult<String>>>() {
-            @Override
-            public void accept(Integer value, Handler<AsyncResult<String>> handler) {
-                handlerCallCount.incrementAndGet();
-                handler.handle(DefaultAsyncResult.succeed(value.toString()));
-            }
+        FlowsAsync.times((Integer) 0, (value, handler) -> {
+            handlerCallCount.incrementAndGet();
+            handler.handle(DefaultAsyncResult.succeed(value.toString()));
         }, result -> {
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
@@ -663,12 +660,9 @@ public final class FlowsAsyncTest {
         final AtomicInteger counter = new AtomicInteger(0);
         final Async async = context.async();
 
-        FlowsAsync.times(3, new BiConsumer<Integer, Handler<AsyncResult<String>>>() {
-            @Override
-            public void accept(Integer value, Handler<AsyncResult<String>> handler) {
-                counter.incrementAndGet();
-                handler.handle(DefaultAsyncResult.succeed(value.toString()));
-            }
+        FlowsAsync.times(3, (value, handler) -> {
+            counter.incrementAndGet();
+            handler.handle(DefaultAsyncResult.succeed(value.toString()));
         }, result -> {
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
