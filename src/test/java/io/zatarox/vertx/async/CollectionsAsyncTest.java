@@ -68,7 +68,7 @@ public final class CollectionsAsyncTest {
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
-        CollectionsAsync.each(rule.vertx(), items, each, result -> {
+        CollectionsAsync.each(items, each, result -> {
 
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
@@ -87,7 +87,7 @@ public final class CollectionsAsyncTest {
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
-        CollectionsAsync.each(rule.vertx(), items, each, result -> {
+        CollectionsAsync.each(items, each, result -> {
 
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
@@ -108,7 +108,7 @@ public final class CollectionsAsyncTest {
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
-        CollectionsAsync.each(rule.vertx(), items, each, result -> {
+        CollectionsAsync.each(items, each, result -> {
 
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
@@ -129,7 +129,7 @@ public final class CollectionsAsyncTest {
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
-        CollectionsAsync.each(rule.vertx(), items, each, result -> {
+        CollectionsAsync.each(items, each, result -> {
 
             context.assertNotNull(result);
             context.assertFalse(result.succeeded());
@@ -152,7 +152,7 @@ public final class CollectionsAsyncTest {
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
-        CollectionsAsync.each(rule.vertx(), items, each, result -> {
+        CollectionsAsync.each(items, each, result -> {
 
             context.assertNotNull(result);
             context.assertFalse(result.succeeded());
@@ -173,7 +173,7 @@ public final class CollectionsAsyncTest {
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
-        CollectionsAsync.each(rule.vertx(), items, each, result -> {
+        CollectionsAsync.each(items, each, result -> {
 
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
@@ -193,7 +193,7 @@ public final class CollectionsAsyncTest {
         final Async async = context.async();
         items.put("One", 1);
 
-        CollectionsAsync.each(rule.vertx(), items, each, result -> {
+        CollectionsAsync.each(items, each, result -> {
 
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
@@ -218,7 +218,7 @@ public final class CollectionsAsyncTest {
         items.put("One", 1);
         items.put("Two", 2);
 
-        CollectionsAsync.each(rule.vertx(), items, each, result -> {
+        CollectionsAsync.each(items, each, result -> {
 
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
@@ -242,7 +242,7 @@ public final class CollectionsAsyncTest {
         final Async async = context.async();
         items.put("One", 1);
 
-        CollectionsAsync.each(rule.vertx(), items, each, result -> {
+        CollectionsAsync.each(items, each, result -> {
 
             context.assertNotNull(result);
             context.assertFalse(result.succeeded());
@@ -269,7 +269,7 @@ public final class CollectionsAsyncTest {
         items.put("One", 1);
         items.put("Two", 2);
 
-        CollectionsAsync.each(rule.vertx(), items, each, result -> {
+        CollectionsAsync.each(items, each, result -> {
 
             context.assertNotNull(result);
             context.assertFalse(result.succeeded());
@@ -295,7 +295,7 @@ public final class CollectionsAsyncTest {
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
-        CollectionsAsync.map(rule.vertx(), items, each, result -> {
+        CollectionsAsync.map(items, each, result -> {
 
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
@@ -314,7 +314,7 @@ public final class CollectionsAsyncTest {
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
-        CollectionsAsync.map(rule.vertx(), items, each, result -> {
+        CollectionsAsync.map(items, each, result -> {
 
             context.assertNotNull(result);
             context.assertFalse(result.succeeded());
@@ -339,7 +339,7 @@ public final class CollectionsAsyncTest {
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
-        CollectionsAsync.map(rule.vertx(), items, each, result -> {
+        CollectionsAsync.map(items, each, result -> {
 
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
@@ -359,7 +359,7 @@ public final class CollectionsAsyncTest {
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
-        CollectionsAsync.filter(rule.vertx(), items, filter, result -> {
+        CollectionsAsync.filter(items, filter, result -> {
 
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
@@ -385,7 +385,7 @@ public final class CollectionsAsyncTest {
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
-        CollectionsAsync.filter(rule.vertx(), items, filter, result -> {
+        CollectionsAsync.filter(items, filter, result -> {
 
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
@@ -412,7 +412,7 @@ public final class CollectionsAsyncTest {
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
-        CollectionsAsync.filter(rule.vertx(), items, filter, result -> {
+        CollectionsAsync.filter(items, filter, result -> {
 
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
@@ -434,7 +434,7 @@ public final class CollectionsAsyncTest {
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
-        CollectionsAsync.filter(rule.vertx(), items, filter, result -> {
+        CollectionsAsync.filter(items, filter, result -> {
 
             context.assertNotNull(result);
             context.assertFalse(result.succeeded());
@@ -463,7 +463,7 @@ public final class CollectionsAsyncTest {
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
-        CollectionsAsync.filter(rule.vertx(), items, filter, result -> {
+        CollectionsAsync.filter(items, filter, result -> {
 
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
@@ -491,7 +491,7 @@ public final class CollectionsAsyncTest {
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
-        CollectionsAsync.filter(rule.vertx(), items, filter, result -> {
+        CollectionsAsync.filter(items, filter, result -> {
 
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
@@ -513,7 +513,7 @@ public final class CollectionsAsyncTest {
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
-        CollectionsAsync.filter(rule.vertx(), items, filter, result -> {
+        CollectionsAsync.filter(items, filter, result -> {
 
             context.assertNotNull(result);
             context.assertFalse(result.succeeded());
@@ -534,7 +534,7 @@ public final class CollectionsAsyncTest {
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
-        CollectionsAsync.reject(rule.vertx(), items, filter, result -> {
+        CollectionsAsync.reject(items, filter, result -> {
 
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
@@ -560,7 +560,7 @@ public final class CollectionsAsyncTest {
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
-        CollectionsAsync.reject(rule.vertx(), items, filter, result -> {
+        CollectionsAsync.reject(items, filter, result -> {
 
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
@@ -587,7 +587,7 @@ public final class CollectionsAsyncTest {
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
-        CollectionsAsync.reject(rule.vertx(), items, filter, result -> {
+        CollectionsAsync.reject(items, filter, result -> {
 
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
@@ -609,7 +609,7 @@ public final class CollectionsAsyncTest {
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
-        CollectionsAsync.filter(rule.vertx(), items, filter, result -> {
+        CollectionsAsync.filter(items, filter, result -> {
 
             context.assertNotNull(result);
             context.assertFalse(result.succeeded());
@@ -638,7 +638,7 @@ public final class CollectionsAsyncTest {
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
-        CollectionsAsync.reject(rule.vertx(), items, filter, result -> {
+        CollectionsAsync.reject(items, filter, result -> {
 
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
@@ -666,7 +666,7 @@ public final class CollectionsAsyncTest {
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
-        CollectionsAsync.reject(rule.vertx(), items, filter, result -> {
+        CollectionsAsync.reject(items, filter, result -> {
 
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
@@ -688,7 +688,7 @@ public final class CollectionsAsyncTest {
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
-        CollectionsAsync.reject(rule.vertx(), items, filter, result -> {
+        CollectionsAsync.reject(items, filter, result -> {
 
             context.assertNotNull(result);
             context.assertFalse(result.succeeded());
@@ -716,7 +716,7 @@ public final class CollectionsAsyncTest {
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
-        CollectionsAsync.transform(rule.vertx(), items, mapper, result -> {
+        CollectionsAsync.transform(items, mapper, result -> {
 
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
@@ -741,7 +741,7 @@ public final class CollectionsAsyncTest {
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
-        CollectionsAsync.transform(rule.vertx(), items, mapper, result -> {
+        CollectionsAsync.transform(items, mapper, result -> {
 
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
@@ -761,7 +761,7 @@ public final class CollectionsAsyncTest {
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
-        CollectionsAsync.transform(rule.vertx(), items, mapper, result -> {
+        CollectionsAsync.transform(items, mapper, result -> {
 
             context.assertNotNull(result);
             context.assertFalse(result.succeeded());
@@ -782,7 +782,7 @@ public final class CollectionsAsyncTest {
         final Async async = context.async();
         items.put(1, "One");
 
-        CollectionsAsync.transform(rule.vertx(), items, mapper, result -> {
+        CollectionsAsync.transform(items, mapper, result -> {
 
             context.assertNotNull(result);
             context.assertFalse(result.succeeded());
@@ -809,7 +809,7 @@ public final class CollectionsAsyncTest {
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
-        CollectionsAsync.transform(rule.vertx(), items, mapper, result -> {
+        CollectionsAsync.transform(items, mapper, result -> {
 
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
@@ -839,7 +839,7 @@ public final class CollectionsAsyncTest {
         items.put(1, "One");
         items.put(2, "Two");
 
-        CollectionsAsync.transform(rule.vertx(), items, mapper, result -> {
+        CollectionsAsync.transform(items, mapper, result -> {
 
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
@@ -868,7 +868,7 @@ public final class CollectionsAsyncTest {
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
-        CollectionsAsync.reduce(rule.vertx(), items, 0, reducer, result -> {
+        CollectionsAsync.reduce(items, 0, reducer, result -> {
 
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
@@ -894,7 +894,7 @@ public final class CollectionsAsyncTest {
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
-        CollectionsAsync.reduce(rule.vertx(), items, 0, reducer, result -> {
+        CollectionsAsync.reduce(items, 0, reducer, result -> {
 
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
@@ -913,7 +913,7 @@ public final class CollectionsAsyncTest {
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
-        CollectionsAsync.reduce(rule.vertx(), items, 0, reducer, result -> {
+        CollectionsAsync.reduce(items, 0, reducer, result -> {
 
             context.assertNotNull(result);
             context.assertFalse(result.succeeded());
@@ -932,7 +932,7 @@ public final class CollectionsAsyncTest {
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
-        CollectionsAsync.reduce(rule.vertx(), items, 0, reducer, result -> {
+        CollectionsAsync.reduce(items, 0, reducer, result -> {
 
             context.assertNotNull(result);
             context.assertFalse(result.succeeded());
@@ -958,7 +958,7 @@ public final class CollectionsAsyncTest {
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
-        CollectionsAsync.detect(rule.vertx(), items, tester, result -> {
+        CollectionsAsync.detect(items, tester, result -> {
 
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
@@ -984,7 +984,7 @@ public final class CollectionsAsyncTest {
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
-        CollectionsAsync.detect(rule.vertx(), items, tester, result -> {
+        CollectionsAsync.detect(items, tester, result -> {
 
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
@@ -1009,7 +1009,7 @@ public final class CollectionsAsyncTest {
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
-        CollectionsAsync.detect(rule.vertx(), items, tester, result -> {
+        CollectionsAsync.detect(items, tester, result -> {
 
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
@@ -1027,7 +1027,7 @@ public final class CollectionsAsyncTest {
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
-        CollectionsAsync.detect(rule.vertx(), items, tester, result -> {
+        CollectionsAsync.detect(items, tester, result -> {
 
             context.assertNotNull(result);
             context.assertTrue(result.cause() instanceof Throwable);
@@ -1053,7 +1053,7 @@ public final class CollectionsAsyncTest {
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
-        CollectionsAsync.some(rule.vertx(), items, tester, result -> {
+        CollectionsAsync.some(items, tester, result -> {
 
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
@@ -1079,7 +1079,7 @@ public final class CollectionsAsyncTest {
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
-        CollectionsAsync.some(rule.vertx(), items, tester, result -> {
+        CollectionsAsync.some(items, tester, result -> {
 
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
@@ -1104,7 +1104,7 @@ public final class CollectionsAsyncTest {
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
-        CollectionsAsync.some(rule.vertx(), items, tester, result -> {
+        CollectionsAsync.some(items, tester, result -> {
 
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
@@ -1122,7 +1122,7 @@ public final class CollectionsAsyncTest {
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
-        CollectionsAsync.some(rule.vertx(), items, tester, result -> {
+        CollectionsAsync.some(items, tester, result -> {
 
             context.assertNotNull(result);
             context.assertFalse(result.succeeded());
@@ -1147,7 +1147,7 @@ public final class CollectionsAsyncTest {
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
-        CollectionsAsync.every(rule.vertx(), items, tester, result -> {
+        CollectionsAsync.every(items, tester, result -> {
 
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
@@ -1173,7 +1173,7 @@ public final class CollectionsAsyncTest {
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
-        CollectionsAsync.every(rule.vertx(), items, tester, result -> {
+        CollectionsAsync.every(items, tester, result -> {
 
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
@@ -1198,7 +1198,7 @@ public final class CollectionsAsyncTest {
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
-        CollectionsAsync.every(rule.vertx(), items, tester, result -> {
+        CollectionsAsync.every(items, tester, result -> {
 
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
@@ -1216,7 +1216,7 @@ public final class CollectionsAsyncTest {
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
-        CollectionsAsync.every(rule.vertx(), items, tester, result -> {
+        CollectionsAsync.every(items, tester, result -> {
 
             context.assertNotNull(result);
             context.assertFalse(result.succeeded());
@@ -1245,7 +1245,7 @@ public final class CollectionsAsyncTest {
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
-        CollectionsAsync.concat(rule.vertx(), items, tester, result -> {
+        CollectionsAsync.concat(items, tester, result -> {
 
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
@@ -1275,7 +1275,7 @@ public final class CollectionsAsyncTest {
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
-        CollectionsAsync.concat(rule.vertx(), items, tester, result -> {
+        CollectionsAsync.concat(items, tester, result -> {
 
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
@@ -1294,7 +1294,7 @@ public final class CollectionsAsyncTest {
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
-        CollectionsAsync.concat(rule.vertx(), items, tester, result -> {
+        CollectionsAsync.concat(items, tester, result -> {
 
             context.assertNotNull(result);
             context.assertTrue(result.failed());
@@ -1311,7 +1311,7 @@ public final class CollectionsAsyncTest {
     public void sortNoItems(final TestContext context) {
         final List<Integer> items = Arrays.asList();
         final Async async = context.async();
-        CollectionsAsync.sort(rule.vertx(), items, (AsyncResult<Collection<Integer>> result) -> {
+        CollectionsAsync.sort(items, (AsyncResult<Collection<Integer>> result) -> {
             context.assertNotNull(result);
             context.assertFalse(result.failed());
             context.assertTrue(result.succeeded());
@@ -1325,7 +1325,7 @@ public final class CollectionsAsyncTest {
     public void sortItems(final TestContext context) {
         final List<Integer> items = Arrays.asList(3, 2, 1);
         final Async async = context.async();
-        CollectionsAsync.sort(rule.vertx(), items, (AsyncResult<Collection<Integer>> result) -> {
+        CollectionsAsync.sort(items, (AsyncResult<Collection<Integer>> result) -> {
             context.assertNotNull(result);
             context.assertFalse(result.failed());
             context.assertTrue(result.succeeded());
@@ -1339,7 +1339,7 @@ public final class CollectionsAsyncTest {
     public void sortItemsWithValidator(final TestContext context) {
         final List<Integer> items = Arrays.asList(2, 3, 1);
         final Async async = context.async();
-        CollectionsAsync.sort(rule.vertx(), items, (Integer t, Integer t1) -> t1.compareTo(t), (AsyncResult<Collection<Integer>> result) -> {
+        CollectionsAsync.sort(items, (Integer t, Integer t1) -> t1.compareTo(t), (AsyncResult<Collection<Integer>> result) -> {
             context.assertNotNull(result);
             context.assertFalse(result.failed());
             context.assertTrue(result.succeeded());

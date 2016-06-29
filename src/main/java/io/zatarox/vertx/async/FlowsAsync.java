@@ -45,7 +45,6 @@ public final class FlowsAsync {
      * {@code callback} as an object instead of an array.
      *
      * @param <T> Define the manipulated data type.
-     * @param instance Define Vertx instance.
      * @param tasks A collection containing functions to run, each function is
      * passed a {@code handler} it must call on completion with an optional
      * error and an optional {@code result} value.
@@ -53,8 +52,8 @@ public final class FlowsAsync {
      * completed. This function gets a results array (or object) containing all
      * the result arguments passed to the {@code task} handlers.
      */
-    public static <T> void series(final Vertx instance, Collection<Consumer<Handler<AsyncResult<T>>>> tasks, final Handler<AsyncResult<List<T>>> handler) {
-        instance.runOnContext(new Handler<Void>() {
+    public static <T> void series(Collection<Consumer<Handler<AsyncResult<T>>>> tasks, final Handler<AsyncResult<List<T>>> handler) {
+        Vertx.currentContext().runOnContext(new Handler<Void>() {
             final Iterator<Consumer<Handler<AsyncResult<T>>>> iterator = tasks.iterator();
             final List<T> results = new ArrayList<>(tasks.size());
 
@@ -70,8 +69,8 @@ public final class FlowsAsync {
                             handler.handle(DefaultAsyncResult.fail(result));
                         } else {
                             results.add(result.result());
-                            instance.runOnContext((Void) -> {
-                                instance.runOnContext(this);
+                            Vertx.currentContext().runOnContext((Void) -> {
+                                Vertx.currentContext().runOnContext(this);
                             });
                         }
                     };
@@ -89,7 +88,6 @@ public final class FlowsAsync {
      * any) of the final attempt.
      *
      * @param <T> Define the manipulated data type.
-     * @param instance Define Vertx instance.
      * @param task A function which receives two arguments: (1) a {@code task}
      * which must be called when finished, passing {@code err} (which can be
      * {@code null}) and the {@code result} of the function's execution, and (2)
@@ -101,8 +99,8 @@ public final class FlowsAsync {
      * and {@code result} arguments of the last attempt at completing the
      * {@code task}.
      */
-    public static <T> void retry(final Vertx instance, final Consumer<Handler<AsyncResult<T>>> task, final long times, final Handler<AsyncResult<T>> handler) {
-        instance.runOnContext((Void) -> {
+    public static <T> void retry(final Consumer<Handler<AsyncResult<T>>> task, final long times, final Handler<AsyncResult<T>> handler) {
+        Vertx.currentContext().runOnContext((Void) -> {
             task.accept((Handler<AsyncResult<T>>) new Handler<AsyncResult<T>>() {
                 private final AtomicInteger count = new AtomicInteger(0);
 
@@ -112,7 +110,7 @@ public final class FlowsAsync {
                         if (count.incrementAndGet() > times) {
                             handler.handle(DefaultAsyncResult.fail(result));
                         } else {
-                            instance.runOnContext((Void) -> {
+                            Vertx.currentContext().runOnContext((Void) -> {
                                 task.accept(this);
                             });
                         }
@@ -131,20 +129,19 @@ public final class FlowsAsync {
      * and execution stops, otherwise it will never be called.
      *
      * @param <T> Define the manipulated data type.
-     * @param instance Define Vertx instance.
      * @param task A function to call repeatedly.
      * @param handler when {@code task} passes an error to it's callback, this
      * function will be called, and execution stops.
      */
-    public static <T> void forever(final Vertx instance, final Consumer<Handler<AsyncResult<T>>> task, final Handler<AsyncResult<T>> handler) {
-        instance.runOnContext(new Handler<Void>() {
+    public static <T> void forever(final Consumer<Handler<AsyncResult<T>>> task, final Handler<AsyncResult<T>> handler) {
+        Vertx.currentContext().runOnContext(new Handler<Void>() {
             @Override
             public void handle(Void event) {
                 task.accept((result) -> {
                     if (result.failed()) {
                         handler.handle(DefaultAsyncResult.fail(result));
                     } else {
-                        instance.runOnContext(this);
+                        Vertx.currentContext().runOnContext(this);
                     }
                 });
             }
@@ -159,14 +156,13 @@ public final class FlowsAsync {
      *
      * @param <I> Define input data type of functions
      * @param <O> Define ouput data type of functions
-     * @param instance Define Vertx instance.
      * @param tasks An array of functions to run, each function is passed with
      * previously computed result thougth the {@code handler}.
      * @param handler Handler to run once all the functions have completed. This
      * will be passed the results of the last task's callback.
      */
-    public static <I, O> void waterfall(final Vertx instance, final Iterable<BiConsumer<I, Handler<AsyncResult<O>>>> tasks, final Handler<AsyncResult<?>> handler) {
-        instance.runOnContext(new Handler<Void>() {
+    public static <I, O> void waterfall(final Iterable<BiConsumer<I, Handler<AsyncResult<O>>>> tasks, final Handler<AsyncResult<?>> handler) {
+        Vertx.currentContext().runOnContext(new Handler<Void>() {
             private final Iterator<BiConsumer<I, Handler<AsyncResult<O>>>> iterator = tasks.iterator();
             private I result = null;
 
@@ -176,7 +172,7 @@ public final class FlowsAsync {
                     iterator.next().accept(result, event1 -> {
                         if (event1.succeeded()) {
                             result = (I) event1.result();
-                            instance.runOnContext(this);
+                            Vertx.currentContext().runOnContext(this);
                         } else {
                             handler.handle(DefaultAsyncResult.fail(event1));
                         }
@@ -202,25 +198,24 @@ public final class FlowsAsync {
      * synchronous setup sections for each task will happen one after the other.
      *
      * @param <T> Define the manipulated data type.
-     * @param instance Define Vertx instance.
      * @param tasks Collection of tasks to run.
      * @param handler A callback to run once all the functions have completed
      * successfully. This function gets a results array (or object) containing
      * all the result arguments passed to the task callbacks.
      */
-    public static <T> void parallel(final Vertx instance, List<Consumer<Handler<AsyncResult<T>>>> tasks, final Handler<AsyncResult<List<T>>> handler) {
+    public static <T> void parallel(List<Consumer<Handler<AsyncResult<T>>>> tasks, final Handler<AsyncResult<List<T>>> handler) {
         final List<T> results = new ArrayList<>(tasks.size());
         if (tasks.isEmpty()) {
             handler.handle(DefaultAsyncResult.succeed(results));
         } else {
-            instance.runOnContext(event -> {
+            Vertx.currentContext().runOnContext(event -> {
                 final AtomicBoolean stop = new AtomicBoolean(false);
                 final AtomicInteger counter = new AtomicInteger(tasks.size());
 
                 for (int i = 0; i < tasks.size(); i++) {
                     final Consumer<Handler<AsyncResult<T>>> task = tasks.get(i);
                     final int pos = i;
-                    instance.runOnContext(aVoid -> task.accept(result -> {
+                    Vertx.currentContext().runOnContext(aVoid -> task.accept(result -> {
                         if (result.failed() || stop.get()) {
                             if (!stop.get()) {
                                 stop.set(true);
@@ -242,7 +237,6 @@ public final class FlowsAsync {
      * Repeatedly call {@code consumer}, while {@code tester} returns
      * {@code true}. Calls {@code handler} when stopped, or an error occurs.
      *
-     * @param instance Define Vertx instance.
      * @param tester A synchronous truth test to perform before each execution
      * of {@code consumer}.
      * @param consumer A function which is called each time {@code tester}
@@ -250,8 +244,8 @@ public final class FlowsAsync {
      * @param handler A callback which is called after the test function has
      * failed and repeated execution of {@code consumer} has stopped.
      */
-    public static void whilst(final Vertx instance, final BooleanSupplier tester, Consumer<Handler<AsyncResult<Void>>> consumer, final Handler<AsyncResult<Void>> handler) {
-        instance.runOnContext(new Handler<Void>() {
+    public static void whilst(final BooleanSupplier tester, Consumer<Handler<AsyncResult<Void>>> consumer, final Handler<AsyncResult<Void>> handler) {
+        Vertx.currentContext().runOnContext(new Handler<Void>() {
             final AtomicBoolean stop = new AtomicBoolean(false);
 
             @Override
@@ -259,7 +253,7 @@ public final class FlowsAsync {
                 if (tester.getAsBoolean()) {
                     consumer.accept(e1 -> {
                         if (e1.succeeded()) {
-                            instance.runOnContext(this);
+                            Vertx.currentContext().runOnContext(this);
                         } else {
                             stop.set(true);
                             handler.handle(DefaultAsyncResult.fail(e1));
@@ -276,7 +270,6 @@ public final class FlowsAsync {
      * Repeatedly call {@code consumer} until {@code tester} returns
      * {@code false}. Calls {@code handler} when stopped, or an error occurs.
      *
-     * @param instance Define Vertx instance.
      * @param tester synchronous truth test to perform after each execution of
      * {@code consumer}.
      * @param consumer A function which is called each time {@code tester}
@@ -284,14 +277,14 @@ public final class FlowsAsync {
      * @param handler A callback which is called after the test function has
      * failed and repeated execution of {@code consumer} has stopped.
      */
-    public static void until(final Vertx instance, final BooleanSupplier tester, final Consumer<Handler<AsyncResult<Void>>> consumer, final Handler<AsyncResult<Void>> handler) {
-        instance.runOnContext(new Handler<Void>() {
+    public static void until(final BooleanSupplier tester, final Consumer<Handler<AsyncResult<Void>>> consumer, final Handler<AsyncResult<Void>> handler) {
+        Vertx.currentContext().runOnContext(new Handler<Void>() {
             @Override
             public void handle(Void e) {
                 consumer.accept(e1 -> {
                     if (e1.succeeded()) {
                         if (tester.getAsBoolean()) {
-                            instance.runOnContext(this);
+                            Vertx.currentContext().runOnContext(this);
                         } else {
                             handler.handle(DefaultAsyncResult.succeed());
                         }
@@ -310,11 +303,10 @@ public final class FlowsAsync {
      *
      * @param <I> Define input data type of functions
      * @param <O> Define ouput data type of functions
-     * @param instance Define Vertx instance.
      * @param functions Asynchronous functions to seq
      * @return
      */
-    public static <I, O> BiConsumer<I, Handler<AsyncResult<O>>> seq(final Vertx instance, final BiConsumer<I, Handler<AsyncResult<O>>>... functions) {
+    public static <I, O> BiConsumer<I, Handler<AsyncResult<O>>> seq(final BiConsumer<I, Handler<AsyncResult<O>>>... functions) {
         return new BiConsumer<I, Handler<AsyncResult<O>>>() {
             private final Iterator<BiConsumer<I, Handler<AsyncResult<O>>>> iterator = Arrays.asList(functions).iterator();
             private final AtomicReference<BiConsumer<I, Handler<AsyncResult<O>>>> current = new AtomicReference(null);
@@ -323,7 +315,7 @@ public final class FlowsAsync {
             public void accept(final I t, final Handler<AsyncResult<O>> u) {
                 if (iterator.hasNext()) {
                     current.set(iterator.next());
-                    instance.runOnContext(e1 -> {
+                    Vertx.currentContext().runOnContext(e1 -> {
                         current.get().accept(t, e2 -> {
                             if (e2.succeeded()) {
                                 this.accept((I) e2.result(), u);
@@ -345,14 +337,13 @@ public final class FlowsAsync {
      * {@link #CollectionsAsync.map}.
      *
      * @param <T> Define the manipulated type.
-     * @param instance The Vertx instance to use.
      * @param counter The number of times to run the function.
      * @param consumer The function to call {@code n} times. Invoked with the
      * iteration index and a callback.
      * @param handler A callback which is called after the test function has
      * failed and repeated execution of {@code consumer} has stopped.
      */
-    public static <T> void times(final Vertx instance, final int counter, final BiConsumer<Integer, Handler<AsyncResult<T>>> consumer, final Handler<AsyncResult<List<T>>> handler) {
+    public static <T> void times(final int counter, final BiConsumer<Integer, Handler<AsyncResult<T>>> consumer, final Handler<AsyncResult<List<T>>> handler) {
         final List<T> mapped = new ArrayList<>(counter);
         if (counter < 1) {
             handler.handle(DefaultAsyncResult.succeed(mapped));
@@ -362,7 +353,7 @@ public final class FlowsAsync {
 
             for (int i = 0; i < counter; i++) {
                 final int pos = i;
-                instance.runOnContext(aVoid -> consumer.accept(pos, result -> {
+                Vertx.currentContext().runOnContext(aVoid -> consumer.accept(pos, result -> {
                     if (result.failed() || stop.get()) {
                         if (!stop.get()) {
                             stop.set(true);

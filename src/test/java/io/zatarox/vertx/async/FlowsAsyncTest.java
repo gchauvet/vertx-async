@@ -54,14 +54,14 @@ public final class FlowsAsyncTest {
         c.setAccessible(true);
         c.newInstance();
     }
-    
+
     @Test(timeout = FlowsAsyncTest.TIMEOUT_LIMIT)
     @Repeat(FlowsAsyncTest.REPEAT_LIMIT)
     public void seriesStillExecutesWhenThereAreNoTasks(final TestContext context) {
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
-        FlowsAsync.series(rule.vertx(), Arrays.<Consumer<Handler<AsyncResult<Void>>>>asList(), result -> {
+        FlowsAsync.series(Arrays.<Consumer<Handler<AsyncResult<Void>>>>asList(), result -> {
 
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
@@ -79,7 +79,7 @@ public final class FlowsAsyncTest {
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
-        FlowsAsync.series(rule.vertx(), Arrays.<Consumer<Handler<AsyncResult<String>>>>asList(task1), result -> {
+        FlowsAsync.series(Arrays.<Consumer<Handler<AsyncResult<String>>>>asList(task1), result -> {
 
             context.assertEquals(1, task1.runCount());
             context.assertNotNull(result);
@@ -99,7 +99,7 @@ public final class FlowsAsyncTest {
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
-        FlowsAsync.series(rule.vertx(), Arrays.<Consumer<Handler<AsyncResult<String>>>>asList(task1, task2), result -> {
+        FlowsAsync.series(Arrays.<Consumer<Handler<AsyncResult<String>>>>asList(task1, task2), result -> {
 
             context.assertEquals(1, task1.runCount());
             context.assertEquals(1, task2.runCount());
@@ -119,7 +119,7 @@ public final class FlowsAsyncTest {
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
-        FlowsAsync.series(rule.vertx(), Arrays.<Consumer<Handler<AsyncResult<String>>>>asList(task1), result -> {
+        FlowsAsync.series(Arrays.<Consumer<Handler<AsyncResult<String>>>>asList(task1), result -> {
 
             context.assertEquals(1, task1.runCount());
             context.assertNotNull(result);
@@ -139,7 +139,7 @@ public final class FlowsAsyncTest {
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
-        FlowsAsync.series(rule.vertx(), Arrays.<Consumer<Handler<AsyncResult<String>>>>asList(task1, task2), result -> {
+        FlowsAsync.series(Arrays.<Consumer<Handler<AsyncResult<String>>>>asList(task1, task2), result -> {
 
             context.assertNotNull(result);
             context.assertFalse(result.succeeded());
@@ -159,7 +159,7 @@ public final class FlowsAsyncTest {
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
-        FlowsAsync.retry(rule.vertx(), task1, 1, result -> {
+        FlowsAsync.retry(task1, 1, result -> {
 
             context.assertEquals(1, task1.runCount());
             context.assertNotNull(result);
@@ -179,7 +179,7 @@ public final class FlowsAsyncTest {
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
-        FlowsAsync.retry(rule.vertx(), task1, 1, result -> {
+        FlowsAsync.retry(task1, 1, result -> {
 
             context.assertEquals(2, task1.runCount());
             context.assertNotNull(result);
@@ -199,7 +199,7 @@ public final class FlowsAsyncTest {
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
-        FlowsAsync.retry(rule.vertx(), task1, 2, result -> {
+        FlowsAsync.retry(task1, 2, result -> {
 
             context.assertEquals(3, task1.runCount());
             context.assertNotNull(result);
@@ -219,7 +219,7 @@ public final class FlowsAsyncTest {
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
-        FlowsAsync.retry(rule.vertx(), task1, 1, result -> {
+        FlowsAsync.retry(task1, 1, result -> {
 
             context.assertEquals(2, task1.runCount());
             context.assertNotNull(result);
@@ -238,7 +238,7 @@ public final class FlowsAsyncTest {
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
-        FlowsAsync.forever(rule.vertx(), task1, result -> {
+        FlowsAsync.forever(task1, result -> {
 
             context.assertEquals(3, task1.runCount());
             context.assertNotNull(result);
@@ -256,7 +256,7 @@ public final class FlowsAsyncTest {
         final FakeSuccessfulAsyncFunction<Void, String> task1 = new FakeSuccessfulAsyncFunction<>("Task 1");
         final Async async = context.async();
 
-        FlowsAsync.waterfall(rule.vertx(), Arrays.<BiConsumer<Void, Handler<AsyncResult<String>>>>asList(task1), result -> {
+        FlowsAsync.waterfall(Arrays.<BiConsumer<Void, Handler<AsyncResult<String>>>>asList(task1), result -> {
 
             context.assertEquals(1, task1.runCount());
             context.assertNotNull(result);
@@ -276,7 +276,7 @@ public final class FlowsAsyncTest {
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
-        FlowsAsync.waterfall(rule.vertx(), Arrays.<BiConsumer<Object, Handler<AsyncResult<Object>>>>asList((BiConsumer) task1, (BiConsumer) task2), result -> {
+        FlowsAsync.waterfall(Arrays.<BiConsumer<Object, Handler<AsyncResult<Object>>>>asList((BiConsumer) task1, (BiConsumer) task2), result -> {
 
             context.assertEquals(1, task1.runCount());
             context.assertEquals(task1.result(), task2.consumedValue());
@@ -298,7 +298,7 @@ public final class FlowsAsyncTest {
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
-        FlowsAsync.waterfall(rule.vertx(), Arrays.<BiConsumer<Object, Handler<AsyncResult<Object>>>>asList((BiConsumer) task1), result -> {
+        FlowsAsync.waterfall(Arrays.<BiConsumer<Object, Handler<AsyncResult<Object>>>>asList((BiConsumer) task1), result -> {
 
             context.assertEquals(1, (int) task1.runCount());
             context.assertNotNull(result);
@@ -318,7 +318,7 @@ public final class FlowsAsyncTest {
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
-        FlowsAsync.waterfall(rule.vertx(), Arrays.<BiConsumer<Object, Handler<AsyncResult<Object>>>>asList((BiConsumer) task1, (BiConsumer) task2), result -> {
+        FlowsAsync.waterfall(Arrays.<BiConsumer<Object, Handler<AsyncResult<Object>>>>asList((BiConsumer) task1, (BiConsumer) task2), result -> {
 
             context.assertEquals(1, (int) task1.runCount());
             context.assertEquals(0, task2.runCount());
@@ -339,7 +339,7 @@ public final class FlowsAsyncTest {
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
-        FlowsAsync.waterfall(rule.vertx(), Arrays.<BiConsumer<Object, Handler<AsyncResult<Object>>>>asList((BiConsumer) task1, (BiConsumer) task2), result -> {
+        FlowsAsync.waterfall(Arrays.<BiConsumer<Object, Handler<AsyncResult<Object>>>>asList((BiConsumer) task1, (BiConsumer) task2), result -> {
 
             context.assertEquals(1, (int) task1.runCount());
             context.assertEquals(task1.result(), task2.consumedValue());
@@ -362,7 +362,7 @@ public final class FlowsAsyncTest {
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
-        FlowsAsync.waterfall(rule.vertx(), Arrays.<BiConsumer<Object, Handler<AsyncResult<Object>>>>asList((BiConsumer) task1, (BiConsumer) task2, (BiConsumer) task3), result -> {
+        FlowsAsync.waterfall(Arrays.<BiConsumer<Object, Handler<AsyncResult<Object>>>>asList((BiConsumer) task1, (BiConsumer) task2, (BiConsumer) task3), result -> {
 
             context.assertEquals(1, (int) task1.runCount());
             context.assertEquals(task1.result(), task2.consumedValue());
@@ -376,14 +376,14 @@ public final class FlowsAsyncTest {
             async.complete();
         });
     }
-    
+
     @Test(timeout = FlowsAsyncTest.TIMEOUT_LIMIT)
     @Repeat(FlowsAsyncTest.REPEAT_LIMIT)
     public void parallelStillExecutesWhenThereAreNoTasks(final TestContext context) {
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
-        FlowsAsync.parallel(rule.vertx(), Arrays.<Consumer<Handler<AsyncResult<Void>>>>asList(), result -> {
+        FlowsAsync.parallel(Arrays.<Consumer<Handler<AsyncResult<Void>>>>asList(), result -> {
 
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
@@ -401,7 +401,7 @@ public final class FlowsAsyncTest {
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
-        FlowsAsync.parallel(rule.vertx(), Arrays.<Consumer<Handler<AsyncResult<String>>>>asList(task1), result -> {
+        FlowsAsync.parallel(Arrays.<Consumer<Handler<AsyncResult<String>>>>asList(task1), result -> {
 
             context.assertEquals(1, task1.runCount());
             context.assertNotNull(result);
@@ -421,7 +421,7 @@ public final class FlowsAsyncTest {
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
-        FlowsAsync.parallel(rule.vertx(), Arrays.<Consumer<Handler<AsyncResult<String>>>>asList(task1, task2), result -> {
+        FlowsAsync.parallel(Arrays.<Consumer<Handler<AsyncResult<String>>>>asList(task1, task2), result -> {
 
             context.assertEquals(1, task1.runCount());
             context.assertEquals(1, task2.runCount());
@@ -441,7 +441,7 @@ public final class FlowsAsyncTest {
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
-        FlowsAsync.parallel(rule.vertx(), Arrays.<Consumer<Handler<AsyncResult<String>>>>asList(task1), result -> {
+        FlowsAsync.parallel(Arrays.<Consumer<Handler<AsyncResult<String>>>>asList(task1), result -> {
 
             context.assertEquals(1, task1.runCount());
             context.assertNotNull(result);
@@ -461,7 +461,7 @@ public final class FlowsAsyncTest {
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
-        FlowsAsync.parallel(rule.vertx(), Arrays.<Consumer<Handler<AsyncResult<String>>>>asList(task1, task2), result -> {
+        FlowsAsync.parallel(Arrays.<Consumer<Handler<AsyncResult<String>>>>asList(task1, task2), result -> {
 
             context.assertNotNull(result);
             context.assertFalse(result.succeeded());
@@ -473,13 +473,13 @@ public final class FlowsAsyncTest {
             async.complete();
         });
     }
-    
+
     @Test(timeout = FlowsAsyncTest.TIMEOUT_LIMIT)
     @Repeat(FlowsAsyncTest.REPEAT_LIMIT)
     public void whilstExecutesEmpty(final TestContext context) {
         final AtomicInteger counter = new AtomicInteger();
         final Async async = context.async();
-        FlowsAsync.whilst(rule.vertx(), () -> counter.incrementAndGet() < 1, (Handler<AsyncResult<Void>> t) -> {
+        FlowsAsync.whilst(() -> counter.incrementAndGet() < 1, (Handler<AsyncResult<Void>> t) -> {
             t.handle(DefaultAsyncResult.fail(new IllegalAccessException()));
         }, e -> {
             context.assertTrue(e.succeeded());
@@ -487,13 +487,13 @@ public final class FlowsAsyncTest {
             async.complete();
         });
     }
-    
+
     @Test(timeout = FlowsAsyncTest.TIMEOUT_LIMIT)
     @Repeat(FlowsAsyncTest.REPEAT_LIMIT)
     public void whilstExecutesMany(final TestContext context) {
         final AtomicInteger counter = new AtomicInteger();
         final Async async = context.async();
-        FlowsAsync.whilst(rule.vertx(), () -> counter.incrementAndGet() < 100, t -> {
+        FlowsAsync.whilst(() -> counter.incrementAndGet() < 100, t -> {
             t.handle(DefaultAsyncResult.succeed());
         }, e -> {
             context.assertTrue(e.succeeded());
@@ -501,13 +501,13 @@ public final class FlowsAsyncTest {
             async.complete();
         });
     }
-    
+
     @Test(timeout = FlowsAsyncTest.TIMEOUT_LIMIT)
     @Repeat(FlowsAsyncTest.REPEAT_LIMIT)
     public void whilstExecutesAnException(final TestContext context) {
         final AtomicInteger counter = new AtomicInteger();
         final Async async = context.async();
-        FlowsAsync.whilst(rule.vertx(), () -> counter.incrementAndGet() < 2, (Handler<AsyncResult<Void>> t) -> {
+        FlowsAsync.whilst(() -> counter.incrementAndGet() < 2, (Handler<AsyncResult<Void>> t) -> {
             t.handle(DefaultAsyncResult.fail(new IllegalAccessException()));
         }, e -> {
             context.assertFalse(e.succeeded());
@@ -516,13 +516,13 @@ public final class FlowsAsyncTest {
             async.complete();
         });
     }
-    
+
     @Test(timeout = FlowsAsyncTest.TIMEOUT_LIMIT)
     @Repeat(FlowsAsyncTest.REPEAT_LIMIT)
     public void untilExecutesEmpty(final TestContext context) {
         final AtomicInteger counter = new AtomicInteger();
         final Async async = context.async();
-        FlowsAsync.until(rule.vertx(), () -> false, (Handler<AsyncResult<Void>> t) -> {
+        FlowsAsync.until(() -> false, (Handler<AsyncResult<Void>> t) -> {
             counter.incrementAndGet();
             t.handle(DefaultAsyncResult.succeed());
         }, e -> {
@@ -531,13 +531,13 @@ public final class FlowsAsyncTest {
             async.complete();
         });
     }
-    
+
     @Test(timeout = FlowsAsyncTest.TIMEOUT_LIMIT)
     @Repeat(FlowsAsyncTest.REPEAT_LIMIT)
     public void untilExecutesMany(final TestContext context) {
         final AtomicInteger counter = new AtomicInteger();
         final Async async = context.async();
-        FlowsAsync.until(rule.vertx(), () -> counter.incrementAndGet() < 100, t -> {
+        FlowsAsync.until(() -> counter.incrementAndGet() < 100, t -> {
             t.handle(DefaultAsyncResult.succeed());
         }, e -> {
             context.assertTrue(e.succeeded());
@@ -545,13 +545,13 @@ public final class FlowsAsyncTest {
             async.complete();
         });
     }
-    
+
     @Test(timeout = FlowsAsyncTest.TIMEOUT_LIMIT)
     @Repeat(FlowsAsyncTest.REPEAT_LIMIT)
     public void untilExecutesAnException(final TestContext context) {
         final AtomicInteger counter = new AtomicInteger();
         final Async async = context.async();
-        FlowsAsync.until(rule.vertx(), () -> counter.incrementAndGet() < 2, (Handler<AsyncResult<Void>> t) -> {
+        FlowsAsync.until(() -> counter.incrementAndGet() < 2, (Handler<AsyncResult<Void>> t) -> {
             t.handle(DefaultAsyncResult.fail(new IllegalAccessException()));
         }, e -> {
             context.assertFalse(e.succeeded());
@@ -560,13 +560,13 @@ public final class FlowsAsyncTest {
             async.complete();
         });
     }
-    
+
     @Test(timeout = FlowsAsyncTest.TIMEOUT_LIMIT)
     @Repeat(FlowsAsyncTest.REPEAT_LIMIT)
     public void seqWithoutFunctionsExecutes(final TestContext context) {
         final Async async = context.async();
-        final BiConsumer<Object, Handler<AsyncResult<Void>>> result = FlowsAsync.seq(rule.vertx());
-        
+        final BiConsumer<Object, Handler<AsyncResult<Void>>> result = FlowsAsync.seq();
+
         context.assertNotNull(result);
         rule.vertx().runOnContext(e -> {
             result.accept(null, e1 -> {
@@ -581,7 +581,7 @@ public final class FlowsAsyncTest {
     public void seqFunctions(final TestContext context) {
         final Async async = context.async();
 
-        final BiConsumer<Integer, Handler<AsyncResult<Integer>>> result = FlowsAsync.seq(rule.vertx(),
+        final BiConsumer<Integer, Handler<AsyncResult<Integer>>> result = FlowsAsync.seq(
                 (t, u) -> {
                     u.handle(DefaultAsyncResult.succeed(t + 1));
                 }, (t, u) -> {
@@ -597,13 +597,13 @@ public final class FlowsAsyncTest {
             });
         });
     }
-    
+
     @Test(timeout = FlowsAsyncTest.TIMEOUT_LIMIT)
     @Repeat(FlowsAsyncTest.REPEAT_LIMIT)
     public void seqFunctionsWithException(final TestContext context) {
         final Async async = context.async();
 
-        final BiConsumer<Integer, Handler<AsyncResult<Integer>>> result = FlowsAsync.seq(rule.vertx(),
+        final BiConsumer<Integer, Handler<AsyncResult<Integer>>> result = FlowsAsync.seq(
                 (t, u) -> {
                     u.handle(DefaultAsyncResult.succeed(t + 1));
                 }, (t, u) -> {
@@ -620,14 +620,14 @@ public final class FlowsAsyncTest {
             });
         });
     }
-    
+
     @Test(timeout = FlowsAsyncTest.TIMEOUT_LIMIT)
     @Repeat(FlowsAsyncTest.REPEAT_LIMIT)
     public void timesWhenThereAreNoItems(final TestContext context) {
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
-        FlowsAsync.times(rule.vertx(), (Integer) 0, new BiConsumer<Integer, Handler<AsyncResult<String>>>() {
+        FlowsAsync.times((Integer) 0, new BiConsumer<Integer, Handler<AsyncResult<String>>>() {
             @Override
             public void accept(Integer value, Handler<AsyncResult<String>> handler) {
                 handlerCallCount.incrementAndGet();
@@ -648,7 +648,7 @@ public final class FlowsAsyncTest {
         final FakeFailingAsyncFunction function = new FakeFailingAsyncFunction<>(2, null, new Throwable("Failed"));
         final Async async = context.async();
 
-        FlowsAsync.times(rule.vertx(), 3, function, result -> {
+        FlowsAsync.times(3, function, result -> {
             context.assertNotNull(result);
             context.assertFalse(result.succeeded());
             context.assertNull(result.result());
@@ -663,7 +663,7 @@ public final class FlowsAsyncTest {
         final AtomicInteger counter = new AtomicInteger(0);
         final Async async = context.async();
 
-        FlowsAsync.times(rule.vertx(), 3, new BiConsumer<Integer, Handler<AsyncResult<String>>>() {
+        FlowsAsync.times(3, new BiConsumer<Integer, Handler<AsyncResult<String>>>() {
             @Override
             public void accept(Integer value, Handler<AsyncResult<String>> handler) {
                 counter.incrementAndGet();

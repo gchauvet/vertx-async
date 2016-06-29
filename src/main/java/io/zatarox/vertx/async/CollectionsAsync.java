@@ -44,7 +44,6 @@ public final class CollectionsAsync {
      * in order.
      *
      * @param <T> Define the manipulated type.
-     * @param instance The Vertx instance to use.
      * @param iterable A collection to iterate over.
      * @param consumer A function to apply to each item in {@code iterable}. The
      * iteratee is passed a {@code consumer} which must be called once it has
@@ -55,14 +54,14 @@ public final class CollectionsAsync {
      * @param handler A callback which is called when all {@code consumer}
      * functions have finished, or an error occurs.
      */
-    public static <T> void each(final Vertx instance, final Collection<T> iterable, final BiConsumer<T, Handler<AsyncResult<Void>>> consumer, final Handler<AsyncResult<Void>> handler) {
+    public static <T> void each(final Collection<T> iterable, final BiConsumer<T, Handler<AsyncResult<Void>>> consumer, final Handler<AsyncResult<Void>> handler) {
         if (iterable.isEmpty()) {
             handler.handle(DefaultAsyncResult.succeed());
         } else {
             final AtomicBoolean stop = new AtomicBoolean(false);
             final AtomicInteger counter = new AtomicInteger(iterable.size());
             iterable.stream().forEach((item) -> {
-                instance.runOnContext(aVoid -> consumer.accept(item, result -> {
+                Vertx.currentContext().runOnContext(aVoid -> consumer.accept(item, result -> {
                     if (result.failed() || stop.get()) {
                         if (!stop.get()) {
                             stop.set(true);
@@ -82,7 +81,6 @@ public final class CollectionsAsync {
      *
      * @param <K> Define type of key.
      * @param <V> Define type of value.
-     * @param instance The Vertx instance to use.
      * @param iterable A collection to iterate over.
      * @param consumer A function to apply to each item in {@code iterable}. The
      * {@code key} is the item's key. The iteratee is passed a {@code handler}
@@ -92,14 +90,14 @@ public final class CollectionsAsync {
      * @param handler A callback which is called when all {@code consumer}
      * functions have finished, or an error occurs.
      */
-    public static <K, V> void each(final Vertx instance, final Map<K, V> iterable, final BiConsumer<KeyValue<K, V>, Handler<AsyncResult<Void>>> consumer, final Handler<AsyncResult<Void>> handler) {
+    public static <K, V> void each(final Map<K, V> iterable, final BiConsumer<KeyValue<K, V>, Handler<AsyncResult<Void>>> consumer, final Handler<AsyncResult<Void>> handler) {
         if (iterable.isEmpty()) {
             handler.handle(DefaultAsyncResult.succeed());
         } else {
             final AtomicBoolean stop = new AtomicBoolean(false);
             final AtomicInteger counter = new AtomicInteger(iterable.size());
             iterable.entrySet().stream().forEach((item) -> {
-                instance.runOnContext(aVoid -> consumer.accept(new KeyValue<>(item.getKey(), item.getValue()), result -> {
+                Vertx.currentContext().runOnContext(aVoid -> consumer.accept(new KeyValue<>(item.getKey(), item.getValue()), result -> {
                     if (result.failed() || stop.get()) {
                         if (!stop.get()) {
                             stop.set(true);
@@ -130,7 +128,6 @@ public final class CollectionsAsync {
      *
      * @param <I> Define input type.
      * @param <O> Define output type.
-     * @param instance Define Vertx instance.
      * @param iterable A collection to iterate over.
      * @param consumer A function to apply to each item in {@code iterable}. The
      * iteratee is passed a {@code handler} which must be called once it has
@@ -140,7 +137,7 @@ public final class CollectionsAsync {
      * functions have finished, or an error occurs. Results is a List of the
      * transformed items from the {@code iterable}.
      */
-    public static <I, O> void map(final Vertx instance, final List<I> iterable, final BiConsumer<I, Handler<AsyncResult<O>>> consumer, final Handler<AsyncResult<Collection<O>>> handler) {
+    public static <I, O> void map(final List<I> iterable, final BiConsumer<I, Handler<AsyncResult<O>>> consumer, final Handler<AsyncResult<Collection<O>>> handler) {
         final List<O> mapped = new ArrayList<>(iterable.size());
         if (iterable.isEmpty()) {
             handler.handle(DefaultAsyncResult.succeed(mapped));
@@ -151,7 +148,7 @@ public final class CollectionsAsync {
             for (int i = 0; i < iterable.size(); i++) {
                 final I item = iterable.get(i);
                 final int pos = i;
-                instance.runOnContext(aVoid -> consumer.accept(item, result -> {
+                Vertx.currentContext().runOnContext(aVoid -> consumer.accept(item, result -> {
                     if (result.failed() || stop.get()) {
                         if (!stop.get()) {
                             stop.set(true);
@@ -174,7 +171,6 @@ public final class CollectionsAsync {
      * results array will be in the same order as the original.
      *
      * @param <T> Define the manipulated type.
-     * @param instance Define Vertx instance.
      * @param iterable A collection to iterate over.
      * @param consumer A truth test to apply to each item in {@code iterable}.
      * The {@code consumer} is passed a {@code handler}, which must be called
@@ -182,7 +178,7 @@ public final class CollectionsAsync {
      * @param handler A callback which is called after all the {@code consumer}
      * functions have finished.
      */
-    public static <T> void filter(final Vertx instance, final Collection<T> iterable, final BiConsumer<T, Handler<AsyncResult<Boolean>>> consumer, final Handler<AsyncResult<Collection<T>>> handler) {
+    public static <T> void filter(final Collection<T> iterable, final BiConsumer<T, Handler<AsyncResult<Boolean>>> consumer, final Handler<AsyncResult<Collection<T>>> handler) {
         final List<T> filtered = new LinkedList<>();
         if (iterable.isEmpty()) {
             handler.handle(DefaultAsyncResult.succeed(filtered));
@@ -191,7 +187,7 @@ public final class CollectionsAsync {
             final AtomicInteger counter = new AtomicInteger(iterable.size());
 
             iterable.stream().forEach((item) -> {
-                instance.runOnContext(aVoid -> consumer.accept(item, result -> {
+                Vertx.currentContext().runOnContext(aVoid -> consumer.accept(item, result -> {
                     if (result.failed() || stop.get()) {
                         if (!stop.get()) {
                             stop.set(true);
@@ -215,7 +211,6 @@ public final class CollectionsAsync {
      * truth test.
      *
      * @param <T> Define the manipulated type.
-     * @param instance Define Vertx instance.
      * @param iterable A collection to iterate over.
      * @param consumer A falsy test to apply to each item in {@code iterable}.
      * The {@code consumer} is passed a {@code handler}, which must be called
@@ -223,8 +218,8 @@ public final class CollectionsAsync {
      * @param handler A callback which is called after all the {@code consumer}
      * functions have finished.
      */
-    public static <T> void reject(final Vertx instance, final Collection<T> iterable, final BiConsumer<T, Handler<AsyncResult<Boolean>>> consumer, final Handler<AsyncResult<Collection<T>>> handler) {
-        filter(instance, iterable, (t, u) -> {
+    public static <T> void reject(final Collection<T> iterable, final BiConsumer<T, Handler<AsyncResult<Boolean>>> consumer, final Handler<AsyncResult<Collection<T>>> handler) {
+        filter(iterable, (t, u) -> {
             consumer.accept(t, event -> {
                 if (event.succeeded()) {
                     u.handle(DefaultAsyncResult.succeed(!event.result()));
@@ -243,7 +238,6 @@ public final class CollectionsAsync {
      *
      * @param <I> Define the type of input data
      * @param <O> Define the type of output data
-     * @param instance Define Vertx instance.
      * @param iterable A collection to iterate over.
      * @param consumer A function applied to each item in the collection that
      * potentially modifies the accumulator. The {@code consumer} is passed a
@@ -253,11 +247,11 @@ public final class CollectionsAsync {
      * @param handler A callback which is called after all the {@code consumer}
      * functions have finished. Result is the transformed accumulator.
      */
-    public static <I, O> void transform(final Vertx instance, final Collection<I> iterable, final BiConsumer<I, Handler<AsyncResult<O>>> consumer, final Handler<AsyncResult<Collection<O>>> handler) {
-        instance.runOnContext(new Handler<Void>() {
+    public static <I, O> void transform(final Collection<I> iterable, final BiConsumer<I, Handler<AsyncResult<O>>> consumer, final Handler<AsyncResult<Collection<O>>> handler) {
+        Vertx.currentContext().runOnContext(new Handler<Void>() {
             final Iterator<I> iterator = iterable.iterator();
             final List<O> result = new ArrayList<>(iterable.size());
-        
+
             @Override
             public void handle(Void event) {
                 if (!iterator.hasNext()) {
@@ -266,7 +260,7 @@ public final class CollectionsAsync {
                     consumer.accept(iterator.next(), event1 -> {
                         if (event1.succeeded()) {
                             result.add(event1.result());
-                            instance.runOnContext(this);
+                            Vertx.currentContext().runOnContext(this);
                         } else {
                             handler.handle(DefaultAsyncResult.fail(event1));
                         }
@@ -285,7 +279,6 @@ public final class CollectionsAsync {
      * @param <V> Define the type of input value.
      * @param <T> Define the type of output key.
      * @param <R> Define the type of output value.
-     * @param instance Define Vertx instance.
      * @param iterable A collection to iterate over.
      * @param consumer A function applied to each item in the collection that
      * potentially modifies the accumulator. The {@code consumer} is passed a
@@ -295,8 +288,8 @@ public final class CollectionsAsync {
      * @param handler A callback which is called after all the {@code consumer}
      * functions have finished. Result is the transformed accumulator.
      */
-    public static <K, V, T, R> void transform(final Vertx instance, final Map<K, V> iterable, final BiConsumer<KeyValue<K, V>, Handler<AsyncResult<KeyValue<T, R>>>> consumer, final Handler<AsyncResult<Map<T, R>>> handler) {
-        instance.runOnContext(new Handler<Void>() {
+    public static <K, V, T, R> void transform(final Map<K, V> iterable, final BiConsumer<KeyValue<K, V>, Handler<AsyncResult<KeyValue<T, R>>>> consumer, final Handler<AsyncResult<Map<T, R>>> handler) {
+        Vertx.currentContext().runOnContext(new Handler<Void>() {
             final Iterator<Map.Entry<K, V>> iterator = iterable.entrySet().iterator();
             final Map<T, R> results = new HashMap<>(iterable.size());
 
@@ -309,7 +302,7 @@ public final class CollectionsAsync {
                     consumer.accept(new KeyValue<>(item.getKey(), item.getValue()), event1 -> {
                         if (event1.succeeded()) {
                             results.put(event1.result().getKey(), event1.result().getValue());
-                            instance.runOnContext(this);
+                            Vertx.currentContext().runOnContext(this);
                         } else {
                             handler.handle(DefaultAsyncResult.fail(event1));
                         }
@@ -330,7 +323,6 @@ public final class CollectionsAsync {
      *
      * @param <I> Define the type of input data
      * @param <O> Define the type of output data
-     * @param instance Define Vertx instance.
      * @param collection A collection to iterate over.
      * @param memo Initial state of the reduction.
      * @param function A function applied to each item in the array to produce
@@ -341,11 +333,11 @@ public final class CollectionsAsync {
      * immediately called.
      * @param handler
      */
-    public static <I, O> void reduce(final Vertx instance, final Collection<I> collection, final O memo, final BiConsumer<Pair<I, O>, Handler<AsyncResult<O>>> function, final Handler<AsyncResult<O>> handler) {
-        instance.runOnContext(new Handler<Void>() {
+    public static <I, O> void reduce(final Collection<I> collection, final O memo, final BiConsumer<Pair<I, O>, Handler<AsyncResult<O>>> function, final Handler<AsyncResult<O>> handler) {
+        Vertx.currentContext().runOnContext(new Handler<Void>() {
             final Iterator<I> iterator = collection.iterator();
             final AtomicReference<O> value = new AtomicReference<>(memo);
-        
+
             @Override
             public void handle(Void event) {
                 if (!iterator.hasNext()) {
@@ -356,9 +348,7 @@ public final class CollectionsAsync {
                             handler.handle(DefaultAsyncResult.fail(event1));
                         } else {
                             value.set(event1.result());
-                            instance.runOnContext((Void) -> {
-                                instance.runOnContext(this);
-                            });
+                            Vertx.currentContext().runOnContext(this);
                         }
                     });
                 }
@@ -374,7 +364,6 @@ public final class CollectionsAsync {
      * the original {@code collection} (in terms of order) that passes the test.
      *
      * @param <T> Define the manipulated type.
-     * @param instance Define Vertx instance.
      * @param collection A collection to iterate over.
      * @param function A truth test to apply to each item in {@code collection}.
      * The iteratee is passed a {@code callback} which must be called with a
@@ -384,14 +373,14 @@ public final class CollectionsAsync {
      * Result will be the first item in the array that passes the truth test
      * (function) or the value {@code null} if none passed.
      */
-    public static <T> void detect(final Vertx instance, final Collection<T> collection, final BiConsumer<T, Handler<AsyncResult<Boolean>>> function, final Handler<AsyncResult<T>> handler) {
+    public static <T> void detect(final Collection<T> collection, final BiConsumer<T, Handler<AsyncResult<Boolean>>> function, final Handler<AsyncResult<T>> handler) {
         if (collection.isEmpty()) {
             handler.handle(DefaultAsyncResult.succeed(null));
         } else {
             final AtomicBoolean stop = new AtomicBoolean(false);
             final AtomicInteger counter = new AtomicInteger(collection.size());
             collection.stream().forEach((item) -> {
-                instance.runOnContext(aVoid -> function.accept(item, event -> {
+                Vertx.currentContext().runOnContext(aVoid -> function.accept(item, event -> {
                     if (event.succeeded()) {
                         // Prevent Unhandled exception in Netty
                         if (null != event.result() && event.result() || stop.get()) {
@@ -417,7 +406,6 @@ public final class CollectionsAsync {
      * main {@code callback} is immediately called.
      *
      * @param <T> Define the manipulated type.
-     * @param instance Define Vertx instance.
      * @param collection A collection to iterate over.
      * @param function A truth test to apply to each item in the array in
      * parallel.
@@ -426,7 +414,7 @@ public final class CollectionsAsync {
      * will be either {@code true} or {@code false} depending on the values of
      * the async tests.
      */
-    public static <T> void some(final Vertx instance, final Collection<T> collection, final BiConsumer<T, Handler<AsyncResult<Boolean>>> function, final Handler<AsyncResult<Boolean>> handler) {
+    public static <T> void some(final Collection<T> collection, final BiConsumer<T, Handler<AsyncResult<Boolean>>> function, final Handler<AsyncResult<Boolean>> handler) {
         if (collection.isEmpty()) {
             handler.handle(DefaultAsyncResult.succeed(false));
         } else {
@@ -434,7 +422,7 @@ public final class CollectionsAsync {
             final AtomicInteger counter = new AtomicInteger(collection.size());
 
             collection.stream().forEach((item) -> {
-                instance.runOnContext(aVoid -> function.accept(item, event -> {
+                Vertx.currentContext().runOnContext(aVoid -> function.accept(item, event -> {
                     if (event.succeeded()) {
                         // Prevent Unhandled exception in Netty
                         if (null != event.result() && event.result() || stop.get()) {
@@ -460,7 +448,6 @@ public final class CollectionsAsync {
      * {@code callback} is immediately called.
      *
      * @param <T> Define the manipulated type.
-     * @param instance Define Vertx instance.
      * @param collection A collection to iterate over.
      * @param function A truth test to apply to each item in the collection in
      * parallel.
@@ -468,14 +455,14 @@ public final class CollectionsAsync {
      * functions have finished. Result will be either {@code true} or
      * {@code false} depending on the values of the async tests.
      */
-    public static <T> void every(final Vertx instance, final Collection<T> collection, final BiConsumer<T, Handler<AsyncResult<Boolean>>> function, final Handler<AsyncResult<Boolean>> handler) {
+    public static <T> void every(final Collection<T> collection, final BiConsumer<T, Handler<AsyncResult<Boolean>>> function, final Handler<AsyncResult<Boolean>> handler) {
         if (collection.isEmpty()) {
             handler.handle(DefaultAsyncResult.succeed(false));
         } else {
             final AtomicBoolean stop = new AtomicBoolean(false);
             final AtomicInteger counter = new AtomicInteger(collection.size());
             collection.stream().forEach((item) -> {
-                instance.runOnContext(aVoid -> function.accept(item, event -> {
+                Vertx.currentContext().runOnContext(aVoid -> function.accept(item, event -> {
                     if (event.succeeded()) {
                         // Prevent Unhandled exception in Netty
                         if (null != event.result() && !event.result() || stop.get()) {
@@ -505,12 +492,11 @@ public final class CollectionsAsync {
      *
      * @param <I> Define input type.
      * @param <O> Define output type.
-     * @param instance Define Vertx instance.
      * @param iterable A collection to iterate over.
      * @param consumer
      * @param handler
      */
-    public static <I, O> void concat(final Vertx instance, final Collection<I> iterable, final BiConsumer<I, Handler<AsyncResult<Collection<O>>>> consumer, final Handler<AsyncResult<Collection<O>>> handler) {
+    public static <I, O> void concat(final Collection<I> iterable, final BiConsumer<I, Handler<AsyncResult<Collection<O>>>> consumer, final Handler<AsyncResult<Collection<O>>> handler) {
         final List<O> results = new ArrayList<>(iterable.size());
         if (iterable.isEmpty()) {
             handler.handle(DefaultAsyncResult.succeed(results));
@@ -519,7 +505,7 @@ public final class CollectionsAsync {
             final AtomicInteger counter = new AtomicInteger(iterable.size());
 
             iterable.stream().forEach((item) -> {
-                instance.runOnContext(aVoid -> consumer.accept(item, result -> {
+                Vertx.currentContext().runOnContext(aVoid -> consumer.accept(item, result -> {
                     if (result.failed() || stop.get()) {
                         if (!stop.get()) {
                             stop.set(true);
@@ -543,15 +529,14 @@ public final class CollectionsAsync {
      * through the internal comparator.
      *
      * @param <T> Define the manipulated type.
-     * @param instance Define Vertx instance.
      * @param iterable A collection to iterate over.
      * @param handler A callback which is called after all the {@code iterable}
      * functions have finished, or an error occurs. Results is the items from
-     * the original {@code collection} sorted by the values returned by the
-     * {@ code iterable} calls.
+     * the original {@code collection} sorted by the values returned by the {
+     * @ code iterable} calls.
      */
-    public static <T> void sort(final Vertx instance, final Collection<T> iterable, final Handler<AsyncResult<Collection<T>>> handler) {
-        sort(instance, iterable, null, handler);
+    public static <T> void sort(final Collection<T> iterable, final Handler<AsyncResult<Collection<T>>> handler) {
+        sort(iterable, null, handler);
     }
 
     /**
@@ -559,7 +544,6 @@ public final class CollectionsAsync {
      * through an async {@code comparator}.
      *
      * @param <T> Define the manipulated type.
-     * @param instance Define Vertx instance.
      * @param iterable A collection to iterate over.
      * @param comparator A function used as comparator.
      * @param handler A callback which is called after all {@code comparator}
@@ -567,8 +551,8 @@ public final class CollectionsAsync {
      * the original {@code collection} sorted by the values returned by the
      * {@code comparator} calls.
      */
-    public static <T> void sort(final Vertx instance, final Collection<T> iterable, final Comparator<T> comparator, final Handler<AsyncResult<Collection<T>>> handler) {
-        instance.runOnContext(event -> {
+    public static <T> void sort(final Collection<T> iterable, final Comparator<T> comparator, final Handler<AsyncResult<Collection<T>>> handler) {
+        Vertx.currentContext().runOnContext(event -> {
             Stream<T> stream = iterable.parallelStream();
             if (comparator != null) {
                 stream = stream.sorted(comparator);
