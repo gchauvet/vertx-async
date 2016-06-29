@@ -331,7 +331,8 @@ public final class CollectionsAsync {
      * and the state of the reduction as the second. If an error is passed to
      * the callback, the reduction is stopped and the main {@code handler} is
      * immediately called.
-     * @param handler
+     * @param handler A callback which is called after all the {@code function}
+     * functions have finished. Result is the transformed accumulator.
      */
     public static <I, O> void reduce(final Collection<I> collection, final O memo, final BiConsumer<Pair<I, O>, Handler<AsyncResult<O>>> function, final Handler<AsyncResult<O>> handler) {
         Vertx.currentContext().runOnContext(new Handler<Void>() {
