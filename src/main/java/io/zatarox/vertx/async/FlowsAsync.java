@@ -208,28 +208,26 @@ public final class FlowsAsync {
         if (tasks.isEmpty()) {
             handler.handle(DefaultAsyncResult.succeed(results));
         } else {
-            Vertx.currentContext().runOnContext(event -> {
-                final AtomicBoolean stop = new AtomicBoolean(false);
-                final AtomicInteger counter = new AtomicInteger(tasks.size());
+            final AtomicBoolean stop = new AtomicBoolean(false);
+            final AtomicInteger counter = new AtomicInteger(tasks.size());
 
-                for (int i = 0; i < tasks.size(); i++) {
-                    final Consumer<Handler<AsyncResult<T>>> task = tasks.get(i);
-                    final int pos = i;
-                    Vertx.currentContext().runOnContext(aVoid -> task.accept(result -> {
-                        if (result.failed() || stop.get()) {
-                            if (!stop.get()) {
-                                stop.set(true);
-                                handler.handle(DefaultAsyncResult.fail(result));
-                            }
-                        } else {
-                            results.add(pos, result.result());
-                            if (counter.decrementAndGet() == 0 && !stop.get()) {
-                                handler.handle(DefaultAsyncResult.succeed(results));
-                            }
+            for (int i = 0; i < tasks.size(); i++) {
+                final Consumer<Handler<AsyncResult<T>>> task = tasks.get(i);
+                final int pos = i;
+                Vertx.currentContext().runOnContext(aVoid -> task.accept(result -> {
+                    if (result.failed() || stop.get()) {
+                        if (!stop.get()) {
+                            stop.set(true);
+                            handler.handle(DefaultAsyncResult.fail(result));
                         }
-                    }));
-                }
-            });
+                    } else {
+                        results.add(pos, result.result());
+                        if (counter.decrementAndGet() == 0 && !stop.get()) {
+                            handler.handle(DefaultAsyncResult.succeed(results));
+                        }
+                    }
+                }));
+            }
         }
     }
 
@@ -367,6 +365,34 @@ public final class FlowsAsync {
                     }
                 }));
             }
+        }
+    }
+
+    /**
+     * Runs the {@code tasks} array of functions in parallel, without waiting
+     * until the previous function has completed. Once any the {@code tasks}
+     * completed or pass an error to its callback, the main {@code handler} is
+     * immediately called.
+     *
+     * @param <T> Define the manipulated type.
+     * @param tasks An array containing functions to run.
+     * @param handler A callback to run once any of the functions have
+     * completed. This function gets an error or result from the first function
+     * that completed.
+     */
+    public static <T> void race(List<Consumer<Handler<AsyncResult<T>>>> tasks, final Handler<AsyncResult<T>> handler) {
+        if (tasks.isEmpty()) {
+            handler.handle(DefaultAsyncResult.succeed(null));
+        } else {
+            final AtomicBoolean stop = new AtomicBoolean(false);
+            tasks.stream().forEach(task -> {
+                Vertx.currentContext().runOnContext(event -> task.accept(result -> {
+                    if (!stop.get()) {
+                        stop.set(true);
+                        handler.handle(result);
+                    }
+                }));
+            });
         }
     }
 

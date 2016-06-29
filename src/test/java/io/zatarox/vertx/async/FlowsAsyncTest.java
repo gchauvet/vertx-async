@@ -17,6 +17,7 @@ package io.zatarox.vertx.async;
 
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
+import io.vertx.core.Vertx;
 import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.Repeat;
@@ -62,7 +63,6 @@ public final class FlowsAsyncTest {
         final Async async = context.async();
 
         FlowsAsync.series(Arrays.<Consumer<Handler<AsyncResult<Void>>>>asList(), result -> {
-
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
             context.assertNotNull(result.result());
@@ -80,7 +80,6 @@ public final class FlowsAsyncTest {
         final Async async = context.async();
 
         FlowsAsync.series(Arrays.<Consumer<Handler<AsyncResult<String>>>>asList(task1), result -> {
-
             context.assertEquals(1, task1.runCount());
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
@@ -100,7 +99,6 @@ public final class FlowsAsyncTest {
         final Async async = context.async();
 
         FlowsAsync.series(Arrays.<Consumer<Handler<AsyncResult<String>>>>asList(task1, task2), result -> {
-
             context.assertEquals(1, task1.runCount());
             context.assertEquals(1, task2.runCount());
             context.assertNotNull(result);
@@ -120,7 +118,6 @@ public final class FlowsAsyncTest {
         final Async async = context.async();
 
         FlowsAsync.series(Arrays.<Consumer<Handler<AsyncResult<String>>>>asList(task1), result -> {
-
             context.assertEquals(1, task1.runCount());
             context.assertNotNull(result);
             context.assertFalse(result.succeeded());
@@ -140,7 +137,6 @@ public final class FlowsAsyncTest {
         final Async async = context.async();
 
         FlowsAsync.series(Arrays.<Consumer<Handler<AsyncResult<String>>>>asList(task1, task2), result -> {
-
             context.assertNotNull(result);
             context.assertFalse(result.succeeded());
             context.assertEquals(task1.cause(), result.cause());
@@ -160,7 +156,6 @@ public final class FlowsAsyncTest {
         final Async async = context.async();
 
         FlowsAsync.retry(task1, 1, result -> {
-
             context.assertEquals(1, task1.runCount());
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
@@ -180,7 +175,6 @@ public final class FlowsAsyncTest {
         final Async async = context.async();
 
         FlowsAsync.retry(task1, 1, result -> {
-
             context.assertEquals(2, task1.runCount());
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
@@ -200,7 +194,6 @@ public final class FlowsAsyncTest {
         final Async async = context.async();
 
         FlowsAsync.retry(task1, 2, result -> {
-
             context.assertEquals(3, task1.runCount());
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
@@ -220,7 +213,6 @@ public final class FlowsAsyncTest {
         final Async async = context.async();
 
         FlowsAsync.retry(task1, 1, result -> {
-
             context.assertEquals(2, task1.runCount());
             context.assertNotNull(result);
             context.assertFalse(result.succeeded());
@@ -239,7 +231,6 @@ public final class FlowsAsyncTest {
         final Async async = context.async();
 
         FlowsAsync.forever(task1, result -> {
-
             context.assertEquals(3, task1.runCount());
             context.assertNotNull(result);
             context.assertFalse(result.succeeded());
@@ -257,7 +248,6 @@ public final class FlowsAsyncTest {
         final Async async = context.async();
 
         FlowsAsync.waterfall(Arrays.<BiConsumer<Void, Handler<AsyncResult<String>>>>asList(task1), result -> {
-
             context.assertEquals(1, task1.runCount());
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
@@ -277,7 +267,6 @@ public final class FlowsAsyncTest {
         final Async async = context.async();
 
         FlowsAsync.waterfall(Arrays.<BiConsumer<Object, Handler<AsyncResult<Object>>>>asList((BiConsumer) task1, (BiConsumer) task2), result -> {
-
             context.assertEquals(1, task1.runCount());
             context.assertEquals(task1.result(), task2.consumedValue());
             context.assertEquals(1, task2.runCount());
@@ -299,7 +288,6 @@ public final class FlowsAsyncTest {
         final Async async = context.async();
 
         FlowsAsync.waterfall(Arrays.<BiConsumer<Object, Handler<AsyncResult<Object>>>>asList((BiConsumer) task1), result -> {
-
             context.assertEquals(1, (int) task1.runCount());
             context.assertNotNull(result);
             context.assertFalse(result.succeeded());
@@ -319,7 +307,6 @@ public final class FlowsAsyncTest {
         final Async async = context.async();
 
         FlowsAsync.waterfall(Arrays.<BiConsumer<Object, Handler<AsyncResult<Object>>>>asList((BiConsumer) task1, (BiConsumer) task2), result -> {
-
             context.assertEquals(1, (int) task1.runCount());
             context.assertEquals(0, task2.runCount());
             context.assertNotNull(result);
@@ -340,7 +327,6 @@ public final class FlowsAsyncTest {
         final Async async = context.async();
 
         FlowsAsync.waterfall(Arrays.<BiConsumer<Object, Handler<AsyncResult<Object>>>>asList((BiConsumer) task1, (BiConsumer) task2), result -> {
-
             context.assertEquals(1, (int) task1.runCount());
             context.assertEquals(task1.result(), task2.consumedValue());
             context.assertEquals(1, task2.runCount());
@@ -363,7 +349,6 @@ public final class FlowsAsyncTest {
         final Async async = context.async();
 
         FlowsAsync.waterfall(Arrays.<BiConsumer<Object, Handler<AsyncResult<Object>>>>asList((BiConsumer) task1, (BiConsumer) task2, (BiConsumer) task3), result -> {
-
             context.assertEquals(1, (int) task1.runCount());
             context.assertEquals(task1.result(), task2.consumedValue());
             context.assertEquals(1, task2.runCount());
@@ -384,7 +369,6 @@ public final class FlowsAsyncTest {
         final Async async = context.async();
 
         FlowsAsync.parallel(Arrays.<Consumer<Handler<AsyncResult<Void>>>>asList(), result -> {
-
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
             context.assertNotNull(result.result());
@@ -402,7 +386,6 @@ public final class FlowsAsyncTest {
         final Async async = context.async();
 
         FlowsAsync.parallel(Arrays.<Consumer<Handler<AsyncResult<String>>>>asList(task1), result -> {
-
             context.assertEquals(1, task1.runCount());
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
@@ -422,7 +405,6 @@ public final class FlowsAsyncTest {
         final Async async = context.async();
 
         FlowsAsync.parallel(Arrays.<Consumer<Handler<AsyncResult<String>>>>asList(task1, task2), result -> {
-
             context.assertEquals(1, task1.runCount());
             context.assertEquals(1, task2.runCount());
             context.assertNotNull(result);
@@ -442,7 +424,6 @@ public final class FlowsAsyncTest {
         final Async async = context.async();
 
         FlowsAsync.parallel(Arrays.<Consumer<Handler<AsyncResult<String>>>>asList(task1), result -> {
-
             context.assertEquals(1, task1.runCount());
             context.assertNotNull(result);
             context.assertFalse(result.succeeded());
@@ -462,7 +443,6 @@ public final class FlowsAsyncTest {
         final Async async = context.async();
 
         FlowsAsync.parallel(Arrays.<Consumer<Handler<AsyncResult<String>>>>asList(task1, task2), result -> {
-
             context.assertNotNull(result);
             context.assertFalse(result.succeeded());
             context.assertEquals(task1.cause(), result.cause());
@@ -668,6 +648,111 @@ public final class FlowsAsyncTest {
             context.assertTrue(result.succeeded());
             context.assertEquals(Arrays.asList("0", "1", "2"), result.result());
             context.assertEquals(3, counter.get());
+            async.complete();
+        });
+    }
+
+    @Test(timeout = FlowsAsyncTest.TIMEOUT_LIMIT)
+    @Repeat(FlowsAsyncTest.REPEAT_LIMIT)
+    public void raceExecutesEmptyTask(final TestContext context) {
+        final Async async = context.async();
+
+        FlowsAsync.race(Arrays.<Consumer<Handler<AsyncResult<String>>>>asList(), result -> {
+            context.assertNotNull(result);
+            context.assertTrue(result.succeeded());
+            context.assertNull(result.result());
+            async.complete();
+        });
+    }
+
+    @Test(timeout = FlowsAsyncTest.TIMEOUT_LIMIT)
+    @Repeat(FlowsAsyncTest.REPEAT_LIMIT)
+    public void raceExecutesOneTask(final TestContext context) {
+        final FakeSuccessfulAsyncSupplier<String> task1 = new FakeSuccessfulAsyncSupplier<>("Task 1");
+        final AtomicInteger handlerCallCount = new AtomicInteger(0);
+        final Async async = context.async();
+
+        FlowsAsync.race(Arrays.<Consumer<Handler<AsyncResult<String>>>>asList(task1), result -> {
+            context.assertEquals(1, task1.runCount());
+            context.assertNotNull(result);
+            context.assertTrue(result.succeeded());
+            context.assertEquals(result.result(), "Task 1");
+            context.assertEquals(1, handlerCallCount.incrementAndGet());
+            async.complete();
+        });
+    }
+
+    @Test(timeout = FlowsAsyncTest.TIMEOUT_LIMIT)
+    @Repeat(FlowsAsyncTest.REPEAT_LIMIT)
+    public void raceExecutesTwoTasks(final TestContext context) {
+        final FakeAsyncSupplier<String> task1 = new FakeAsyncSupplier<String>() {
+            @Override
+            public void accept(Handler<AsyncResult<String>> u) {
+                rule.vertx().setPeriodic(200, id -> {
+                    incrementRunCount();
+                    rule.vertx().cancelTimer(id);
+                    u.handle(DefaultAsyncResult.succeed("Task 1"));
+                });
+            }
+        };
+        final FakeAsyncSupplier<String> task2 = new FakeAsyncSupplier<String>() {
+            @Override
+            public void accept(Handler<AsyncResult<String>> u) {
+                rule.vertx().setPeriodic(100, id -> {
+                    incrementRunCount();
+                    rule.vertx().cancelTimer(id);
+                    u.handle(DefaultAsyncResult.succeed("Task 2"));
+                });
+            }
+        };
+        final AtomicInteger handlerCallCount = new AtomicInteger(0);
+        final Async async = context.async();
+
+        FlowsAsync.race(Arrays.<Consumer<Handler<AsyncResult<String>>>>asList(task1, task2), result -> {
+            context.assertEquals(0, task1.runCount());
+            context.assertEquals(1, task2.runCount());
+            context.assertNotNull(result);
+            context.assertTrue(result.succeeded());
+            context.assertEquals(result.result(), "Task 2");
+            context.assertEquals(1, handlerCallCount.incrementAndGet());
+            async.complete();
+        });
+    }
+    
+    @Test(timeout = FlowsAsyncTest.TIMEOUT_LIMIT)
+    @Repeat(FlowsAsyncTest.REPEAT_LIMIT)
+    public void raceExecutesExceptionTask(final TestContext context) {
+        final FakeAsyncSupplier<String> task1 = new FakeAsyncSupplier<String>() {
+            @Override
+            public void accept(Handler<AsyncResult<String>> u) {
+                rule.vertx().setPeriodic(200, id -> {
+                    incrementRunCount();
+                    rule.vertx().cancelTimer(id);
+                    u.handle(DefaultAsyncResult.succeed("Task 1"));
+                });
+            }
+        };
+        final FakeAsyncSupplier<String> task2 = new FakeAsyncSupplier<String>() {
+            @Override
+            public void accept(Handler<AsyncResult<String>> u) {
+                rule.vertx().setPeriodic(100, id -> {
+                    incrementRunCount();
+                    rule.vertx().cancelTimer(id);
+                    u.handle(DefaultAsyncResult.fail(new IllegalArgumentException()));
+                });
+            }
+        };
+        final AtomicInteger handlerCallCount = new AtomicInteger(0);
+        final Async async = context.async();
+
+        FlowsAsync.race(Arrays.<Consumer<Handler<AsyncResult<String>>>>asList(task1, task2), result -> {
+            context.assertEquals(0, task1.runCount());
+            context.assertEquals(1, task2.runCount());
+            context.assertFalse(result.succeeded());
+            context.assertNotNull(result);
+            context.assertNull(result.result());
+            context.assertTrue(result.cause() instanceof IllegalArgumentException);
+            context.assertEquals(1, handlerCallCount.incrementAndGet());
             async.complete();
         });
     }
