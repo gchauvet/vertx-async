@@ -15,43 +15,37 @@
  */
 package io.zatarox.vertx.async;
 
-import java.util.concurrent.TimeUnit;
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
+import io.vertx.core.Vertx;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.Consumer;
 
-/**
- * Thos class define parameters for a retry method call.
- * 
- */
-public final class RetryOptions {
+public final class LoopRetryOptions<T> extends AbstractRetryOptions<T> {
 
-    private final TimeUnit unit;
-    private final long delay;
-    private final long tries;
-
-    public RetryOptions(long tries) {
-        this(tries, null, 0);
+    public LoopRetryOptions(long tries) {
+        super(tries);
     }
 
-    public RetryOptions(long tries, TimeUnit unit, long delay) {
-        if (tries < 1) {
-            throw new IllegalArgumentException("Tries must be positive");
-        } else if (unit != null && delay < 1) {
-            throw new IllegalArgumentException("Timeout delay must be positive");
-        }
-        this.tries = tries;
-        this.unit = unit;
-        this.delay = delay;
-    }
+    @Override
+    public Handler<Void> build(final Consumer<Handler<AsyncResult<T>>> task, final Handler<AsyncResult<T>> handler) {
+        return new Handler<Void>() {
+            final AtomicLong counter = new AtomicLong(tries);
 
-    public TimeUnit getUnit() {
-        return unit;
+            @Override
+            public void handle(Void event) {
+                task.accept(event1 -> {
+                    if (event1.failed()) {
+                        if (counter.decrementAndGet() < 1) {
+                            handler.handle(event1);
+                        } else {
+                            Vertx.currentContext().runOnContext(this);
+                        }
+                    } else {
+                        handler.handle(event1);
+                    }
+                });
+            }
+        };
     }
-
-    public long getDelay() {
-        return delay;
-    }
-
-    public long getTries() {
-        return tries;
-    }
-
 }

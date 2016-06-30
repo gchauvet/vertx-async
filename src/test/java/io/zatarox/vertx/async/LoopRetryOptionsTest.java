@@ -15,36 +15,101 @@
  */
 package io.zatarox.vertx.async;
 
-import java.util.concurrent.TimeUnit;
+import io.vertx.ext.unit.Async;
+import io.vertx.ext.unit.TestContext;
+import io.vertx.ext.unit.junit.Repeat;
+import io.vertx.ext.unit.junit.RepeatRule;
+import io.vertx.ext.unit.junit.RunTestOnContext;
+import io.vertx.ext.unit.junit.VertxUnitRunner;
+import io.zatarox.vertx.async.fakes.FakeFailingAsyncSupplier;
+import io.zatarox.vertx.async.fakes.FakeSuccessfulAsyncSupplier;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.Test;
 import static org.junit.Assert.*;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.runner.RunWith;
 
-public final class RetryOptionsTest {
+@RunWith(VertxUnitRunner.class)
+public final class LoopRetryOptionsTest {
 
-    @Test
-    public void onlyTry() {
-        final RetryOptions instance = new RetryOptions(1);
-        assertNull(instance.getUnit());
-        assertEquals(1, instance.getTries());
+    /**
+     * Limits
+     */
+    private static final int TIMEOUT_LIMIT = 1000;
+    private static final int REPEAT_LIMIT = 100;
+
+    private LoopRetryOptions options;
+
+    @Rule
+    public RepeatRule repeater = new RepeatRule();
+    @Rule
+    public RunTestOnContext rule = new RunTestOnContext();
+
+    @Before
+    public void setUp() {
+        options = new LoopRetryOptions(10);
+        assertEquals(10, options.getTries());
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void negativeTry() {
-        assertNull(new RetryOptions(-1));
+        assertNull(new LoopRetryOptions(-1));
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void negativeTime() {
-        assertNull(new RetryOptions(1, TimeUnit.SECONDS, -7));
+    @Test(timeout = LoopRetryOptionsTest.TIMEOUT_LIMIT)
+    @Repeat(LoopRetryOptionsTest.REPEAT_LIMIT)
+    public void retryExecutesTheTaskWithoutError(final TestContext context) {
+        final FakeSuccessfulAsyncSupplier<String> task1 = new FakeSuccessfulAsyncSupplier<>("Task 1");
+        final AtomicInteger handlerCallCount = new AtomicInteger(0);
+        final Async async = context.async();
+
+        FlowsAsync.retry(options, task1, result -> {
+            context.assertEquals(1, task1.runCount());
+            context.assertNotNull(result);
+            context.assertTrue(result.succeeded());
+            final String resultValue = result.result();
+            context.assertNotNull(resultValue);
+            context.assertEquals(task1.result(), resultValue);
+            context.assertEquals(1, handlerCallCount.incrementAndGet());
+            async.complete();
+        });
     }
 
-    @Test
-    public void tryWithSeconds() {
-        final RetryOptions instance = new RetryOptions(1, TimeUnit.SECONDS, 7);
-        assertNotNull(instance.getUnit());
-        assertNotNull(instance.getDelay());
-        assertEquals(1, instance.getTries());
-        assertEquals(7000, instance.getUnit().toMillis(instance.getDelay()));
+    @Test(timeout = LoopRetryOptionsTest.TIMEOUT_LIMIT)
+    @Repeat(LoopRetryOptionsTest.REPEAT_LIMIT)
+    public void retryExecutesAndFaildOnAllIteratee(final TestContext context) {
+        final FakeFailingAsyncSupplier<String> task1 = new FakeFailingAsyncSupplier<>(new Throwable("Failed"));
+        final AtomicInteger handlerCallCount = new AtomicInteger(0);
+        final Async async = context.async();
+
+        FlowsAsync.retry(options, task1, result -> {
+            context.assertEquals(10, task1.runCount());
+            context.assertNotNull(result);
+            context.assertFalse(result.succeeded());
+            context.assertNull(result.result());
+            context.assertEquals(1, handlerCallCount.incrementAndGet());
+            async.complete();
+        });
+    }
+
+    @Test(timeout = LoopRetryOptionsTest.TIMEOUT_LIMIT)
+    @Repeat(LoopRetryOptionsTest.REPEAT_LIMIT)
+    public void retryExecutesSuccessBeforeLastFailure(final TestContext context) {
+        final FakeSuccessfulAsyncSupplier<String> task1 = new FakeSuccessfulAsyncSupplier<>(9, new Throwable("Failed"), "Task 1");
+        final AtomicInteger handlerCallCount = new AtomicInteger(0);
+        final Async async = context.async();
+
+        FlowsAsync.retry(options, task1, result -> {
+            context.assertEquals(10, task1.runCount());
+            context.assertNotNull(result);
+            context.assertTrue(result.succeeded());
+            final String resultValue = result.result();
+            context.assertNotNull(resultValue);
+            context.assertEquals(task1.result(), resultValue);
+            context.assertEquals(1, handlerCallCount.incrementAndGet());
+            async.complete();
+        });
     }
 
 }

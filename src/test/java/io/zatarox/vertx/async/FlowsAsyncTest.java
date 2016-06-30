@@ -17,7 +17,6 @@ package io.zatarox.vertx.async;
 
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
-import io.vertx.core.Vertx;
 import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.Repeat;
@@ -143,81 +142,6 @@ public final class FlowsAsyncTest {
             context.assertNull(result.result());
             context.assertEquals(1, (int) task1.runCount());
             context.assertEquals(0, (int) task2.runCount());
-            context.assertEquals(1, handlerCallCount.incrementAndGet());
-            async.complete();
-        });
-    }
-
-    @Test(timeout = FlowsAsyncTest.TIMEOUT_LIMIT)
-    @Repeat(FlowsAsyncTest.REPEAT_LIMIT)
-    public void retryExecutesTheTask(final TestContext context) {
-        final FakeSuccessfulAsyncSupplier<String> task1 = new FakeSuccessfulAsyncSupplier<>("Task 1");
-        final AtomicInteger handlerCallCount = new AtomicInteger(0);
-        final Async async = context.async();
-
-        FlowsAsync.retry(task1, 1, result -> {
-            context.assertEquals(1, task1.runCount());
-            context.assertNotNull(result);
-            context.assertTrue(result.succeeded());
-            final String resultValue = result.result();
-            context.assertNotNull(resultValue);
-            context.assertEquals(task1.result(), resultValue);
-            context.assertEquals(1, handlerCallCount.incrementAndGet());
-            async.complete();
-        });
-    }
-
-    @Test(timeout = FlowsAsyncTest.TIMEOUT_LIMIT)
-    @Repeat(FlowsAsyncTest.REPEAT_LIMIT)
-    public void retryExecutesTheTaskAgainAfterAFailure(final TestContext context) {
-        final FakeSuccessfulAsyncSupplier<String> task1 = new FakeSuccessfulAsyncSupplier<>(1, new Throwable("Failed"), "Task 1");
-        final AtomicInteger handlerCallCount = new AtomicInteger(0);
-        final Async async = context.async();
-
-        FlowsAsync.retry(task1, 1, result -> {
-            context.assertEquals(2, task1.runCount());
-            context.assertNotNull(result);
-            context.assertTrue(result.succeeded());
-            final String resultValue = result.result();
-            context.assertNotNull(resultValue);
-            context.assertEquals(task1.result(), resultValue);
-            context.assertEquals(1, handlerCallCount.incrementAndGet());
-            async.complete();
-        });
-    }
-
-    @Test(timeout = FlowsAsyncTest.TIMEOUT_LIMIT)
-    @Repeat(FlowsAsyncTest.REPEAT_LIMIT)
-    public void retryExecutesTheTaskAgainAfterASecondFailure(final TestContext context) {
-        final FakeSuccessfulAsyncSupplier<String> task1 = new FakeSuccessfulAsyncSupplier<>(2, new Throwable("Failed"), "Task 1");
-        final AtomicInteger handlerCallCount = new AtomicInteger(0);
-        final Async async = context.async();
-
-        FlowsAsync.retry(task1, 2, result -> {
-            context.assertEquals(3, task1.runCount());
-            context.assertNotNull(result);
-            context.assertTrue(result.succeeded());
-            final String resultValue = result.result();
-            context.assertNotNull(resultValue);
-            context.assertEquals(task1.result(), resultValue);
-            context.assertEquals(1, handlerCallCount.incrementAndGet());
-            async.complete();
-        });
-    }
-
-    @Test(timeout = FlowsAsyncTest.TIMEOUT_LIMIT)
-    @Repeat(FlowsAsyncTest.REPEAT_LIMIT)
-    public void retryFailsAfterTheRetryTimes(final TestContext context) {
-        final FakeFailingAsyncSupplier<String> task1 = new FakeFailingAsyncSupplier<>(new Throwable("Failed"));
-        final AtomicInteger handlerCallCount = new AtomicInteger(0);
-        final Async async = context.async();
-
-        FlowsAsync.retry(task1, 1, result -> {
-            context.assertEquals(2, task1.runCount());
-            context.assertNotNull(result);
-            context.assertFalse(result.succeeded());
-            context.assertEquals(task1.cause(), result.cause());
-            context.assertNull(result.result());
             context.assertEquals(1, handlerCallCount.incrementAndGet());
             async.complete();
         });

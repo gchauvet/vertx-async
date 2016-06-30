@@ -79,7 +79,7 @@ public final class FlowsAsync {
             }
         });
     }
-
+    
     /**
      * Attempts to get a successful response from {@code task} no more than
      * {@code times} times before returning an error. If the task is successful,
@@ -93,33 +93,14 @@ public final class FlowsAsync {
      * {@code null}) and the {@code result} of the function's execution, and (2)
      * a {@code results} object, containing the results of the previously
      * executed functions (if nested inside another control flow).
-     * @param times The number of attempts to make before giving up.
+     * @param options Define options for retries
      * @param handler An optional callback which is called when the task has
      * succeeded, or after the final failed attempt. It receives the {@code err}
      * and {@code result} arguments of the last attempt at completing the
      * {@code task}.
      */
-    public static <T> void retry(final Consumer<Handler<AsyncResult<T>>> task, final long times, final Handler<AsyncResult<T>> handler) {
-        Vertx.currentContext().runOnContext((Void) -> {
-            task.accept((Handler<AsyncResult<T>>) new Handler<AsyncResult<T>>() {
-                private final AtomicInteger count = new AtomicInteger(0);
-
-                @Override
-                public void handle(AsyncResult<T> result) {
-                    if (result.failed()) {
-                        if (count.incrementAndGet() > times) {
-                            handler.handle(DefaultAsyncResult.fail(result));
-                        } else {
-                            Vertx.currentContext().runOnContext((Void) -> {
-                                task.accept(this);
-                            });
-                        }
-                    } else {
-                        handler.handle(DefaultAsyncResult.succeed(result.result()));
-                    }
-                }
-            });
-        });
+    public static <T> void retry(final AbstractRetryOptions options, final Consumer<Handler<AsyncResult<T>>> task, final Handler<AsyncResult<T>> handler) {
+        Vertx.currentContext().runOnContext(options.build(task, handler));
     }
 
     /**

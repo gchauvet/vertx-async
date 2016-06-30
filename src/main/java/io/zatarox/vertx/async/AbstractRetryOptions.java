@@ -15,43 +15,30 @@
  */
 package io.zatarox.vertx.async;
 
-import java.util.concurrent.TimeUnit;
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
+import java.util.function.Consumer;
 
 /**
- * Thos class define parameters for a retry method call.
+ * This class define an abstract parameters entity for a retry method call.
  * 
  */
-public final class RetryOptions {
+public abstract class AbstractRetryOptions<T> {
 
-    private final TimeUnit unit;
-    private final long delay;
-    private final long tries;
+    protected final long tries;
 
-    public RetryOptions(long tries) {
-        this(tries, null, 0);
-    }
-
-    public RetryOptions(long tries, TimeUnit unit, long delay) {
+    protected AbstractRetryOptions(long tries) {
         if (tries < 1) {
             throw new IllegalArgumentException("Tries must be positive");
-        } else if (unit != null && delay < 1) {
-            throw new IllegalArgumentException("Timeout delay must be positive");
         }
+        
         this.tries = tries;
-        this.unit = unit;
-        this.delay = delay;
-    }
-
-    public TimeUnit getUnit() {
-        return unit;
-    }
-
-    public long getDelay() {
-        return delay;
     }
 
     public long getTries() {
         return tries;
     }
+    
+    public abstract Handler<Void> build(final Consumer<Handler<AsyncResult<T>>> task, final Handler<AsyncResult<T>> handler);
 
 }
