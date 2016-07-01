@@ -376,5 +376,12 @@ public final class FlowsAsync {
             });
         }
     }
+    
+    /**
+     * @return A queue of tasks for the worker function to complete.
+     */
+    public static WorkersQueue queue() {
+        return new WorkersQueue();
+    }
 
 }

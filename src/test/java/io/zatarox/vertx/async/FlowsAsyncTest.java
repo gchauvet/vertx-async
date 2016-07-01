@@ -30,6 +30,7 @@ import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -679,6 +680,11 @@ public final class FlowsAsyncTest {
             context.assertEquals(1, handlerCallCount.incrementAndGet());
             async.complete();
         });
+    }
+    
+    @Test
+    public void queueCreate() {
+        Assert.assertNotNull(FlowsAsync.queue());
     }
 
 }

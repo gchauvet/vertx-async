@@ -80,4 +80,4 @@ See our wiki (:construction:).
 |---|---|---|---|---|---|---|---|
 | series  | parallel  | whilst  | until  | during:construction:  | forever  | waterfall  | seq |
 | cargo:construction: | auto:construction: | autoInject:construction: | retry | retryable:construction: | iterator:construction: | times | race |
-| queue:construction: | applyEach:construction: |  |  |  |  |  |  |
+| queue | applyEach:construction: |  |  |  |  |  |  |
