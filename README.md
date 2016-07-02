@@ -79,5 +79,5 @@ See our wiki (:construction:).
 |   |   |   |   |   |   |   |   |
 |---|---|---|---|---|---|---|---|
 | series  | parallel  | whilst  | until  | during:construction:  | forever  | waterfall  | seq |
-| cargo:construction: | auto:construction: | autoInject:construction: | retry | retryable:construction: | iterator:construction: | times | race |
-| queue | applyEach:construction: |  |  |  |  |  |  |
+| cargo:construction: | auto:construction: | autoInject:construction: | retry | retryable:construction: | applyEach:construction: | times | race |
+| queue |  |  |  |  |  |  |  |
