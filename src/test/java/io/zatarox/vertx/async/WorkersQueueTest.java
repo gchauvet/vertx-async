@@ -21,6 +21,7 @@ import io.vertx.ext.unit.junit.Repeat;
 import io.vertx.ext.unit.junit.RepeatRule;
 import io.vertx.ext.unit.junit.RunTestOnContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
+import io.zatarox.vertx.async.WorkersQueue.WorkersQueueListener;
 import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Rule;
@@ -29,7 +30,7 @@ import org.junit.runner.RunWith;
 
 @RunWith(VertxUnitRunner.class)
 public final class WorkersQueueTest {
-    
+
     /**
      * Limits
      */
@@ -49,22 +50,34 @@ public final class WorkersQueueTest {
         assertNotNull(queue);
         assertEquals(0, queue.getRunning());
     }
-    
+
     @Test(timeout = WorkersQueueTest.TIMEOUT_LIMIT)
     @Repeat(WorkersQueueTest.REPEAT_LIMIT)
     public void executeEmptyQueue() {
         rule.vertx().runOnContext(queue);
         assertEquals(0, queue.getRunning());
     }
-    
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testNegativeConcurrency() {
+        queue.setConcurrency(0);
+    }
+
+    @Test
+    public void testAddAndRemoveListener() {
+        final WorkersQueueListener listener = (WorkersQueue instance) -> {
+        };
+
+        assertTrue(queue.add(listener));
+        assertFalse(queue.add(listener));
+        assertTrue(queue.remove(listener));
+        assertFalse(queue.remove(listener));
+    }
+
     @Test(timeout = WorkersQueueTest.TIMEOUT_LIMIT)
     @Repeat(WorkersQueueTest.REPEAT_LIMIT)
     public void executeOneTaskSucceedInQueue(final TestContext context) {
         final Async async = context.async();
-        queue.add(instance -> {
-            context.assertNotNull(instance);
-            async.complete();
-        });
         assertTrue(queue.add(t -> {
             context.assertEquals(1, queue.getRunning());
             rule.vertx().setTimer(100, event -> {
@@ -73,20 +86,17 @@ public final class WorkersQueueTest {
         }, event -> {
             context.assertTrue(event.succeeded());
             context.assertEquals(0, queue.getRunning());
+            async.complete();
         }));
         rule.vertx().runOnContext(queue);
     }
-    
+
     @Test(timeout = WorkersQueueTest.TIMEOUT_LIMIT)
     @Repeat(WorkersQueueTest.REPEAT_LIMIT)
     public void executeTwoTaskSucceedWithOneWorker(final TestContext context) {
         final Async async = context.async();
         @SuppressWarnings("LocalVariableHidesMemberVariable")
         final WorkersQueue queue = new WorkersQueue(1);
-        queue.add(instance -> {
-            context.assertNotNull(instance);
-            async.complete();
-        });
         assertTrue(queue.add(t -> {
             context.assertEquals(1, queue.getRunning());
             rule.vertx().setTimer(100, event -> {
@@ -104,18 +114,15 @@ public final class WorkersQueueTest {
         }, event -> {
             context.assertTrue(event.succeeded());
             context.assertEquals(0, queue.getRunning());
+            async.complete();
         }));
         rule.vertx().runOnContext(queue);
     }
-    
+
     @Test(timeout = WorkersQueueTest.TIMEOUT_LIMIT)
     @Repeat(WorkersQueueTest.REPEAT_LIMIT)
     public void executeTwoTaskSucceedWithDefaultNumberWorkers(final TestContext context) {
         final Async async = context.async();
-        queue.add(instance -> {
-            context.assertNotNull(instance);
-            async.complete();
-        });
         assertTrue(queue.add(t -> {
             context.assertEquals(1, queue.getRunning());
             rule.vertx().setTimer(100, event -> {
@@ -133,18 +140,15 @@ public final class WorkersQueueTest {
         }, event -> {
             context.assertTrue(event.succeeded());
             context.assertEquals(0, queue.getRunning());
+            async.complete();
         }));
         rule.vertx().runOnContext(queue);
     }
-    
+
     @Test(timeout = WorkersQueueTest.TIMEOUT_LIMIT)
     @Repeat(WorkersQueueTest.REPEAT_LIMIT)
     public void executeOneTaskFailedInQueue(final TestContext context) {
         final Async async = context.async();
-        queue.add(instance -> {
-            context.assertNotNull(instance);
-            async.complete();
-        });
         assertTrue(queue.add(t -> {
             context.assertEquals(1, queue.getRunning());
             rule.vertx().setTimer(100, event -> {
@@ -154,8 +158,9 @@ public final class WorkersQueueTest {
             context.assertFalse(event.succeeded());
             context.assertTrue(event.cause() instanceof IllegalArgumentException);
             context.assertEquals(0, queue.getRunning());
+            async.complete();
         }));
         rule.vertx().runOnContext(queue);
     }
-    
+
 }

@@ -44,7 +44,7 @@ public final class WorkersQueue implements Handler<Void> {
     }
 
     WorkersQueue(int concurrency) {
-        this.concurrency.set(concurrency);
+        setConcurrency(concurrency);
     }
 
     /**
@@ -55,9 +55,12 @@ public final class WorkersQueue implements Handler<Void> {
     }
 
     /**
-     * @param concurrency  Define concurrencu limit for workers
+     * @param concurrency Define concurrencu limit for workers
      */
     public void setConcurrency(int concurrency) {
+        if (concurrency < 1) {
+            throw new IllegalArgumentException("Must be positive");
+        }
         this.concurrency.set(concurrency);
     }
 
@@ -70,9 +73,10 @@ public final class WorkersQueue implements Handler<Void> {
 
     /**
      * Add a consumer in the pool
+     *
      * @param consumer The worker to run
      * @param handler Result handler associated with the declared consumer
-     * @return 
+     * @return
      */
     public boolean add(final Consumer<Handler<AsyncResult<Void>>> consumer, final Handler<AsyncResult<Void>> handler) {
         return workers.add(new Pair(consumer, handler));
