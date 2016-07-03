@@ -104,8 +104,8 @@ public final class WorkersQueue implements Handler<Void> {
             fireEmptyPool();
         } else if (current.get() < concurrency.get()) {
             final Pair<Consumer<Handler<AsyncResult<Void>>>, Handler<AsyncResult<Void>>> worker = workers.poll();
+            current.incrementAndGet();
             Vertx.currentContext().runOnContext(event1 -> {
-                current.incrementAndGet();
                 worker.getValue0().accept(event2 -> {
                     current.decrementAndGet();
                     worker.getValue1().handle(event2);
@@ -118,9 +118,7 @@ public final class WorkersQueue implements Handler<Void> {
 
     private void fireEmptyPool() {
         listeners.stream().forEach(listener -> {
-            Vertx.currentContext().runOnContext(event -> {
-                listener.poolEmpty(this);
-            });
+            listener.poolEmpty(this);
         });
     }
 }

@@ -22,6 +22,7 @@ import io.vertx.ext.unit.junit.RepeatRule;
 import io.vertx.ext.unit.junit.RunTestOnContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
 import io.zatarox.vertx.async.WorkersQueue.WorkersQueueListener;
+import java.util.concurrent.atomic.AtomicBoolean;
 import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Rule;
@@ -63,15 +64,27 @@ public final class WorkersQueueTest {
         queue.setConcurrency(0);
     }
 
-    @Test
-    public void testAddAndRemoveListener() {
+    @Test(timeout = WorkersQueueTest.TIMEOUT_LIMIT)
+    @Repeat(WorkersQueueTest.REPEAT_LIMIT)
+    public void testListeners(final TestContext context) {
+        final Async async = context.async();
+        final AtomicBoolean empty = new AtomicBoolean(false);
         final WorkersQueueListener listener = (WorkersQueue instance) -> {
+            context.assertNotNull(instance);
+            empty.set(true);
         };
-
-        assertTrue(queue.add(listener));
-        assertFalse(queue.add(listener));
-        assertTrue(queue.remove(listener));
-        assertFalse(queue.remove(listener));
+        context.assertTrue(queue.add(listener));
+        context.assertFalse(queue.add(listener));
+        queue.add(t -> {
+            rule.vertx().setPeriodic(100, event -> {
+                t.handle(DefaultAsyncResult.succeed());
+            });
+        }, event -> {
+            context.assertTrue(event.succeeded());
+            context.assertTrue(empty.get());
+            async.complete();
+        });
+        rule.vertx().runOnContext(queue);
     }
 
     @Test(timeout = WorkersQueueTest.TIMEOUT_LIMIT)
@@ -104,10 +117,10 @@ public final class WorkersQueueTest {
             });
         }, event -> {
             context.assertTrue(event.succeeded());
-            context.assertEquals(1, queue.getRunning());
+            context.assertEquals(0, queue.getRunning());
         }));
         assertTrue(queue.add(t -> {
-            context.assertEquals(2, queue.getRunning());
+            context.assertEquals(1, queue.getRunning());
             rule.vertx().setTimer(200, event -> {
                 t.handle(DefaultAsyncResult.succeed());
             });
@@ -124,16 +137,16 @@ public final class WorkersQueueTest {
     public void executeTwoTaskSucceedWithDefaultNumberWorkers(final TestContext context) {
         final Async async = context.async();
         assertTrue(queue.add(t -> {
-            context.assertEquals(1, queue.getRunning());
+            context.assertTrue(queue.getRunning() > 0);
             rule.vertx().setTimer(100, event -> {
                 t.handle(DefaultAsyncResult.succeed());
             });
         }, event -> {
             context.assertTrue(event.succeeded());
-            context.assertEquals(1, queue.getRunning());
+            context.assertTrue(queue.getRunning() > 0);
         }));
         assertTrue(queue.add(t -> {
-            context.assertEquals(2, queue.getRunning());
+            context.assertTrue(queue.getRunning() > 0);
             rule.vertx().setTimer(200, event -> {
                 t.handle(DefaultAsyncResult.succeed());
             });
