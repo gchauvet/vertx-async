@@ -13,50 +13,41 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.zatarox.vertx.async;
+package io.zatarox.vertx.async.impl;
 
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
-import java.util.HashSet;
-import java.util.LinkedList;
+import io.vertx.core.impl.ConcurrentHashSet;
+import io.zatarox.vertx.async.AsyncQueue;
 import java.util.Queue;
 import java.util.Set;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import org.javatuples.Pair;
 
-public final class WorkersQueue implements Handler<Void> {
+public final class AsyncQueueImpl implements Handler<Void>, AsyncQueue {
 
-    public interface WorkersQueueListener {
-
-        void poolEmpty(final WorkersQueue instance);
-
-    };
-
-    private final Queue<Pair<Consumer<Handler<AsyncResult<Void>>>, Handler<AsyncResult<Void>>>> workers = new LinkedList<>();
-    private final Set<WorkersQueueListener> listeners = new HashSet();
+    private final Queue<Pair<Consumer<Handler<AsyncResult<Void>>>, Handler<AsyncResult<Void>>>> workers = new ConcurrentLinkedQueue();
+    private final Set<WorkersQueueListener> listeners = new ConcurrentHashSet();
     private final AtomicInteger concurrency = new AtomicInteger(0);
     private final AtomicInteger current = new AtomicInteger(0);
 
-    WorkersQueue() {
+    public AsyncQueueImpl() {
         this.concurrency.set(5);
     }
 
-    WorkersQueue(int concurrency) {
+    public AsyncQueueImpl(int concurrency) {
         setConcurrency(concurrency);
     }
 
-    /**
-     * @return The concurrency limit
-     */
+    @Override
     public int getConcurrency() {
         return concurrency.get();
     }
 
-    /**
-     * @param concurrency Define concurrencu limit for workers
-     */
+    @Override
     public void setConcurrency(int concurrency) {
         if (concurrency < 1) {
             throw new IllegalArgumentException("Must be positive");
@@ -67,33 +58,22 @@ public final class WorkersQueue implements Handler<Void> {
     /**
      * @return Number of running workers
      */
+    @Override
     public int getRunning() {
         return current.get();
     }
 
-    /**
-     * Add a consumer in the pool
-     *
-     * @param consumer The worker to run
-     * @param handler Result handler associated with the declared consumer
-     * @return
-     */
+    @Override
     public boolean add(final Consumer<Handler<AsyncResult<Void>>> consumer, final Handler<AsyncResult<Void>> handler) {
         return workers.add(new Pair(consumer, handler));
     }
 
-    /**
-     * @param listener Listener to add
-     * @return True if listener is added
-     */
+    @Override
     public boolean add(final WorkersQueueListener listener) {
         return listeners.add(listener);
     }
 
-    /**
-     * @param listener Listener to remove
-     * @return True if listener was removed
-     */
+    @Override
     public boolean remove(final WorkersQueueListener listener) {
         return listeners.remove(listener);
     }

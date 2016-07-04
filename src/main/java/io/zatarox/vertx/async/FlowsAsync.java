@@ -15,6 +15,7 @@
  */
 package io.zatarox.vertx.async;
 
+import io.zatarox.vertx.async.impl.AsyncQueueImpl;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
@@ -79,7 +80,7 @@ public final class FlowsAsync {
             }
         });
     }
-    
+
     /**
      * Attempts to get a successful response from {@code task} no more than
      * {@code times} times before returning an error. If the task is successful,
@@ -376,12 +377,12 @@ public final class FlowsAsync {
             });
         }
     }
-    
+
     /**
      * @return A queue of tasks for the worker function to complete.
      */
-    public static WorkersQueue queue() {
-        return new WorkersQueue();
+    public static AsyncQueue queue() {
+        return new AsyncQueueImpl();
     }
 
 }
