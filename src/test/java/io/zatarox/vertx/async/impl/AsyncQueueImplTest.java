@@ -51,6 +51,7 @@ public final class AsyncQueueImplTest {
         queue = new AsyncQueueImpl();
         assertNotNull(queue);
         assertEquals(0, queue.getRunning());
+        assertEquals(5, queue.getConcurrency());
     }
 
     @Test(timeout = AsyncQueueImplTest.TIMEOUT_LIMIT)

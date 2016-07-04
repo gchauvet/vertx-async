@@ -42,12 +42,10 @@ public final class AsyncQueueImpl implements Handler<Void>, AsyncQueue {
         setConcurrency(concurrency);
     }
 
-    @Override
     public int getConcurrency() {
         return concurrency.get();
     }
 
-    @Override
     public void setConcurrency(int concurrency) {
         if (concurrency < 1) {
             throw new IllegalArgumentException("Must be positive");
@@ -58,27 +56,22 @@ public final class AsyncQueueImpl implements Handler<Void>, AsyncQueue {
     /**
      * @return Number of running workers
      */
-    @Override
     public int getRunning() {
         return current.get();
     }
 
-    @Override
     public boolean add(final Consumer<Handler<AsyncResult<Void>>> consumer, final Handler<AsyncResult<Void>> handler) {
         return workers.add(new Pair(consumer, handler));
     }
 
-    @Override
     public boolean add(final WorkersQueueListener listener) {
         return listeners.add(listener);
     }
 
-    @Override
     public boolean remove(final WorkersQueueListener listener) {
         return listeners.remove(listener);
     }
 
-    @Override
     public void handle(Void event) {
         if (workers.isEmpty()) {
             fireEmptyPool();
