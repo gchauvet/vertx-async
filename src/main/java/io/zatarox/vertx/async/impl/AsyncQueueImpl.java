@@ -30,7 +30,7 @@ import org.javatuples.Pair;
 public final class AsyncQueueImpl implements Handler<Void>, AsyncQueue {
 
     private final Queue<Pair<Consumer<Handler<AsyncResult<Void>>>, Handler<AsyncResult<Void>>>> workers = new ConcurrentLinkedQueue();
-    private final Set<WorkersQueueListener> listeners = new ConcurrentHashSet();
+    private final Set<AsyncQueueListener> listeners = new ConcurrentHashSet();
     private final AtomicInteger concurrency = new AtomicInteger(0);
     private final AtomicInteger current = new AtomicInteger(0);
 
@@ -64,11 +64,11 @@ public final class AsyncQueueImpl implements Handler<Void>, AsyncQueue {
         return workers.add(new Pair(consumer, handler));
     }
 
-    public boolean add(final WorkersQueueListener listener) {
+    public boolean add(final AsyncQueueListener listener) {
         return listeners.add(listener);
     }
 
-    public boolean remove(final WorkersQueueListener listener) {
+    public boolean remove(final AsyncQueueListener listener) {
         return listeners.remove(listener);
     }
 

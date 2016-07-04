@@ -22,7 +22,7 @@ import java.util.function.Consumer;
 
 public interface AsyncQueue {
 
-    public interface WorkersQueueListener {
+    public interface AsyncQueueListener {
 
         void poolEmpty(final AsyncQueueImpl instance);
 
@@ -41,7 +41,7 @@ public interface AsyncQueue {
      * @param listener Listener to add
      * @return True if listener is added
      */
-    boolean add(final WorkersQueueListener listener);
+    boolean add(final AsyncQueueListener listener);
 
     /**
      * @return The concurrency limit
@@ -59,7 +59,7 @@ public interface AsyncQueue {
      * @param listener Listener to remove
      * @return True if listener was removed
      */
-    boolean remove(final WorkersQueueListener listener);
+    boolean remove(final AsyncQueueListener listener);
 
     /**
      * @param concurrency Define concurrencu limit for workers
