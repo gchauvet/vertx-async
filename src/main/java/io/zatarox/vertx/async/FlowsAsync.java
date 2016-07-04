@@ -379,10 +379,12 @@ public final class FlowsAsync {
     }
 
     /**
+     * @param <T> The manipulated type.
+     * @param worker The worker used to process the queue
      * @return A queue of tasks for the worker function to complete.
      */
-    public static AsyncQueue queue() {
-        return new AsyncQueueImpl();
+    public static<T> AsyncQueue queue(final BiConsumer<T, Handler<AsyncResult<Void>>> worker) {
+        return new AsyncQueueImpl(worker);
     }
 
 }

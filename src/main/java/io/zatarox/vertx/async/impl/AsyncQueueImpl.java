@@ -24,21 +24,23 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
 import org.javatuples.Pair;
 
-public final class AsyncQueueImpl implements Handler<Void>, AsyncQueue {
+public final class AsyncQueueImpl<T> implements Handler<Void>, AsyncQueue<T> {
 
-    private final Queue<Pair<Consumer<Handler<AsyncResult<Void>>>, Handler<AsyncResult<Void>>>> workers = new ConcurrentLinkedQueue();
+    private final BiConsumer<T, Handler<AsyncResult<Void>>> worker;
+    private final Queue<Pair<T, Handler<AsyncResult<Void>>>> tasks = new ConcurrentLinkedQueue();
     private final Set<AsyncQueueListener> listeners = new ConcurrentHashSet();
     private final AtomicInteger concurrency = new AtomicInteger(0);
     private final AtomicInteger current = new AtomicInteger(0);
 
-    public AsyncQueueImpl() {
-        this.concurrency.set(5);
+    public AsyncQueueImpl(final BiConsumer<T, Handler<AsyncResult<Void>>> worker) {
+        this(worker, 5);
     }
 
-    public AsyncQueueImpl(int concurrency) {
+    public AsyncQueueImpl(final BiConsumer<T, Handler<AsyncResult<Void>>> worker, final int concurrency) {
+        this.worker = worker;
         setConcurrency(concurrency);
     }
 
@@ -60,8 +62,8 @@ public final class AsyncQueueImpl implements Handler<Void>, AsyncQueue {
         return current.get();
     }
 
-    public boolean add(final Consumer<Handler<AsyncResult<Void>>> consumer, final Handler<AsyncResult<Void>> handler) {
-        return workers.add(new Pair(consumer, handler));
+    public boolean add(final T task, final Handler<AsyncResult<Void>> handler) {
+        return tasks.add(new Pair(task, handler));
     }
 
     public boolean add(final AsyncQueueListener listener) {
@@ -73,15 +75,15 @@ public final class AsyncQueueImpl implements Handler<Void>, AsyncQueue {
     }
 
     public void handle(Void event) {
-        if (workers.isEmpty()) {
+        if (tasks.isEmpty()) {
             fireEmptyPool();
         } else if (current.get() < concurrency.get()) {
-            final Pair<Consumer<Handler<AsyncResult<Void>>>, Handler<AsyncResult<Void>>> worker = workers.poll();
+            final Pair<T, Handler<AsyncResult<Void>>> task = tasks.poll();
             current.incrementAndGet();
             Vertx.currentContext().runOnContext(event1 -> {
-                worker.getValue0().accept(event2 -> {
+                worker.accept(task.getValue0(), event2 -> {
+                    task.getValue1().handle(event2);
                     current.decrementAndGet();
-                    worker.getValue1().handle(event2);
                     this.handle(event);
                 });
             });

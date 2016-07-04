@@ -643,7 +643,7 @@ public final class FlowsAsyncTest {
             async.complete();
         });
     }
-    
+
     @Test(timeout = FlowsAsyncTest.TIMEOUT_LIMIT)
     @Repeat(FlowsAsyncTest.REPEAT_LIMIT)
     public void raceExecutesExceptionTask(final TestContext context) {
@@ -681,10 +681,14 @@ public final class FlowsAsyncTest {
             async.complete();
         });
     }
-    
+
     @Test
     public void queueCreate() {
-        Assert.assertNotNull(FlowsAsync.queue());
+        Assert.assertNotNull(FlowsAsync.<Integer>queue((t, u) -> {
+            rule.vertx().setPeriodic(t, event -> {
+                u.handle(DefaultAsyncResult.succeed());
+            });
+        }));
     }
 
 }

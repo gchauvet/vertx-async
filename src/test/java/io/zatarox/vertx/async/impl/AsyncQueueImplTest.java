@@ -15,6 +15,8 @@
  */
 package io.zatarox.vertx.async.impl;
 
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
 import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.Repeat;
@@ -24,6 +26,8 @@ import io.vertx.ext.unit.junit.VertxUnitRunner;
 import io.zatarox.vertx.async.AsyncQueue.AsyncQueueListener;
 import io.zatarox.vertx.async.DefaultAsyncResult;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.BiConsumer;
 import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Rule;
@@ -39,7 +43,8 @@ public final class AsyncQueueImplTest {
     private static final int TIMEOUT_LIMIT = 1000;
     private static final int REPEAT_LIMIT = 100;
 
-    private AsyncQueueImpl queue;
+    private BiConsumer<Integer, Handler<AsyncResult<Void>>> worker;
+    private AsyncQueueImpl<Integer> queue;
 
     @Rule
     public RepeatRule repeater = new RepeatRule();
@@ -48,7 +53,12 @@ public final class AsyncQueueImplTest {
 
     @Before
     public void setUp() {
-        queue = new AsyncQueueImpl();
+        worker = (t, u) -> {
+            rule.vertx().setPeriodic(t, event -> {
+                u.handle(DefaultAsyncResult.succeed());
+            });
+        };
+        queue = new AsyncQueueImpl(worker);
         assertNotNull(queue);
         assertEquals(0, queue.getRunning());
         assertEquals(5, queue.getConcurrency());
@@ -83,11 +93,7 @@ public final class AsyncQueueImplTest {
         };
         context.assertTrue(queue.add(listener));
         context.assertFalse(queue.add(listener));
-        queue.add(t -> {
-            rule.vertx().setPeriodic(100, event -> {
-                t.handle(DefaultAsyncResult.succeed());
-            });
-        }, event -> {
+        queue.add(100, event -> {
             context.assertTrue(event.succeeded());
             context.assertTrue(empty.get());
         });
@@ -98,14 +104,8 @@ public final class AsyncQueueImplTest {
     @Repeat(AsyncQueueImplTest.REPEAT_LIMIT)
     public void executeOneTaskSucceedInQueue(final TestContext context) {
         final Async async = context.async();
-        assertTrue(queue.add(t -> {
-            context.assertEquals(1, queue.getRunning());
-            rule.vertx().setTimer(100, event -> {
-                t.handle(DefaultAsyncResult.succeed());
-            });
-        }, event -> {
+        assertTrue(queue.add(100, event -> {
             context.assertTrue(event.succeeded());
-            context.assertEquals(0, queue.getRunning());
             async.complete();
         }));
         rule.vertx().runOnContext(queue);
@@ -116,24 +116,12 @@ public final class AsyncQueueImplTest {
     public void executeTwoTaskSucceedWithOneWorker(final TestContext context) {
         final Async async = context.async();
         @SuppressWarnings("LocalVariableHidesMemberVariable")
-        final AsyncQueueImpl queue = new AsyncQueueImpl(1);
-        assertTrue(queue.add(t -> {
-            context.assertEquals(1, queue.getRunning());
-            rule.vertx().setTimer(100, event -> {
-                t.handle(DefaultAsyncResult.succeed());
-            });
-        }, event -> {
+        final AsyncQueueImpl<Integer> queue = new AsyncQueueImpl(worker, 1);
+        assertTrue(queue.add(100, event -> {
             context.assertTrue(event.succeeded());
-            context.assertEquals(0, queue.getRunning());
         }));
-        assertTrue(queue.add(t -> {
-            context.assertEquals(1, queue.getRunning());
-            rule.vertx().setTimer(200, event -> {
-                t.handle(DefaultAsyncResult.succeed());
-            });
-        }, event -> {
+        assertTrue(queue.add(200, event -> {
             context.assertTrue(event.succeeded());
-            context.assertEquals(0, queue.getRunning());
             async.complete();
         }));
         rule.vertx().runOnContext(queue);
@@ -143,23 +131,13 @@ public final class AsyncQueueImplTest {
     @Repeat(AsyncQueueImplTest.REPEAT_LIMIT)
     public void executeTwoTaskSucceedWithDefaultNumberWorkers(final TestContext context) {
         final Async async = context.async();
-        assertTrue(queue.add(t -> {
-            context.assertTrue(queue.getRunning() > 0);
-            rule.vertx().setTimer(100, event -> {
-                t.handle(DefaultAsyncResult.succeed());
-            });
-        }, event -> {
+        final AtomicInteger counter = new AtomicInteger();
+        assertTrue(queue.add(100, event -> {
             context.assertTrue(event.succeeded());
-            context.assertTrue(queue.getRunning() > 0);
+            counter.incrementAndGet();
         }));
-        assertTrue(queue.add(t -> {
-            context.assertTrue(queue.getRunning() > 0);
-            rule.vertx().setTimer(200, event -> {
-                t.handle(DefaultAsyncResult.succeed());
-            });
-        }, event -> {
+        assertTrue(queue.add(200, event -> {
             context.assertTrue(event.succeeded());
-            context.assertEquals(0, queue.getRunning());
             async.complete();
         }));
         rule.vertx().runOnContext(queue);
@@ -169,15 +147,14 @@ public final class AsyncQueueImplTest {
     @Repeat(AsyncQueueImplTest.REPEAT_LIMIT)
     public void executeOneTaskFailedInQueue(final TestContext context) {
         final Async async = context.async();
-        assertTrue(queue.add(t -> {
-            context.assertEquals(1, queue.getRunning());
-            rule.vertx().setTimer(100, event -> {
-                t.handle(DefaultAsyncResult.fail(new IllegalArgumentException()));
+        queue = new AsyncQueueImpl<>((t, u) -> {
+            rule.vertx().setPeriodic(t, event -> {
+                u.handle(DefaultAsyncResult.fail(new IllegalArgumentException()));
             });
-        }, event -> {
+        });
+        assertTrue(queue.add(100, event -> {
             context.assertFalse(event.succeeded());
             context.assertTrue(event.cause() instanceof IllegalArgumentException);
-            context.assertEquals(0, queue.getRunning());
             async.complete();
         }));
         rule.vertx().runOnContext(queue);

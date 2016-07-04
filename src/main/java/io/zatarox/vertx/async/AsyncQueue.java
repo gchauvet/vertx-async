@@ -18,9 +18,8 @@ package io.zatarox.vertx.async;
 import io.zatarox.vertx.async.impl.AsyncQueueImpl;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
-import java.util.function.Consumer;
 
-public interface AsyncQueue {
+public interface AsyncQueue<T> {
 
     public interface AsyncQueueListener {
 
@@ -31,11 +30,11 @@ public interface AsyncQueue {
     /**
      * Add a consumer in the pool
      *
-     * @param consumer The worker to run
+     * @param task The task to run
      * @param handler Result handler associated with the declared consumer
      * @return
      */
-    boolean add(final Consumer<Handler<AsyncResult<Void>>> consumer, final Handler<AsyncResult<Void>> handler);
+    boolean add(final T task, final Handler<AsyncResult<Void>> handler);
 
     /**
      * @param listener Listener to add
