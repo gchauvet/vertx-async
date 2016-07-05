@@ -383,8 +383,45 @@ public final class FlowsAsync {
      * @param worker The worker used to process the queue
      * @return A queue of tasks for the worker function to complete.
      */
-    public static<T> AsyncQueue queue(final BiConsumer<T, Handler<AsyncResult<Void>>> worker) {
+    public static <T> AsyncQueue queue(final BiConsumer<T, Handler<AsyncResult<Void>>> worker) {
         return new AsyncQueueImpl(worker);
+    }
+
+    /**
+     * Applies the provided arguments to each function in the array, calling
+     * {@code handler} after all functions have completed. If you only provide
+     * the first argument, then it will return a function which lets you pass in
+     * the arguments as if it were a single function call.
+     *
+     * @param <T> The manipulated type.
+     * @param args An object representing arguments.
+     * @param functions A collection of asynchronous functions to all call with
+     * the same arguments.
+     * @param handler The final argument should be the callback, called when all
+     * functions have completed processing.
+     */
+    public static <T> void each(final Collection<BiConsumer<T, Handler<AsyncResult<Void>>>> functions, final T args, final Handler<AsyncResult<Void>> handler) {
+        if (functions.isEmpty()) {
+            handler.handle(DefaultAsyncResult.succeed());
+        } else {
+            final AtomicBoolean stop = new AtomicBoolean(false);
+            final AtomicInteger counter = new AtomicInteger(functions.size());
+
+            functions.stream().forEach(function -> {
+                Vertx.currentContext().runOnContext(aVoid -> function.accept(args, result -> {
+                    if (result.failed() || stop.get()) {
+                        if (!stop.get()) {
+                            stop.set(true);
+                            handler.handle(DefaultAsyncResult.fail(result));
+                        }
+                    } else {
+                        if (counter.decrementAndGet() == 0 && !stop.get()) {
+                            handler.handle(DefaultAsyncResult.succeed());
+                        }
+                    }
+                }));
+            });
+        }
     }
 
 }

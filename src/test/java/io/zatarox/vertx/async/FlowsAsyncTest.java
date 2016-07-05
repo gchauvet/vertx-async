@@ -690,5 +690,74 @@ public final class FlowsAsyncTest {
             });
         }));
     }
+    
+    @Test(timeout = FlowsAsyncTest.TIMEOUT_LIMIT)
+    @Repeat(FlowsAsyncTest.REPEAT_LIMIT)
+    public void eachWithNoFunctions(final TestContext context) {
+        final Async async = context.async();
+        FlowsAsync.each(Arrays.<BiConsumer<String, Handler<AsyncResult<Void>>>>asList(), "TEST", result -> {
+            context.assertTrue(result.succeeded());
+            context.assertNull(result.result());
+            async.complete();
+        });
+    }
+    
+    @Test(timeout = FlowsAsyncTest.TIMEOUT_LIMIT)
+    @Repeat(FlowsAsyncTest.REPEAT_LIMIT)
+    public void eachWithSingleFunction(final TestContext context) {
+        final AtomicInteger counter = new AtomicInteger(0);
+        final Async async = context.async();
+        FlowsAsync.each(Arrays.asList((t, u) -> {
+            context.assertEquals("TEST", t);
+            counter.incrementAndGet();
+            u.handle(DefaultAsyncResult.succeed());
+        }), "TEST", result -> {
+            context.assertTrue(result.succeeded());
+            context.assertNull(result.result());
+            context.assertEquals(1, counter.get());
+            async.complete();
+        });
+    }
+    
+    @Test(timeout = FlowsAsyncTest.TIMEOUT_LIMIT)
+    @Repeat(FlowsAsyncTest.REPEAT_LIMIT)
+    public void eachWithtwoFunctions(final TestContext context) {
+        final AtomicInteger counter = new AtomicInteger(0);
+        final Async async = context.async();
+        final BiConsumer<String, Handler<AsyncResult<Void>>> function = (t, u) -> {
+            context.assertEquals("TEST2", t);
+            counter.incrementAndGet();
+            u.handle(DefaultAsyncResult.succeed());
+        };
+
+        FlowsAsync.each(Arrays.asList(function, function), "TEST2", result -> {
+            context.assertTrue(result.succeeded());
+            context.assertNull(result.result());
+            context.assertEquals(2, counter.get());
+            async.complete();
+        });
+    }
+    
+    @Test(timeout = FlowsAsyncTest.TIMEOUT_LIMIT)
+    @Repeat(FlowsAsyncTest.REPEAT_LIMIT)
+    public void eachWithFailingFunction(final TestContext context) {
+        final AtomicInteger counter = new AtomicInteger(0);
+        final Async async = context.async();
+        FlowsAsync.each(Arrays.asList((t, u) -> {
+            context.assertEquals("TEST3", t);
+            counter.incrementAndGet();
+            u.handle(DefaultAsyncResult.succeed());
+        }, (t, u) -> {
+            context.assertEquals("TEST3", t);
+            counter.incrementAndGet();
+            u.handle(DefaultAsyncResult.fail(new IllegalArgumentException()));
+        }) , "TEST3", result -> {
+            context.assertFalse(result.succeeded());
+            context.assertNull(result.result());
+            context.assertTrue(result.cause() instanceof IllegalArgumentException);
+            context.assertEquals(2, counter.get());
+            async.complete();
+        });
+    }
 
 }
