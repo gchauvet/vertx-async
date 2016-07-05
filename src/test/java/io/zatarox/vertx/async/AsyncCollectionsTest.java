@@ -40,7 +40,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 @RunWith(VertxUnitRunner.class)
-public final class CollectionsAsyncTest {
+public final class AsyncCollectionsTest {
 
     /**
      * Limits
@@ -55,20 +55,20 @@ public final class CollectionsAsyncTest {
 
     @Test(expected = InvocationTargetException.class)
     public void testPrivateConstructor() throws Exception {
-        final Constructor<CollectionsAsync> c = CollectionsAsync.class.getDeclaredConstructor();
+        final Constructor<AsyncCollections> c = AsyncCollections.class.getDeclaredConstructor();
         c.setAccessible(true);
         c.newInstance();
     }
 
-    @Test(timeout = CollectionsAsyncTest.TIMEOUT_LIMIT)
-    @Repeat(CollectionsAsyncTest.REPEAT_LIMIT)
+    @Test(timeout = AsyncCollectionsTest.TIMEOUT_LIMIT)
+    @Repeat(AsyncCollectionsTest.REPEAT_LIMIT)
     public void eachStillExecutesWhenThereAreNoItems(final TestContext context) {
         final List<String> items = Arrays.asList();
         final FakeFailingAsyncFunction<String, Void> each = new FakeFailingAsyncFunction<>(new Throwable("Failed"));
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
-        CollectionsAsync.each(items, each, result -> {
+        AsyncCollections.each(items, each, result -> {
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
             context.assertNull(result.result());
@@ -78,15 +78,15 @@ public final class CollectionsAsyncTest {
         });
     }
 
-    @Test(timeout = CollectionsAsyncTest.TIMEOUT_LIMIT)
-    @Repeat(CollectionsAsyncTest.REPEAT_LIMIT)
+    @Test(timeout = AsyncCollectionsTest.TIMEOUT_LIMIT)
+    @Repeat(AsyncCollectionsTest.REPEAT_LIMIT)
     public void eachExecutesForOneItem(final TestContext context) {
         final List<String> items = Arrays.asList("One");
         final FakeSuccessfulAsyncFunction<String, Void> each = new FakeSuccessfulAsyncFunction<>(null);
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
-        CollectionsAsync.each(items, each, result -> {
+        AsyncCollections.each(items, each, result -> {
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
             context.assertNull(result.result());
@@ -98,15 +98,15 @@ public final class CollectionsAsyncTest {
         });
     }
 
-    @Test(timeout = CollectionsAsyncTest.TIMEOUT_LIMIT)
-    @Repeat(CollectionsAsyncTest.REPEAT_LIMIT)
+    @Test(timeout = AsyncCollectionsTest.TIMEOUT_LIMIT)
+    @Repeat(AsyncCollectionsTest.REPEAT_LIMIT)
     public void eachExecutesForTwoItems(final TestContext context) {
         final List<String> items = Arrays.asList("One", "Two");
         final FakeSuccessfulAsyncFunction<String, Void> each = new FakeSuccessfulAsyncFunction<>(null);
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
-        CollectionsAsync.each(items, each, result -> {
+        AsyncCollections.each(items, each, result -> {
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
             context.assertNull(result.result());
@@ -118,15 +118,15 @@ public final class CollectionsAsyncTest {
         });
     }
 
-    @Test(timeout = CollectionsAsyncTest.TIMEOUT_LIMIT)
-    @Repeat(CollectionsAsyncTest.REPEAT_LIMIT)
+    @Test(timeout = AsyncCollectionsTest.TIMEOUT_LIMIT)
+    @Repeat(AsyncCollectionsTest.REPEAT_LIMIT)
     public void eachFailsWhenAnItemFails(final TestContext context) {
         final List<String> items = Arrays.asList("One");
         final FakeFailingAsyncFunction<String, Void> each = new FakeFailingAsyncFunction<>(new Throwable("Failed"));
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
-        CollectionsAsync.each(items, each, result -> {
+        AsyncCollections.each(items, each, result -> {
             context.assertNotNull(result);
             context.assertFalse(result.succeeded());
             context.assertEquals(each.cause(), result.cause());
@@ -139,8 +139,8 @@ public final class CollectionsAsyncTest {
         });
     }
 
-    @Test(timeout = CollectionsAsyncTest.TIMEOUT_LIMIT)
-    @Repeat(CollectionsAsyncTest.REPEAT_LIMIT)
+    @Test(timeout = AsyncCollectionsTest.TIMEOUT_LIMIT)
+    @Repeat(AsyncCollectionsTest.REPEAT_LIMIT)
     public void eachFailsNoMoreThanOnce(final TestContext context) {
         final List<String> items = Arrays.asList("One", "Two");
         final FakeFailingAsyncFunction<String, Void> each = new FakeFailingAsyncFunction<>(new Throwable("Failed"));
@@ -148,7 +148,7 @@ public final class CollectionsAsyncTest {
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
-        CollectionsAsync.each(items, each, result -> {
+        AsyncCollections.each(items, each, result -> {
             context.assertNotNull(result);
             context.assertFalse(result.succeeded());
             context.assertEquals(each.cause(), result.cause());
@@ -160,15 +160,15 @@ public final class CollectionsAsyncTest {
         });
     }
 
-    @Test(timeout = CollectionsAsyncTest.TIMEOUT_LIMIT)
-    @Repeat(CollectionsAsyncTest.REPEAT_LIMIT)
+    @Test(timeout = AsyncCollectionsTest.TIMEOUT_LIMIT)
+    @Repeat(AsyncCollectionsTest.REPEAT_LIMIT)
     public void eachOfStillExecutesWhenThereAreNoItems(final TestContext context) {
         final Map<String, Void> items = new HashMap<>();
         final FakeFailingAsyncFunction<KeyValue<String, Void>, Void> each = new FakeFailingAsyncFunction<>(new Throwable("Failed"));
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
-        CollectionsAsync.each(items, each, result -> {
+        AsyncCollections.each(items, each, result -> {
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
             context.assertNull(result.result());
@@ -178,8 +178,8 @@ public final class CollectionsAsyncTest {
         });
     }
 
-    @Test(timeout = CollectionsAsyncTest.TIMEOUT_LIMIT)
-    @Repeat(CollectionsAsyncTest.REPEAT_LIMIT)
+    @Test(timeout = AsyncCollectionsTest.TIMEOUT_LIMIT)
+    @Repeat(AsyncCollectionsTest.REPEAT_LIMIT)
     public void eachOfExecutesForOneItem(final TestContext context) {
         final Map<String, Integer> items = new HashMap<>();
         final FakeSuccessfulAsyncFunction<KeyValue<String, Integer>, Void> each = new FakeSuccessfulAsyncFunction<>(null);
@@ -187,7 +187,7 @@ public final class CollectionsAsyncTest {
         final Async async = context.async();
         items.put("One", 1);
 
-        CollectionsAsync.each(items, each, result -> {
+        AsyncCollections.each(items, each, result -> {
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
             context.assertNull(result.result());
@@ -201,8 +201,8 @@ public final class CollectionsAsyncTest {
         });
     }
 
-    @Test(timeout = CollectionsAsyncTest.TIMEOUT_LIMIT)
-    @Repeat(CollectionsAsyncTest.REPEAT_LIMIT)
+    @Test(timeout = AsyncCollectionsTest.TIMEOUT_LIMIT)
+    @Repeat(AsyncCollectionsTest.REPEAT_LIMIT)
     public void eachOfExecutesForTwoItems(final TestContext context) {
         final Map<String, Integer> items = new HashMap<>();
         final FakeSuccessfulAsyncFunction<KeyValue<String, Integer>, Void> each = new FakeSuccessfulAsyncFunction<>(null);
@@ -211,7 +211,7 @@ public final class CollectionsAsyncTest {
         items.put("One", 1);
         items.put("Two", 2);
 
-        CollectionsAsync.each(items, each, result -> {
+        AsyncCollections.each(items, each, result -> {
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
             context.assertNull(result.result());
@@ -225,8 +225,8 @@ public final class CollectionsAsyncTest {
         });
     }
 
-    @Test(timeout = CollectionsAsyncTest.TIMEOUT_LIMIT)
-    @Repeat(CollectionsAsyncTest.REPEAT_LIMIT)
+    @Test(timeout = AsyncCollectionsTest.TIMEOUT_LIMIT)
+    @Repeat(AsyncCollectionsTest.REPEAT_LIMIT)
     public void eachOfFailsWhenAnItemFails(final TestContext context) {
         final Map<String, Integer> items = new HashMap<>();
         final FakeFailingAsyncFunction<KeyValue<String, Integer>, Void> each = new FakeFailingAsyncFunction<>(new Throwable("Failed"));
@@ -234,7 +234,7 @@ public final class CollectionsAsyncTest {
         final Async async = context.async();
         items.put("One", 1);
 
-        CollectionsAsync.each(items, each, result -> {
+        AsyncCollections.each(items, each, result -> {
             context.assertNotNull(result);
             context.assertFalse(result.succeeded());
             context.assertEquals(each.cause(), result.cause());
@@ -249,8 +249,8 @@ public final class CollectionsAsyncTest {
         });
     }
 
-    @Test(timeout = CollectionsAsyncTest.TIMEOUT_LIMIT)
-    @Repeat(CollectionsAsyncTest.REPEAT_LIMIT)
+    @Test(timeout = AsyncCollectionsTest.TIMEOUT_LIMIT)
+    @Repeat(AsyncCollectionsTest.REPEAT_LIMIT)
     public void eachOfFailsNoMoreThanOnce(final TestContext context) {
         final Map<String, Integer> items = new HashMap<>();
         final FakeFailingAsyncFunction<KeyValue<String, Integer>, Void> each = new FakeFailingAsyncFunction<>(new Throwable("Failed"));
@@ -260,7 +260,7 @@ public final class CollectionsAsyncTest {
         items.put("One", 1);
         items.put("Two", 2);
 
-        CollectionsAsync.each(items, each, result -> {
+        AsyncCollections.each(items, each, result -> {
             context.assertNotNull(result);
             context.assertFalse(result.succeeded());
             context.assertEquals(each.cause(), result.cause());
@@ -272,8 +272,8 @@ public final class CollectionsAsyncTest {
         });
     }
 
-    @Test(timeout = CollectionsAsyncTest.TIMEOUT_LIMIT)
-    @Repeat(CollectionsAsyncTest.REPEAT_LIMIT)
+    @Test(timeout = AsyncCollectionsTest.TIMEOUT_LIMIT)
+    @Repeat(AsyncCollectionsTest.REPEAT_LIMIT)
     public void mapCollectionWhenThereAreNoItems(final TestContext context) {
         final List<Integer> items = Arrays.asList();
         final FakeAsyncFunction<Integer, Integer> each = new FakeAsyncFunction<Integer, Integer>() {
@@ -285,7 +285,7 @@ public final class CollectionsAsyncTest {
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
-        CollectionsAsync.map(items, each, result -> {
+        AsyncCollections.map(items, each, result -> {
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
             context.assertTrue(result.result().isEmpty());
@@ -295,15 +295,15 @@ public final class CollectionsAsyncTest {
         });
     }
 
-    @Test(timeout = CollectionsAsyncTest.TIMEOUT_LIMIT)
-    @Repeat(CollectionsAsyncTest.REPEAT_LIMIT)
+    @Test(timeout = AsyncCollectionsTest.TIMEOUT_LIMIT)
+    @Repeat(AsyncCollectionsTest.REPEAT_LIMIT)
     public void mapCollectionInFail(final TestContext context) {
         final List<Integer> items = Arrays.asList(1, 2, 3);
         final FakeFailingAsyncFunction<Integer, Integer> each = new FakeFailingAsyncFunction<>(new Throwable("Failed"));
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
-        CollectionsAsync.map(items, each, result -> {
+        AsyncCollections.map(items, each, result -> {
             context.assertNotNull(result);
             context.assertFalse(result.succeeded());
             context.assertNull(result.result());
@@ -313,8 +313,8 @@ public final class CollectionsAsyncTest {
         });
     }
 
-    @Test(timeout = CollectionsAsyncTest.TIMEOUT_LIMIT)
-    @Repeat(CollectionsAsyncTest.REPEAT_LIMIT)
+    @Test(timeout = AsyncCollectionsTest.TIMEOUT_LIMIT)
+    @Repeat(AsyncCollectionsTest.REPEAT_LIMIT)
     public void mapStillExecutesWhenThereAreThreeItems(final TestContext context) {
         final List<Integer> items = Arrays.asList(1, 3, 10);
         final FakeAsyncFunction<Integer, Integer> each = new FakeAsyncFunction<Integer, Integer>() {
@@ -327,7 +327,7 @@ public final class CollectionsAsyncTest {
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
-        CollectionsAsync.map(items, each, result -> {
+        AsyncCollections.map(items, each, result -> {
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
             context.assertEquals(3, each.runCount());
@@ -338,15 +338,15 @@ public final class CollectionsAsyncTest {
         });
     }
 
-    @Test(timeout = CollectionsAsyncTest.TIMEOUT_LIMIT)
-    @Repeat(CollectionsAsyncTest.REPEAT_LIMIT)
+    @Test(timeout = AsyncCollectionsTest.TIMEOUT_LIMIT)
+    @Repeat(AsyncCollectionsTest.REPEAT_LIMIT)
     public void filterStillExecutesWhenThereAreNoItems(final TestContext context) {
         final List<String> items = Arrays.asList();
         final FakeFailingAsyncFunction<String, Boolean> filter = new FakeFailingAsyncFunction<>(new Throwable("Failed"));
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
-        CollectionsAsync.filter(items, filter, result -> {
+        AsyncCollections.filter(items, filter, result -> {
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
             context.assertTrue(result.result().isEmpty());
@@ -356,8 +356,8 @@ public final class CollectionsAsyncTest {
         });
     }
 
-    @Test(timeout = CollectionsAsyncTest.TIMEOUT_LIMIT)
-    @Repeat(CollectionsAsyncTest.REPEAT_LIMIT)
+    @Test(timeout = AsyncCollectionsTest.TIMEOUT_LIMIT)
+    @Repeat(AsyncCollectionsTest.REPEAT_LIMIT)
     public void filterExecutesForOneItem(final TestContext context) {
         final List<String> items = Arrays.asList("One");
         final FakeAsyncFunction<String, Boolean> filter = new FakeAsyncFunction<String, Boolean>() {
@@ -371,7 +371,7 @@ public final class CollectionsAsyncTest {
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
-        CollectionsAsync.filter(items, filter, result -> {
+        AsyncCollections.filter(items, filter, result -> {
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
             context.assertTrue(result.result().isEmpty());
@@ -382,8 +382,8 @@ public final class CollectionsAsyncTest {
         });
     }
 
-    @Test(timeout = CollectionsAsyncTest.TIMEOUT_LIMIT)
-    @Repeat(CollectionsAsyncTest.REPEAT_LIMIT)
+    @Test(timeout = AsyncCollectionsTest.TIMEOUT_LIMIT)
+    @Repeat(AsyncCollectionsTest.REPEAT_LIMIT)
     public void filterExecutesForTwoItems(final TestContext context) {
         final List<String> items = Arrays.asList("One", "Two");
         final FakeAsyncFunction<String, Boolean> filter = new FakeAsyncFunction<String, Boolean>() {
@@ -397,7 +397,7 @@ public final class CollectionsAsyncTest {
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
-        CollectionsAsync.filter(items, filter, result -> {
+        AsyncCollections.filter(items, filter, result -> {
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
             context.assertTrue(1 == result.result().size());
@@ -410,15 +410,15 @@ public final class CollectionsAsyncTest {
         });
     }
 
-    @Test(timeout = CollectionsAsyncTest.TIMEOUT_LIMIT)
-    @Repeat(CollectionsAsyncTest.REPEAT_LIMIT)
+    @Test(timeout = AsyncCollectionsTest.TIMEOUT_LIMIT)
+    @Repeat(AsyncCollectionsTest.REPEAT_LIMIT)
     public void filterFailsWhenAnItemFails(final TestContext context) {
         final List<String> items = Arrays.asList("One");
         final FakeFailingAsyncFunction<String, Boolean> filter = new FakeFailingAsyncFunction<>(new Throwable("Failed"));
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
-        CollectionsAsync.filter(items, filter, result -> {
+        AsyncCollections.filter(items, filter, result -> {
             context.assertNotNull(result);
             context.assertFalse(result.succeeded());
             context.assertEquals(filter.cause(), result.cause());
@@ -431,8 +431,8 @@ public final class CollectionsAsyncTest {
         });
     }
 
-    @Test(timeout = CollectionsAsyncTest.TIMEOUT_LIMIT)
-    @Repeat(CollectionsAsyncTest.REPEAT_LIMIT)
+    @Test(timeout = AsyncCollectionsTest.TIMEOUT_LIMIT)
+    @Repeat(AsyncCollectionsTest.REPEAT_LIMIT)
     public void filterRejectAllItems(final TestContext context) {
         final List<String> items = Arrays.asList("One", "Two", "Three");
         final FakeAsyncFunction<String, Boolean> filter = new FakeAsyncFunction<String, Boolean>() {
@@ -446,7 +446,7 @@ public final class CollectionsAsyncTest {
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
-        CollectionsAsync.filter(items, filter, result -> {
+        AsyncCollections.filter(items, filter, result -> {
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
             context.assertTrue(result.result().isEmpty());
@@ -458,8 +458,8 @@ public final class CollectionsAsyncTest {
         });
     }
 
-    @Test(timeout = CollectionsAsyncTest.TIMEOUT_LIMIT)
-    @Repeat(CollectionsAsyncTest.REPEAT_LIMIT)
+    @Test(timeout = AsyncCollectionsTest.TIMEOUT_LIMIT)
+    @Repeat(AsyncCollectionsTest.REPEAT_LIMIT)
     public void filterAcceptAllItems(final TestContext context) {
         final List<String> items = Arrays.asList("One", "Two", "Three");
         final FakeAsyncFunction<String, Boolean> filter = new FakeAsyncFunction<String, Boolean>() {
@@ -473,7 +473,7 @@ public final class CollectionsAsyncTest {
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
-        CollectionsAsync.filter(items, filter, result -> {
+        AsyncCollections.filter(items, filter, result -> {
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
             context.assertEquals(3, result.result().size());
@@ -485,8 +485,8 @@ public final class CollectionsAsyncTest {
         });
     }
 
-    @Test(timeout = CollectionsAsyncTest.TIMEOUT_LIMIT)
-    @Repeat(CollectionsAsyncTest.REPEAT_LIMIT)
+    @Test(timeout = AsyncCollectionsTest.TIMEOUT_LIMIT)
+    @Repeat(AsyncCollectionsTest.REPEAT_LIMIT)
     public void filterFailsNoMoreThanOnce(final TestContext context) {
         final List<String> items = Arrays.asList("One", "Two");
         final FakeFailingAsyncFunction<String, Boolean> filter = new FakeFailingAsyncFunction<>(new Throwable("Failed"));
@@ -494,7 +494,7 @@ public final class CollectionsAsyncTest {
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
-        CollectionsAsync.filter(items, filter, result -> {
+        AsyncCollections.filter(items, filter, result -> {
             context.assertNotNull(result);
             context.assertFalse(result.succeeded());
             context.assertEquals(filter.cause(), result.cause());
@@ -506,15 +506,15 @@ public final class CollectionsAsyncTest {
         });
     }
 
-    @Test(timeout = CollectionsAsyncTest.TIMEOUT_LIMIT)
-    @Repeat(CollectionsAsyncTest.REPEAT_LIMIT)
+    @Test(timeout = AsyncCollectionsTest.TIMEOUT_LIMIT)
+    @Repeat(AsyncCollectionsTest.REPEAT_LIMIT)
     public void rejectStillExecutesWhenThereAreNoItems(final TestContext context) {
         final List<String> items = Arrays.asList();
         final FakeFailingAsyncFunction<String, Boolean> filter = new FakeFailingAsyncFunction<>(new Throwable("Failed"));
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
-        CollectionsAsync.reject(items, filter, result -> {
+        AsyncCollections.reject(items, filter, result -> {
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
             context.assertTrue(result.result().isEmpty());
@@ -524,8 +524,8 @@ public final class CollectionsAsyncTest {
         });
     }
 
-    @Test(timeout = CollectionsAsyncTest.TIMEOUT_LIMIT)
-    @Repeat(CollectionsAsyncTest.REPEAT_LIMIT)
+    @Test(timeout = AsyncCollectionsTest.TIMEOUT_LIMIT)
+    @Repeat(AsyncCollectionsTest.REPEAT_LIMIT)
     public void rejectExecutesForOneItem(final TestContext context) {
         final List<String> items = Arrays.asList("One");
         final FakeAsyncFunction<String, Boolean> filter = new FakeAsyncFunction<String, Boolean>() {
@@ -539,7 +539,7 @@ public final class CollectionsAsyncTest {
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
-        CollectionsAsync.reject(items, filter, result -> {
+        AsyncCollections.reject(items, filter, result -> {
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
             context.assertTrue(result.result().isEmpty());
@@ -550,8 +550,8 @@ public final class CollectionsAsyncTest {
         });
     }
 
-    @Test(timeout = CollectionsAsyncTest.TIMEOUT_LIMIT)
-    @Repeat(CollectionsAsyncTest.REPEAT_LIMIT)
+    @Test(timeout = AsyncCollectionsTest.TIMEOUT_LIMIT)
+    @Repeat(AsyncCollectionsTest.REPEAT_LIMIT)
     public void rejectExecutesForTwoItems(final TestContext context) {
         final List<String> items = Arrays.asList("One", "Two");
         final FakeAsyncFunction<String, Boolean> filter = new FakeAsyncFunction<String, Boolean>() {
@@ -565,7 +565,7 @@ public final class CollectionsAsyncTest {
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
-        CollectionsAsync.reject(items, filter, result -> {
+        AsyncCollections.reject(items, filter, result -> {
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
             context.assertTrue(1 == result.result().size());
@@ -578,15 +578,15 @@ public final class CollectionsAsyncTest {
         });
     }
 
-    @Test(timeout = CollectionsAsyncTest.TIMEOUT_LIMIT)
-    @Repeat(CollectionsAsyncTest.REPEAT_LIMIT)
+    @Test(timeout = AsyncCollectionsTest.TIMEOUT_LIMIT)
+    @Repeat(AsyncCollectionsTest.REPEAT_LIMIT)
     public void rejectFailsWhenAnItemFails(final TestContext context) {
         final List<String> items = Arrays.asList("One");
         final FakeFailingAsyncFunction<String, Boolean> filter = new FakeFailingAsyncFunction<>(new Throwable("Failed"));
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
-        CollectionsAsync.filter(items, filter, result -> {
+        AsyncCollections.filter(items, filter, result -> {
             context.assertNotNull(result);
             context.assertFalse(result.succeeded());
             context.assertEquals(filter.cause(), result.cause());
@@ -599,8 +599,8 @@ public final class CollectionsAsyncTest {
         });
     }
 
-    @Test(timeout = CollectionsAsyncTest.TIMEOUT_LIMIT)
-    @Repeat(CollectionsAsyncTest.REPEAT_LIMIT)
+    @Test(timeout = AsyncCollectionsTest.TIMEOUT_LIMIT)
+    @Repeat(AsyncCollectionsTest.REPEAT_LIMIT)
     public void rejectNoItems(final TestContext context) {
         final List<String> items = Arrays.asList("One", "Two", "Three");
         final FakeAsyncFunction<String, Boolean> filter = new FakeAsyncFunction<String, Boolean>() {
@@ -614,7 +614,7 @@ public final class CollectionsAsyncTest {
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
-        CollectionsAsync.reject(items, filter, result -> {
+        AsyncCollections.reject(items, filter, result -> {
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
             context.assertEquals(3, result.result().size());
@@ -626,8 +626,8 @@ public final class CollectionsAsyncTest {
         });
     }
 
-    @Test(timeout = CollectionsAsyncTest.TIMEOUT_LIMIT)
-    @Repeat(CollectionsAsyncTest.REPEAT_LIMIT)
+    @Test(timeout = AsyncCollectionsTest.TIMEOUT_LIMIT)
+    @Repeat(AsyncCollectionsTest.REPEAT_LIMIT)
     public void rejectKeepAllItems(final TestContext context) {
         final List<String> items = Arrays.asList("One", "Two", "Three");
         final FakeAsyncFunction<String, Boolean> filter = new FakeAsyncFunction<String, Boolean>() {
@@ -641,7 +641,7 @@ public final class CollectionsAsyncTest {
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
-        CollectionsAsync.reject(items, filter, result -> {
+        AsyncCollections.reject(items, filter, result -> {
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
             context.assertEquals(3, result.result().size());
@@ -653,8 +653,8 @@ public final class CollectionsAsyncTest {
         });
     }
 
-    @Test(timeout = CollectionsAsyncTest.TIMEOUT_LIMIT)
-    @Repeat(CollectionsAsyncTest.REPEAT_LIMIT)
+    @Test(timeout = AsyncCollectionsTest.TIMEOUT_LIMIT)
+    @Repeat(AsyncCollectionsTest.REPEAT_LIMIT)
     public void rejectFailsNoMoreThanOnce(final TestContext context) {
         final List<String> items = Arrays.asList("One", "Two");
         final FakeFailingAsyncFunction<String, Boolean> filter = new FakeFailingAsyncFunction<>(new Throwable("Failed"));
@@ -662,7 +662,7 @@ public final class CollectionsAsyncTest {
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
-        CollectionsAsync.reject(items, filter, result -> {
+        AsyncCollections.reject(items, filter, result -> {
             context.assertNotNull(result);
             context.assertFalse(result.succeeded());
             context.assertEquals(filter.cause(), result.cause());
@@ -674,8 +674,8 @@ public final class CollectionsAsyncTest {
         });
     }
 
-    @Test(timeout = CollectionsAsyncTest.TIMEOUT_LIMIT)
-    @Repeat(CollectionsAsyncTest.REPEAT_LIMIT)
+    @Test(timeout = AsyncCollectionsTest.TIMEOUT_LIMIT)
+    @Repeat(AsyncCollectionsTest.REPEAT_LIMIT)
     public void transformCollectionStillExecutesWhenThereAreNoItems(final TestContext context) {
         final List<Integer> items = Arrays.asList();
         final FakeAsyncFunction<Integer, String> mapper = new FakeAsyncFunction<Integer, String>() {
@@ -689,7 +689,7 @@ public final class CollectionsAsyncTest {
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
-        CollectionsAsync.transform(items, mapper, result -> {
+        AsyncCollections.transform(items, mapper, result -> {
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
             context.assertTrue(result.result().isEmpty());
@@ -699,8 +699,8 @@ public final class CollectionsAsyncTest {
         });
     }
 
-    @Test(timeout = CollectionsAsyncTest.TIMEOUT_LIMIT)
-    @Repeat(CollectionsAsyncTest.REPEAT_LIMIT)
+    @Test(timeout = AsyncCollectionsTest.TIMEOUT_LIMIT)
+    @Repeat(AsyncCollectionsTest.REPEAT_LIMIT)
     public void transformCollectionStillExecutesWhenThereAreThreeItems(final TestContext context) {
         final List<Integer> items = Arrays.asList(1, 3, 10);
         final FakeAsyncFunction<Integer, String> mapper = new FakeAsyncFunction<Integer, String>() {
@@ -713,7 +713,7 @@ public final class CollectionsAsyncTest {
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
-        CollectionsAsync.transform(items, mapper, result -> {
+        AsyncCollections.transform(items, mapper, result -> {
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
             context.assertEquals(3, mapper.runCount());
@@ -724,15 +724,15 @@ public final class CollectionsAsyncTest {
         });
     }
 
-    @Test(timeout = CollectionsAsyncTest.TIMEOUT_LIMIT)
-    @Repeat(CollectionsAsyncTest.REPEAT_LIMIT)
+    @Test(timeout = AsyncCollectionsTest.TIMEOUT_LIMIT)
+    @Repeat(AsyncCollectionsTest.REPEAT_LIMIT)
     public void transformCollectionFails(final TestContext context) {
         final List<Integer> items = Arrays.asList(1, 3, 10);
         final FakeFailingAsyncFunction<Integer, String> mapper = new FakeFailingAsyncFunction<>(new Throwable("Failed"));
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
-        CollectionsAsync.transform(items, mapper, result -> {
+        AsyncCollections.transform(items, mapper, result -> {
             context.assertNotNull(result);
             context.assertFalse(result.succeeded());
             context.assertTrue(result.failed());
@@ -743,8 +743,8 @@ public final class CollectionsAsyncTest {
         });
     }
 
-    @Test(timeout = CollectionsAsyncTest.TIMEOUT_LIMIT)
-    @Repeat(CollectionsAsyncTest.REPEAT_LIMIT)
+    @Test(timeout = AsyncCollectionsTest.TIMEOUT_LIMIT)
+    @Repeat(AsyncCollectionsTest.REPEAT_LIMIT)
     public void transformMapFails(final TestContext context) {
         final Map<Integer, String> items = new HashMap<>();
         final FakeAsyncFunction<KeyValue<Integer, String>, KeyValue<String, Integer>> mapper = new FakeFailingAsyncFunction<>(new Throwable("Failed"));
@@ -752,7 +752,7 @@ public final class CollectionsAsyncTest {
         final Async async = context.async();
         items.put(1, "One");
 
-        CollectionsAsync.transform(items, mapper, result -> {
+        AsyncCollections.transform(items, mapper, result -> {
             context.assertNotNull(result);
             context.assertFalse(result.succeeded());
             context.assertTrue(result.failed());
@@ -763,8 +763,8 @@ public final class CollectionsAsyncTest {
         });
     }
 
-    @Test(timeout = CollectionsAsyncTest.TIMEOUT_LIMIT)
-    @Repeat(CollectionsAsyncTest.REPEAT_LIMIT)
+    @Test(timeout = AsyncCollectionsTest.TIMEOUT_LIMIT)
+    @Repeat(AsyncCollectionsTest.REPEAT_LIMIT)
     public void transformMapStillExecutesWhenThereAreNoItems(final TestContext context) {
         final Map<Integer, String> items = new HashMap<>();
         final FakeAsyncFunction<KeyValue<Integer, String>, KeyValue<String, Integer>> mapper = new FakeAsyncFunction<KeyValue<Integer, String>, KeyValue<String, Integer>>() {
@@ -778,7 +778,7 @@ public final class CollectionsAsyncTest {
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
-        CollectionsAsync.transform(items, mapper, result -> {
+        AsyncCollections.transform(items, mapper, result -> {
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
             context.assertTrue(result.result().isEmpty());
@@ -788,8 +788,8 @@ public final class CollectionsAsyncTest {
         });
     }
 
-    @Test(timeout = CollectionsAsyncTest.TIMEOUT_LIMIT)
-    @Repeat(CollectionsAsyncTest.REPEAT_LIMIT)
+    @Test(timeout = AsyncCollectionsTest.TIMEOUT_LIMIT)
+    @Repeat(AsyncCollectionsTest.REPEAT_LIMIT)
     public void transformMapStillExecutesWhenThereAreThreeItems(final TestContext context) {
         final Map<Integer, String> items = new HashMap<>();
         final FakeAsyncFunction<KeyValue<Integer, String>, KeyValue<String, Integer>> mapper = new FakeAsyncFunction<KeyValue<Integer, String>, KeyValue<String, Integer>>() {
@@ -807,7 +807,7 @@ public final class CollectionsAsyncTest {
         items.put(1, "One");
         items.put(2, "Two");
 
-        CollectionsAsync.transform(items, mapper, result -> {
+        AsyncCollections.transform(items, mapper, result -> {
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
             context.assertEquals(3, mapper.runCount());
@@ -820,8 +820,8 @@ public final class CollectionsAsyncTest {
         });
     }
 
-    @Test(timeout = CollectionsAsyncTest.TIMEOUT_LIMIT)
-    @Repeat(CollectionsAsyncTest.REPEAT_LIMIT)
+    @Test(timeout = AsyncCollectionsTest.TIMEOUT_LIMIT)
+    @Repeat(AsyncCollectionsTest.REPEAT_LIMIT)
     public void reduceWhenThereAreNoItems(final TestContext context) {
         final List<String> items = Arrays.asList();
         final FakeAsyncFunction<Pair<String, Integer>, Integer> reducer = new FakeAsyncFunction<Pair<String, Integer>, Integer>() {
@@ -835,7 +835,7 @@ public final class CollectionsAsyncTest {
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
-        CollectionsAsync.reduce(items, 0, reducer, result -> {
+        AsyncCollections.reduce(items, 0, reducer, result -> {
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
             context.assertEquals(0, result.result());
@@ -845,8 +845,8 @@ public final class CollectionsAsyncTest {
         });
     }
 
-    @Test(timeout = CollectionsAsyncTest.TIMEOUT_LIMIT)
-    @Repeat(CollectionsAsyncTest.REPEAT_LIMIT)
+    @Test(timeout = AsyncCollectionsTest.TIMEOUT_LIMIT)
+    @Repeat(AsyncCollectionsTest.REPEAT_LIMIT)
     public void reduceWhenThereAreItems(final TestContext context) {
         final List<String> items = Arrays.asList("1", "2", "3");
         final FakeAsyncFunction<Pair<String, Integer>, Integer> reducer = new FakeAsyncFunction<Pair<String, Integer>, Integer>() {
@@ -860,7 +860,7 @@ public final class CollectionsAsyncTest {
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
-        CollectionsAsync.reduce(items, 0, reducer, result -> {
+        AsyncCollections.reduce(items, 0, reducer, result -> {
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
             context.assertEquals(6, result.result());
@@ -870,15 +870,15 @@ public final class CollectionsAsyncTest {
         });
     }
 
-    @Test(timeout = CollectionsAsyncTest.TIMEOUT_LIMIT)
-    @Repeat(CollectionsAsyncTest.REPEAT_LIMIT)
+    @Test(timeout = AsyncCollectionsTest.TIMEOUT_LIMIT)
+    @Repeat(AsyncCollectionsTest.REPEAT_LIMIT)
     public void reduceWhenThereAreAnItemFails(final TestContext context) {
         final List<String> items = Arrays.asList("1", "2", "3");
         final FakeFailingAsyncFunction<Pair<String, Integer>, Integer> reducer = new FakeFailingAsyncFunction<>(new Throwable("Failed"));
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
-        CollectionsAsync.reduce(items, 0, reducer, result -> {
+        AsyncCollections.reduce(items, 0, reducer, result -> {
             context.assertNotNull(result);
             context.assertFalse(result.succeeded());
             context.assertNull(result.result());
@@ -888,15 +888,15 @@ public final class CollectionsAsyncTest {
         });
     }
 
-    @Test(timeout = CollectionsAsyncTest.TIMEOUT_LIMIT)
-    @Repeat(CollectionsAsyncTest.REPEAT_LIMIT)
+    @Test(timeout = AsyncCollectionsTest.TIMEOUT_LIMIT)
+    @Repeat(AsyncCollectionsTest.REPEAT_LIMIT)
     public void reduceWhenThereAreLastItemFails(final TestContext context) {
         final List<String> items = Arrays.asList("1", "2", "3");
         final FakeFailingAsyncFunction<Pair<String, Integer>, Integer> reducer = new FakeFailingAsyncFunction<>(2, null, new Throwable("Failed"));
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
-        CollectionsAsync.reduce(items, 0, reducer, result -> {
+        AsyncCollections.reduce(items, 0, reducer, result -> {
             context.assertNotNull(result);
             context.assertFalse(result.succeeded());
             context.assertNull(result.result());
@@ -906,8 +906,8 @@ public final class CollectionsAsyncTest {
         });
     }
 
-    @Test(timeout = CollectionsAsyncTest.TIMEOUT_LIMIT)
-    @Repeat(CollectionsAsyncTest.REPEAT_LIMIT)
+    @Test(timeout = AsyncCollectionsTest.TIMEOUT_LIMIT)
+    @Repeat(AsyncCollectionsTest.REPEAT_LIMIT)
     public void detectWhenThereAreNoItems(final TestContext context) {
         final List<String> items = Arrays.asList();
         final FakeAsyncFunction<String, Boolean> tester = new FakeAsyncFunction<String, Boolean>() {
@@ -921,7 +921,7 @@ public final class CollectionsAsyncTest {
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
-        CollectionsAsync.detect(items, tester, result -> {
+        AsyncCollections.detect(items, tester, result -> {
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
             context.assertNull(result.result());
@@ -931,8 +931,8 @@ public final class CollectionsAsyncTest {
         });
     }
 
-    @Test(timeout = CollectionsAsyncTest.TIMEOUT_LIMIT)
-    @Repeat(CollectionsAsyncTest.REPEAT_LIMIT)
+    @Test(timeout = AsyncCollectionsTest.TIMEOUT_LIMIT)
+    @Repeat(AsyncCollectionsTest.REPEAT_LIMIT)
     public void detectAnItem(final TestContext context) {
         final List<String> items = Arrays.asList("1", "2", "3");
         final FakeAsyncFunction<String, Boolean> tester = new FakeAsyncFunction<String, Boolean>() {
@@ -946,7 +946,7 @@ public final class CollectionsAsyncTest {
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
-        CollectionsAsync.detect(items, tester, result -> {
+        AsyncCollections.detect(items, tester, result -> {
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
             context.assertEquals("2", result.result());
@@ -955,8 +955,8 @@ public final class CollectionsAsyncTest {
         });
     }
 
-    @Test(timeout = CollectionsAsyncTest.TIMEOUT_LIMIT)
-    @Repeat(CollectionsAsyncTest.REPEAT_LIMIT)
+    @Test(timeout = AsyncCollectionsTest.TIMEOUT_LIMIT)
+    @Repeat(AsyncCollectionsTest.REPEAT_LIMIT)
     public void detectNoItem(final TestContext context) {
         final List<String> items = Arrays.asList("1", "2", "3");
         final FakeAsyncFunction<String, Boolean> tester = new FakeAsyncFunction<String, Boolean>() {
@@ -970,7 +970,7 @@ public final class CollectionsAsyncTest {
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
-        CollectionsAsync.detect(items, tester, result -> {
+        AsyncCollections.detect(items, tester, result -> {
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
             context.assertNull(result.result());
@@ -979,15 +979,15 @@ public final class CollectionsAsyncTest {
         });
     }
 
-    @Test(timeout = CollectionsAsyncTest.TIMEOUT_LIMIT)
-    @Repeat(CollectionsAsyncTest.REPEAT_LIMIT)
+    @Test(timeout = AsyncCollectionsTest.TIMEOUT_LIMIT)
+    @Repeat(AsyncCollectionsTest.REPEAT_LIMIT)
     public void detectWithAFailed(final TestContext context) {
         final List<String> items = Arrays.asList("1", "2", "3");
         final FakeFailingAsyncFunction<String, Boolean> tester = new FakeFailingAsyncFunction<>(2, null, new Throwable("Failed"));
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
-        CollectionsAsync.detect(items, tester, result -> {
+        AsyncCollections.detect(items, tester, result -> {
             context.assertNotNull(result);
             context.assertTrue(result.cause() instanceof Throwable);
             context.assertFalse(result.succeeded());
@@ -997,8 +997,8 @@ public final class CollectionsAsyncTest {
         });
     }
 
-    @Test(timeout = CollectionsAsyncTest.TIMEOUT_LIMIT)
-    @Repeat(CollectionsAsyncTest.REPEAT_LIMIT)
+    @Test(timeout = AsyncCollectionsTest.TIMEOUT_LIMIT)
+    @Repeat(AsyncCollectionsTest.REPEAT_LIMIT)
     public void someWhenThereAreNoItems(final TestContext context) {
         final List<String> items = Arrays.asList();
         final FakeAsyncFunction<String, Boolean> tester = new FakeAsyncFunction<String, Boolean>() {
@@ -1012,7 +1012,7 @@ public final class CollectionsAsyncTest {
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
-        CollectionsAsync.some(items, tester, result -> {
+        AsyncCollections.some(items, tester, result -> {
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
             context.assertFalse(result.result());
@@ -1022,8 +1022,8 @@ public final class CollectionsAsyncTest {
         });
     }
 
-    @Test(timeout = CollectionsAsyncTest.TIMEOUT_LIMIT)
-    @Repeat(CollectionsAsyncTest.REPEAT_LIMIT)
+    @Test(timeout = AsyncCollectionsTest.TIMEOUT_LIMIT)
+    @Repeat(AsyncCollectionsTest.REPEAT_LIMIT)
     public void someAnItem(final TestContext context) {
         final List<String> items = Arrays.asList("1", "2", "3");
         final FakeAsyncFunction<String, Boolean> tester = new FakeAsyncFunction<String, Boolean>() {
@@ -1037,7 +1037,7 @@ public final class CollectionsAsyncTest {
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
-        CollectionsAsync.some(items, tester, result -> {
+        AsyncCollections.some(items, tester, result -> {
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
             context.assertTrue(result.result());
@@ -1046,8 +1046,8 @@ public final class CollectionsAsyncTest {
         });
     }
 
-    @Test(timeout = CollectionsAsyncTest.TIMEOUT_LIMIT)
-    @Repeat(CollectionsAsyncTest.REPEAT_LIMIT)
+    @Test(timeout = AsyncCollectionsTest.TIMEOUT_LIMIT)
+    @Repeat(AsyncCollectionsTest.REPEAT_LIMIT)
     public void someNoItem(final TestContext context) {
         final List<String> items = Arrays.asList("1", "2", "3");
         final FakeAsyncFunction<String, Boolean> tester = new FakeAsyncFunction<String, Boolean>() {
@@ -1061,7 +1061,7 @@ public final class CollectionsAsyncTest {
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
-        CollectionsAsync.some(items, tester, result -> {
+        AsyncCollections.some(items, tester, result -> {
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
             context.assertFalse(result.result());
@@ -1070,15 +1070,15 @@ public final class CollectionsAsyncTest {
         });
     }
 
-    @Test(timeout = CollectionsAsyncTest.TIMEOUT_LIMIT)
-    @Repeat(CollectionsAsyncTest.REPEAT_LIMIT)
+    @Test(timeout = AsyncCollectionsTest.TIMEOUT_LIMIT)
+    @Repeat(AsyncCollectionsTest.REPEAT_LIMIT)
     public void someWithAFailed(final TestContext context) {
         final List<String> items = Arrays.asList("1", "2", "3");
         final FakeFailingAsyncFunction<String, Boolean> tester = new FakeFailingAsyncFunction<>(2, null, new Throwable("Failed"));
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
-        CollectionsAsync.some(items, tester, result -> {
+        AsyncCollections.some(items, tester, result -> {
             context.assertNotNull(result);
             context.assertFalse(result.succeeded());
             context.assertNull(result.result());
@@ -1087,8 +1087,8 @@ public final class CollectionsAsyncTest {
         });
     }
 
-    @Test(timeout = CollectionsAsyncTest.TIMEOUT_LIMIT)
-    @Repeat(CollectionsAsyncTest.REPEAT_LIMIT)
+    @Test(timeout = AsyncCollectionsTest.TIMEOUT_LIMIT)
+    @Repeat(AsyncCollectionsTest.REPEAT_LIMIT)
     public void everyWhenThereAreNoItems(final TestContext context) {
         final List<String> items = Arrays.asList();
         final FakeAsyncFunction<String, Boolean> tester = new FakeAsyncFunction<String, Boolean>() {
@@ -1102,7 +1102,7 @@ public final class CollectionsAsyncTest {
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
-        CollectionsAsync.every(items, tester, result -> {
+        AsyncCollections.every(items, tester, result -> {
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
             context.assertFalse(result.result());
@@ -1112,8 +1112,8 @@ public final class CollectionsAsyncTest {
         });
     }
 
-    @Test(timeout = CollectionsAsyncTest.TIMEOUT_LIMIT)
-    @Repeat(CollectionsAsyncTest.REPEAT_LIMIT)
+    @Test(timeout = AsyncCollectionsTest.TIMEOUT_LIMIT)
+    @Repeat(AsyncCollectionsTest.REPEAT_LIMIT)
     public void everyAllItem(final TestContext context) {
         final List<String> items = Arrays.asList("1", "2", "3");
         final FakeAsyncFunction<String, Boolean> tester = new FakeAsyncFunction<String, Boolean>() {
@@ -1127,7 +1127,7 @@ public final class CollectionsAsyncTest {
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
-        CollectionsAsync.every(items, tester, result -> {
+        AsyncCollections.every(items, tester, result -> {
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
             context.assertTrue(result.result());
@@ -1136,8 +1136,8 @@ public final class CollectionsAsyncTest {
         });
     }
 
-    @Test(timeout = CollectionsAsyncTest.TIMEOUT_LIMIT)
-    @Repeat(CollectionsAsyncTest.REPEAT_LIMIT)
+    @Test(timeout = AsyncCollectionsTest.TIMEOUT_LIMIT)
+    @Repeat(AsyncCollectionsTest.REPEAT_LIMIT)
     public void everyNoAllItem(final TestContext context) {
         final List<String> items = Arrays.asList("1", "2", "3");
         final FakeAsyncFunction<String, Boolean> tester = new FakeAsyncFunction<String, Boolean>() {
@@ -1151,7 +1151,7 @@ public final class CollectionsAsyncTest {
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
-        CollectionsAsync.every(items, tester, result -> {
+        AsyncCollections.every(items, tester, result -> {
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
             context.assertFalse(result.result());
@@ -1160,15 +1160,15 @@ public final class CollectionsAsyncTest {
         });
     }
 
-    @Test(timeout = CollectionsAsyncTest.TIMEOUT_LIMIT)
-    @Repeat(CollectionsAsyncTest.REPEAT_LIMIT)
+    @Test(timeout = AsyncCollectionsTest.TIMEOUT_LIMIT)
+    @Repeat(AsyncCollectionsTest.REPEAT_LIMIT)
     public void everyWithAFailed(final TestContext context) {
         final List<String> items = Arrays.asList("1", "2", "3");
         final FakeFailingAsyncFunction<String, Boolean> tester = new FakeFailingAsyncFunction<>(2, null, new Throwable("Failed"));
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
-        CollectionsAsync.every(items, tester, result -> {
+        AsyncCollections.every(items, tester, result -> {
             context.assertNotNull(result);
             context.assertFalse(result.succeeded());
             context.assertNull(result.result());
@@ -1177,8 +1177,8 @@ public final class CollectionsAsyncTest {
         });
     }
 
-    @Test(timeout = CollectionsAsyncTest.TIMEOUT_LIMIT)
-    @Repeat(CollectionsAsyncTest.REPEAT_LIMIT)
+    @Test(timeout = AsyncCollectionsTest.TIMEOUT_LIMIT)
+    @Repeat(AsyncCollectionsTest.REPEAT_LIMIT)
     public void concatWhenThereAreNoItems(final TestContext context) {
         final List<String> items = Arrays.asList();
         final FakeAsyncFunction<String, Collection<Boolean>> tester = new FakeAsyncFunction<String, Collection<Boolean>>() {
@@ -1196,7 +1196,7 @@ public final class CollectionsAsyncTest {
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
-        CollectionsAsync.concat(items, tester, result -> {
+        AsyncCollections.concat(items, tester, result -> {
 
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
@@ -1207,8 +1207,8 @@ public final class CollectionsAsyncTest {
         });
     }
 
-    @Test(timeout = CollectionsAsyncTest.TIMEOUT_LIMIT)
-    @Repeat(CollectionsAsyncTest.REPEAT_LIMIT)
+    @Test(timeout = AsyncCollectionsTest.TIMEOUT_LIMIT)
+    @Repeat(AsyncCollectionsTest.REPEAT_LIMIT)
     public void concatAllItems(final TestContext context) {
         final List<String> items = Arrays.asList("One", "Two", "Three");
         final FakeAsyncFunction<String, Collection<Boolean>> tester = new FakeAsyncFunction<String, Collection<Boolean>>() {
@@ -1226,7 +1226,7 @@ public final class CollectionsAsyncTest {
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
-        CollectionsAsync.concat(items, tester, result -> {
+        AsyncCollections.concat(items, tester, result -> {
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
             context.assertEquals(11, result.result().size());
@@ -1236,15 +1236,15 @@ public final class CollectionsAsyncTest {
         });
     }
 
-    @Test(timeout = CollectionsAsyncTest.TIMEOUT_LIMIT)
-    @Repeat(CollectionsAsyncTest.REPEAT_LIMIT)
+    @Test(timeout = AsyncCollectionsTest.TIMEOUT_LIMIT)
+    @Repeat(AsyncCollectionsTest.REPEAT_LIMIT)
     public void concatFailed(final TestContext context) {
         final List<String> items = Arrays.asList("One", "Two", "Three");
         final FakeAsyncFunction<String, Collection<Boolean>> tester = new FakeFailingAsyncFunction<>(2, null, new Throwable("Failed"));
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
-        CollectionsAsync.concat(items, tester, result -> {
+        AsyncCollections.concat(items, tester, result -> {
             context.assertNotNull(result);
             context.assertTrue(result.failed());
             context.assertTrue(result.cause() instanceof Throwable);
@@ -1255,12 +1255,12 @@ public final class CollectionsAsyncTest {
         });
     }
 
-    @Test(timeout = CollectionsAsyncTest.TIMEOUT_LIMIT)
-    @Repeat(CollectionsAsyncTest.REPEAT_LIMIT)
+    @Test(timeout = AsyncCollectionsTest.TIMEOUT_LIMIT)
+    @Repeat(AsyncCollectionsTest.REPEAT_LIMIT)
     public void sortNoItems(final TestContext context) {
         final List<Integer> items = Arrays.asList();
         final Async async = context.async();
-        CollectionsAsync.sort(items, result -> {
+        AsyncCollections.sort(items, result -> {
             context.assertNotNull(result);
             context.assertFalse(result.failed());
             context.assertTrue(result.succeeded());
@@ -1269,12 +1269,12 @@ public final class CollectionsAsyncTest {
         });
     }
 
-    @Test(timeout = CollectionsAsyncTest.TIMEOUT_LIMIT)
-    @Repeat(CollectionsAsyncTest.REPEAT_LIMIT)
+    @Test(timeout = AsyncCollectionsTest.TIMEOUT_LIMIT)
+    @Repeat(AsyncCollectionsTest.REPEAT_LIMIT)
     public void sortItems(final TestContext context) {
         final List<Integer> items = Arrays.asList(3, 2, 1);
         final Async async = context.async();
-        CollectionsAsync.sort(items, result -> {
+        AsyncCollections.sort(items, result -> {
             context.assertNotNull(result);
             context.assertFalse(result.failed());
             context.assertTrue(result.succeeded());
@@ -1283,12 +1283,12 @@ public final class CollectionsAsyncTest {
         });
     }
 
-    @Test(timeout = CollectionsAsyncTest.TIMEOUT_LIMIT)
-    @Repeat(CollectionsAsyncTest.REPEAT_LIMIT)
+    @Test(timeout = AsyncCollectionsTest.TIMEOUT_LIMIT)
+    @Repeat(AsyncCollectionsTest.REPEAT_LIMIT)
     public void sortItemsWithValidator(final TestContext context) {
         final List<Integer> items = Arrays.asList(2, 3, 1);
         final Async async = context.async();
-        CollectionsAsync.sort(items, (a, b) -> b.compareTo(a), (AsyncResult<Collection<Integer>> result) -> {
+        AsyncCollections.sort(items, (a, b) -> b.compareTo(a), (AsyncResult<Collection<Integer>> result) -> {
             context.assertNotNull(result);
             context.assertFalse(result.failed());
             context.assertTrue(result.succeeded());

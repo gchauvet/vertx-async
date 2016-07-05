@@ -36,7 +36,7 @@ public class EachMapCollection extends AbstractVerticle {
             values.put(Integer.toString(i), i);
         }
         
-        CollectionsAsync.each(this.getVertx(), values, (item, handler) -> {
+        AsyncCollections.each(this.getVertx(), values, (item, handler) -> {
             System.out.println(item.getKey() + " -> " + item.getValue());
             handler.handle(DefaultAsyncResult.succeed());
         }, e -> {

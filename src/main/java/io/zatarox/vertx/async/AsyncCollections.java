@@ -26,9 +26,9 @@ import java.util.function.BiConsumer;
 import java.util.stream.Stream;
 import org.javatuples.*;
 
-public final class CollectionsAsync {
+public final class AsyncCollections {
 
-    private CollectionsAsync() throws InstantiationException {
+    private AsyncCollections() throws InstantiationException {
         throw new InstantiationException();
     }
 

@@ -64,7 +64,7 @@ public final class LoopRetryOptionsTest {
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
-        FlowsAsync.retry(options, task1, result -> {
+        AsyncFlows.retry(options, task1, result -> {
             context.assertEquals(1, task1.runCount());
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
@@ -83,7 +83,7 @@ public final class LoopRetryOptionsTest {
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
-        FlowsAsync.retry(options, task1, result -> {
+        AsyncFlows.retry(options, task1, result -> {
             context.assertEquals(10, task1.runCount());
             context.assertNotNull(result);
             context.assertFalse(result.succeeded());
@@ -100,7 +100,7 @@ public final class LoopRetryOptionsTest {
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
-        FlowsAsync.retry(options, task1, result -> {
+        AsyncFlows.retry(options, task1, result -> {
             context.assertEquals(10, task1.runCount());
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());

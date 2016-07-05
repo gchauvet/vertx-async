@@ -31,7 +31,7 @@ vertx-async snapshots are available on OSSRH repository:
 ```java
     @Override
     public void start(final Future<Void> startFuture) {
-        CollectionsAsync.each(IntStream.iterate(0, i -> i + 1).limit(100).boxed().collect(Collectors.toList()), (item, handler) -> {
+        AsyncCollections.each(IntStream.iterate(0, i -> i + 1).limit(100).boxed().collect(Collectors.toList()), (item, handler) -> {
             System.out.println("get " + item);
             handler.handle(DefaultAsyncResult.succeed());
         }, e -> {
@@ -50,7 +50,7 @@ vertx-async snapshots are available on OSSRH repository:
             values.put(Integer.toString(i), i);
         }
         
-        CollectionsAsync.each(values, (item, handler) -> {
+        AsyncCollections.each(values, (item, handler) -> {
             System.out.println(item.getKey() + " -> " + item.getValue());
             handler.handle(DefaultAsyncResult.succeed());
         }, e -> {

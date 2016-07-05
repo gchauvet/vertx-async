@@ -27,9 +27,9 @@ import java.util.function.BiConsumer;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 
-public final class FlowsAsync {
+public final class AsyncFlows {
 
-    private FlowsAsync() throws InstantiationException {
+    private AsyncFlows() throws InstantiationException {
         throw new InstantiationException();
     }
 
