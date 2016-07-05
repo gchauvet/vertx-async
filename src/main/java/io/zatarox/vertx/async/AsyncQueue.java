@@ -32,9 +32,10 @@ public interface AsyncQueue<T> {
      *
      * @param task The task to run
      * @param handler Result handler associated with the declared consumer
-     * @return
+     * @param top Add to the top of the queue ?
+     * @return True is operation is successful
      */
-    boolean add(final T task, final Handler<AsyncResult<Void>> handler);
+    boolean add(final T task, final Handler<AsyncResult<Void>> handler, final boolean top);
 
     /**
      * @param listener Listener to add
@@ -51,8 +52,26 @@ public interface AsyncQueue<T> {
      * @return Number of running workers
      */
     int getRunning();
-
-    void handle(Void event);
+    
+    /**
+     * @return Returning false if there are items waiting or being processed, or true if not.
+     */
+    boolean isIdle();
+    
+    /**
+     * Removes the drain callback and empties remaining tasks from the queue forcing it to go idle.
+     */
+    void clear();
+    
+    /**
+     * @return A boolean for determining whether the queue is in a paused state.
+     */
+    boolean isPaused();
+    
+    /**
+     * @param paused  A function that pauses or not the processing of tasks.
+     */
+    void setPaused(final boolean paused);
 
     /**
      * @param listener Listener to remove

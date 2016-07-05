@@ -28,7 +28,6 @@ import io.zatarox.vertx.async.DefaultAsyncResult;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
-import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -52,23 +51,24 @@ public final class AsyncQueueImplTest {
     public RunTestOnContext rule = new RunTestOnContext();
 
     @Before
-    public void setUp() {
+    public void setUp(final TestContext context) {
         worker = (t, u) -> {
-            rule.vertx().setPeriodic(t, event -> {
+            rule.vertx().setTimer(t, event -> {
                 u.handle(DefaultAsyncResult.succeed());
             });
         };
         queue = new AsyncQueueImpl(worker);
-        assertNotNull(queue);
-        assertEquals(0, queue.getRunning());
-        assertEquals(5, queue.getConcurrency());
+        context.assertNotNull(queue);
+        context.assertEquals(0, queue.getRunning());
+        context.assertEquals(5, queue.getConcurrency());
     }
 
     @Test(timeout = AsyncQueueImplTest.TIMEOUT_LIMIT)
     @Repeat(AsyncQueueImplTest.REPEAT_LIMIT)
-    public void executeEmptyQueue() {
+    public void executeEmptyQueue(final TestContext context) {
+        context.assertTrue(queue.isIdle());
         rule.vertx().runOnContext(queue);
-        assertEquals(0, queue.getRunning());
+        context.assertEquals(0, queue.getRunning());
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -96,19 +96,19 @@ public final class AsyncQueueImplTest {
         queue.add(100, event -> {
             context.assertTrue(event.succeeded());
             context.assertTrue(empty.get());
-        });
-        rule.vertx().runOnContext(queue);
+        }, false);
+        context.assertFalse(queue.isIdle());
     }
 
     @Test(timeout = AsyncQueueImplTest.TIMEOUT_LIMIT)
     @Repeat(AsyncQueueImplTest.REPEAT_LIMIT)
     public void executeOneTaskSucceedInQueue(final TestContext context) {
         final Async async = context.async();
-        assertTrue(queue.add(100, event -> {
+        context.assertTrue(queue.add(100, event -> {
             context.assertTrue(event.succeeded());
             async.complete();
-        }));
-        rule.vertx().runOnContext(queue);
+        }, false));
+        context.assertFalse(queue.isIdle());
     }
 
     @Test(timeout = AsyncQueueImplTest.TIMEOUT_LIMIT)
@@ -117,14 +117,14 @@ public final class AsyncQueueImplTest {
         final Async async = context.async();
         @SuppressWarnings("LocalVariableHidesMemberVariable")
         final AsyncQueueImpl<Integer> queue = new AsyncQueueImpl(worker, 1);
-        assertTrue(queue.add(100, event -> {
+        context.assertTrue(queue.add(100, event -> {
             context.assertTrue(event.succeeded());
-        }));
-        assertTrue(queue.add(200, event -> {
+        }, false));
+        context.assertTrue(queue.add(200, event -> {
             context.assertTrue(event.succeeded());
             async.complete();
-        }));
-        rule.vertx().runOnContext(queue);
+        }, false));
+        context.assertFalse(queue.isIdle());
     }
 
     @Test(timeout = AsyncQueueImplTest.TIMEOUT_LIMIT)
@@ -132,15 +132,15 @@ public final class AsyncQueueImplTest {
     public void executeTwoTaskSucceedWithDefaultNumberWorkers(final TestContext context) {
         final Async async = context.async();
         final AtomicInteger counter = new AtomicInteger();
-        assertTrue(queue.add(100, event -> {
+        context.assertTrue(queue.add(100, event -> {
             context.assertTrue(event.succeeded());
             counter.incrementAndGet();
-        }));
-        assertTrue(queue.add(200, event -> {
+        }, false));
+        context.assertTrue(queue.add(200, event -> {
             context.assertTrue(event.succeeded());
             async.complete();
-        }));
-        rule.vertx().runOnContext(queue);
+        }, false));
+        context.assertFalse(queue.isIdle());
     }
 
     @Test(timeout = AsyncQueueImplTest.TIMEOUT_LIMIT)
@@ -148,16 +148,62 @@ public final class AsyncQueueImplTest {
     public void executeOneTaskFailedInQueue(final TestContext context) {
         final Async async = context.async();
         queue = new AsyncQueueImpl<>((t, u) -> {
-            rule.vertx().setPeriodic(t, event -> {
+            rule.vertx().setTimer(t, event -> {
                 u.handle(DefaultAsyncResult.fail(new IllegalArgumentException()));
             });
         });
-        assertTrue(queue.add(100, event -> {
+        context.assertTrue(queue.add(100, event -> {
             context.assertFalse(event.succeeded());
             context.assertTrue(event.cause() instanceof IllegalArgumentException);
             async.complete();
-        }));
-        rule.vertx().runOnContext(queue);
+        }, false));
+        context.assertFalse(queue.isIdle());
+    }
+    
+    @Test(timeout = AsyncQueueImplTest.TIMEOUT_LIMIT)
+    @Repeat(AsyncQueueImplTest.REPEAT_LIMIT)
+    public void executePauseAndUnpause(final TestContext context) {
+        final Async async = context.async();
+        final AtomicInteger counter = new AtomicInteger();
+        queue.setPaused(true);
+        context.assertTrue(queue.isPaused());
+        context.assertTrue(queue.isIdle());
+        context.assertTrue(queue.add(100, event -> {
+            context.assertTrue(event.succeeded());
+            counter.incrementAndGet();
+        }, false));
+        context.assertTrue(queue.add(200, event -> {
+            context.assertTrue(event.succeeded());
+            context.assertFalse(queue.isPaused());
+            async.complete();
+        }, false));
+        context.assertEquals(0, queue.getRunning());
+        context.assertFalse(queue.isIdle());
+        queue.setPaused(false);
+        context.assertFalse(queue.isIdle());
+    }
+    
+    @Test(timeout = AsyncQueueImplTest.TIMEOUT_LIMIT)
+    @Repeat(AsyncQueueImplTest.REPEAT_LIMIT)
+    public void executeAddToTop(final TestContext context) {
+        final Async async = context.async();
+        final AtomicInteger counter = new AtomicInteger();
+        queue = new AsyncQueueImpl(worker, 1);
+        queue.setPaused(true);
+        context.assertTrue(queue.add(100, event -> {
+            context.assertTrue(event.succeeded());
+            context.assertEquals(2, counter.incrementAndGet());
+            async.complete();
+        }, false));
+        context.assertTrue(queue.add(100, event -> {
+            context.assertTrue(event.succeeded());
+            context.assertFalse(queue.isPaused());
+            context.assertEquals(1, counter.incrementAndGet());
+        }, true));
+        context.assertEquals(0, queue.getRunning());
+        context.assertFalse(queue.isIdle());
+        queue.setPaused(false);
+        context.assertFalse(queue.isIdle());
     }
 
 }

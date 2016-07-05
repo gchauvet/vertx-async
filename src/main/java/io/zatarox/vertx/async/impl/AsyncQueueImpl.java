@@ -20,9 +20,10 @@ import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.impl.ConcurrentHashSet;
 import io.zatarox.vertx.async.AsyncQueue;
-import java.util.Queue;
+import java.util.Deque;
 import java.util.Set;
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
 import org.javatuples.Pair;
@@ -30,10 +31,11 @@ import org.javatuples.Pair;
 public final class AsyncQueueImpl<T> implements Handler<Void>, AsyncQueue<T> {
 
     private final BiConsumer<T, Handler<AsyncResult<Void>>> worker;
-    private final Queue<Pair<T, Handler<AsyncResult<Void>>>> tasks = new ConcurrentLinkedQueue();
+    private final Deque<Pair<T, Handler<AsyncResult<Void>>>> tasks = new ConcurrentLinkedDeque();
     private final Set<AsyncQueueListener> listeners = new ConcurrentHashSet();
     private final AtomicInteger concurrency = new AtomicInteger(0);
     private final AtomicInteger current = new AtomicInteger(0);
+    private final AtomicBoolean paused = new AtomicBoolean(false);
 
     public AsyncQueueImpl(final BiConsumer<T, Handler<AsyncResult<Void>>> worker) {
         this(worker, 5);
@@ -55,15 +57,25 @@ public final class AsyncQueueImpl<T> implements Handler<Void>, AsyncQueue<T> {
         this.concurrency.set(concurrency);
     }
 
-    /**
-     * @return Number of running workers
-     */
     public int getRunning() {
         return current.get();
     }
 
-    public boolean add(final T task, final Handler<AsyncResult<Void>> handler) {
-        return tasks.add(new Pair(task, handler));
+    public boolean add(final T task, final Handler<AsyncResult<Void>> handler, final boolean top) {
+        try {
+            final Pair<T, Handler<AsyncResult<Void>>> item = new Pair(task, handler);
+            final boolean result;
+            if (!top) {
+                result = tasks.offer(item);
+            } else {
+                result = tasks.offerFirst(item);
+            }
+            return result;
+        } finally {
+            if (current.get() < 1 && !paused.get()) {
+                Vertx.currentContext().runOnContext(this);
+            }
+        }
     }
 
     public boolean add(final AsyncQueueListener listener) {
@@ -77,7 +89,7 @@ public final class AsyncQueueImpl<T> implements Handler<Void>, AsyncQueue<T> {
     public void handle(Void event) {
         if (tasks.isEmpty()) {
             fireEmptyPool();
-        } else if (current.get() < concurrency.get()) {
+        } else if (current.get() < concurrency.get() && !paused.get()) {
             final Pair<T, Handler<AsyncResult<Void>>> task = tasks.poll();
             current.incrementAndGet();
             Vertx.currentContext().runOnContext(event1 -> {
@@ -88,6 +100,29 @@ public final class AsyncQueueImpl<T> implements Handler<Void>, AsyncQueue<T> {
                 });
             });
             this.handle(event);
+        }
+    }
+
+    @Override
+    public boolean isIdle() {
+        return current.get() == 0 && tasks.isEmpty();
+    }
+
+    @Override
+    public void clear() {
+        tasks.clear();
+    }
+
+    @Override
+    public boolean isPaused() {
+        return paused.get();
+    }
+
+    @Override
+    public void setPaused(boolean paused) {
+        this.paused.set(paused);
+        if (!paused && current.get() < 1) {
+            Vertx.currentContext().runOnContext(this);
         }
     }
 

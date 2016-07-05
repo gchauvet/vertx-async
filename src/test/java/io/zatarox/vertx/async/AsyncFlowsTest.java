@@ -613,7 +613,7 @@ public final class AsyncFlowsTest {
         final FakeAsyncSupplier<String> task1 = new FakeAsyncSupplier<String>() {
             @Override
             public void accept(Handler<AsyncResult<String>> u) {
-                rule.vertx().setPeriodic(200, id -> {
+                rule.vertx().setTimer(200, id -> {
                     incrementRunCount();
                     rule.vertx().cancelTimer(id);
                     u.handle(DefaultAsyncResult.succeed("Task 1"));
@@ -623,7 +623,7 @@ public final class AsyncFlowsTest {
         final FakeAsyncSupplier<String> task2 = new FakeAsyncSupplier<String>() {
             @Override
             public void accept(Handler<AsyncResult<String>> u) {
-                rule.vertx().setPeriodic(100, id -> {
+                rule.vertx().setTimer(100, id -> {
                     incrementRunCount();
                     rule.vertx().cancelTimer(id);
                     u.handle(DefaultAsyncResult.succeed("Task 2"));
@@ -650,7 +650,7 @@ public final class AsyncFlowsTest {
         final FakeAsyncSupplier<String> task1 = new FakeAsyncSupplier<String>() {
             @Override
             public void accept(Handler<AsyncResult<String>> u) {
-                rule.vertx().setPeriodic(200, id -> {
+                rule.vertx().setTimer(200, id -> {
                     incrementRunCount();
                     rule.vertx().cancelTimer(id);
                     u.handle(DefaultAsyncResult.succeed("Task 1"));
@@ -660,7 +660,7 @@ public final class AsyncFlowsTest {
         final FakeAsyncSupplier<String> task2 = new FakeAsyncSupplier<String>() {
             @Override
             public void accept(Handler<AsyncResult<String>> u) {
-                rule.vertx().setPeriodic(100, id -> {
+                rule.vertx().setTimer(100, id -> {
                     incrementRunCount();
                     rule.vertx().cancelTimer(id);
                     u.handle(DefaultAsyncResult.fail(new IllegalArgumentException()));
@@ -685,7 +685,7 @@ public final class AsyncFlowsTest {
     @Test
     public void queueCreate() {
         Assert.assertNotNull(AsyncFlows.<Integer>queue((t, u) -> {
-            rule.vertx().setPeriodic(t, event -> {
+            rule.vertx().setTimer(t, event -> {
                 u.handle(DefaultAsyncResult.succeed());
             });
         }));
