@@ -205,5 +205,26 @@ public final class AsyncQueueImplTest {
         queue.setPaused(false);
         context.assertFalse(queue.isIdle());
     }
+    
+    @Test(timeout = AsyncQueueImplTest.TIMEOUT_LIMIT)
+    @Repeat(AsyncQueueImplTest.REPEAT_LIMIT)
+    public void executeClear(final TestContext context) {
+        final Async async = context.async();
+        final AtomicInteger counter = new AtomicInteger();
+        queue.setPaused(true);
+        context.assertTrue(queue.add(100, event -> {
+            context.fail();
+        }, false));
+        context.assertEquals(0, queue.getRunning());
+        context.assertFalse(queue.isIdle());
+        queue.clear();
+        queue.setPaused(false);
+        context.assertTrue(queue.add(100, event -> {
+            context.assertTrue(event.succeeded());
+            context.assertFalse(queue.isPaused());
+            context.assertEquals(1, counter.incrementAndGet());
+            async.complete();
+        }, false));
+    }
 
 }
