@@ -24,19 +24,15 @@
 package io.zatarox.vertx.async;
 
 import io.vertx.core.*;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class EachMapCollection extends AbstractVerticle {
 
     @Override
     public void start(final Future<Void> startFuture) {
-        final Map<String, Integer> values = new HashMap<>();
-        for(int i = 0; i < 50; i++) {
-            values.put(Integer.toString(i), i);
-        }
-        
-        AsyncCollections.each(this.getVertx(), values, (item, handler) -> {
+        AsyncCollections.each(IntStream.iterate(0, i -> i + 1).limit(100).boxed().collect(Collectors.toMap(p -> p.toString(), Function.identity())), (item, handler) -> {
             System.out.println(item.getKey() + " -> " + item.getValue());
             handler.handle(DefaultAsyncResult.succeed());
         }, e -> {
