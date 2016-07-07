@@ -383,7 +383,7 @@ public final class AsyncFlows {
      * @param worker The worker used to process the queue
      * @return A queue of tasks for the worker function to complete.
      */
-    public static <T> AsyncQueue queue(final BiConsumer<T, Handler<AsyncResult<Void>>> worker) {
+    public static <T> Workers queue(final BiConsumer<T, Handler<AsyncResult<Void>>> worker) {
         return new AsyncQueueImpl(worker);
     }
 

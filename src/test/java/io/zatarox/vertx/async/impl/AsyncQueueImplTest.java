@@ -23,7 +23,7 @@ import io.vertx.ext.unit.junit.Repeat;
 import io.vertx.ext.unit.junit.RepeatRule;
 import io.vertx.ext.unit.junit.RunTestOnContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
-import io.zatarox.vertx.async.AsyncQueue.AsyncQueueListener;
+import io.zatarox.vertx.async.Workers.AsyncQueueListener;
 import io.zatarox.vertx.async.DefaultAsyncResult;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;

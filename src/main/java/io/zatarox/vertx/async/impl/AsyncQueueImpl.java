@@ -19,7 +19,6 @@ import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.impl.ConcurrentHashSet;
-import io.zatarox.vertx.async.AsyncQueue;
 import java.util.Deque;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedDeque;
@@ -27,8 +26,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
 import org.javatuples.Pair;
+import io.zatarox.vertx.async.Workers;
 
-public final class AsyncQueueImpl<T> implements Handler<Void>, AsyncQueue<T> {
+public final class AsyncQueueImpl<T> implements Handler<Void>, Workers<T> {
 
     private final BiConsumer<T, Handler<AsyncResult<Void>>> worker;
     private final Deque<Pair<T, Handler<AsyncResult<Void>>>> tasks = new ConcurrentLinkedDeque();

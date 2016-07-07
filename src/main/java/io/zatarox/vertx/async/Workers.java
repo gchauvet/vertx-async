@@ -19,7 +19,7 @@ import io.zatarox.vertx.async.impl.AsyncQueueImpl;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 
-public interface AsyncQueue<T> {
+public interface Workers<T> {
 
     public interface AsyncQueueListener {
 
