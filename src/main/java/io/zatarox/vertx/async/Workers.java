@@ -15,15 +15,14 @@
  */
 package io.zatarox.vertx.async;
 
-import io.zatarox.vertx.async.impl.AsyncQueueImpl;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 
 public interface Workers<T> {
 
-    public interface AsyncQueueListener {
+    public interface AsyncWorkerListener {
 
-        void poolEmpty(final AsyncQueueImpl instance);
+        void poolEmpty(final Workers instance);
 
     };
 
@@ -41,7 +40,7 @@ public interface Workers<T> {
      * @param listener Listener to add
      * @return True if listener is added
      */
-    boolean add(final AsyncQueueListener listener);
+    boolean add(final AsyncWorkerListener listener);
 
     /**
      * @return The concurrency limit
@@ -52,24 +51,26 @@ public interface Workers<T> {
      * @return Number of running workers
      */
     int getRunning();
-    
+
     /**
-     * @return Returning false if there are items waiting or being processed, or true if not.
+     * @return Returning false if there are items waiting or being processed, or
+     * true if not.
      */
     boolean isIdle();
-    
+
     /**
-     * Removes the drain callback and empties remaining tasks from the queue forcing it to go idle.
+     * Removes the drain callback and empties remaining tasks from the queue
+     * forcing it to go idle.
      */
     void clear();
-    
+
     /**
      * @return A boolean for determining whether the queue is in a paused state.
      */
     boolean isPaused();
-    
+
     /**
-     * @param paused  A function that pauses or not the processing of tasks.
+     * @param paused A function that pauses or not the processing of tasks.
      */
     void setPaused(final boolean paused);
 
@@ -77,7 +78,7 @@ public interface Workers<T> {
      * @param listener Listener to remove
      * @return True if listener was removed
      */
-    boolean remove(final AsyncQueueListener listener);
+    boolean remove(final AsyncWorkerListener listener);
 
     /**
      * @param concurrency Define concurrencu limit for workers

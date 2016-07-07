@@ -23,8 +23,8 @@ import io.vertx.ext.unit.junit.Repeat;
 import io.vertx.ext.unit.junit.RepeatRule;
 import io.vertx.ext.unit.junit.RunTestOnContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
-import io.zatarox.vertx.async.Workers.AsyncQueueListener;
 import io.zatarox.vertx.async.DefaultAsyncResult;
+import io.zatarox.vertx.async.Workers;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
@@ -32,6 +32,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import io.zatarox.vertx.async.Workers.AsyncWorkerListener;
 
 @RunWith(VertxUnitRunner.class)
 public final class AsyncQueueImplTest {
@@ -81,9 +82,9 @@ public final class AsyncQueueImplTest {
     public void testListeners(final TestContext context) {
         final Async async = context.async();
         final AtomicBoolean empty = new AtomicBoolean(false);
-        final AsyncQueueListener listener = new AsyncQueueListener() {
+        final AsyncWorkerListener listener = new AsyncWorkerListener() {
             @Override
-            public void poolEmpty(AsyncQueueImpl instance) {
+            public void poolEmpty(Workers instance) {
                 context.assertNotNull(instance);
                 empty.set(true);
                 context.assertTrue(instance.remove(this));

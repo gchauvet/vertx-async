@@ -18,72 +18,17 @@ package io.zatarox.vertx.async.impl;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
-import io.vertx.core.impl.ConcurrentHashSet;
-import java.util.Deque;
-import java.util.Set;
-import java.util.concurrent.ConcurrentLinkedDeque;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
 import org.javatuples.Pair;
-import io.zatarox.vertx.async.Workers;
 
-public final class AsyncQueueImpl<T> implements Handler<Void>, Workers<T> {
-
-    private final BiConsumer<T, Handler<AsyncResult<Void>>> worker;
-    private final Deque<Pair<T, Handler<AsyncResult<Void>>>> tasks = new ConcurrentLinkedDeque();
-    private final Set<AsyncQueueListener> listeners = new ConcurrentHashSet();
-    private final AtomicInteger concurrency = new AtomicInteger(0);
-    private final AtomicInteger current = new AtomicInteger(0);
-    private final AtomicBoolean paused = new AtomicBoolean(false);
+public final class AsyncQueueImpl<T> extends AbstractWorkerImpl<T> {
 
     public AsyncQueueImpl(final BiConsumer<T, Handler<AsyncResult<Void>>> worker) {
-        this(worker, 5);
+        super(worker, 5);
     }
 
     public AsyncQueueImpl(final BiConsumer<T, Handler<AsyncResult<Void>>> worker, final int concurrency) {
-        this.worker = worker;
-        setConcurrency(concurrency);
-    }
-
-    public int getConcurrency() {
-        return concurrency.get();
-    }
-
-    public void setConcurrency(int concurrency) {
-        if (concurrency < 1) {
-            throw new IllegalArgumentException("Must be positive");
-        }
-        this.concurrency.set(concurrency);
-    }
-
-    public int getRunning() {
-        return current.get();
-    }
-
-    public boolean add(final T task, final Handler<AsyncResult<Void>> handler, final boolean top) {
-        try {
-            final Pair<T, Handler<AsyncResult<Void>>> item = new Pair(task, handler);
-            final boolean result;
-            if (!top) {
-                result = tasks.offer(item);
-            } else {
-                result = tasks.offerFirst(item);
-            }
-            return result;
-        } finally {
-            if (current.get() < 1 && !paused.get()) {
-                Vertx.currentContext().runOnContext(this);
-            }
-        }
-    }
-
-    public boolean add(final AsyncQueueListener listener) {
-        return listeners.add(listener);
-    }
-
-    public boolean remove(final AsyncQueueListener listener) {
-        return listeners.remove(listener);
+        super(worker, concurrency);
     }
 
     public void handle(Void event) {
@@ -103,32 +48,4 @@ public final class AsyncQueueImpl<T> implements Handler<Void>, Workers<T> {
         }
     }
 
-    @Override
-    public boolean isIdle() {
-        return current.get() == 0 && tasks.isEmpty();
-    }
-
-    @Override
-    public void clear() {
-        tasks.clear();
-    }
-
-    @Override
-    public boolean isPaused() {
-        return paused.get();
-    }
-
-    @Override
-    public void setPaused(boolean paused) {
-        this.paused.set(paused);
-        if (!paused && current.get() < 1) {
-            Vertx.currentContext().runOnContext(this);
-        }
-    }
-
-    private void fireEmptyPool() {
-        listeners.stream().forEach(listener -> {
-            listener.poolEmpty(this);
-        });
-    }
 }
