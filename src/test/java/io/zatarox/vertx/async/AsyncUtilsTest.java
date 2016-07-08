@@ -1,0 +1,126 @@
+/*
+ * Copyright 2004-2016 Guillaume Chauvet.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package io.zatarox.vertx.async;
+
+import io.vertx.core.Vertx;
+import io.vertx.ext.unit.Async;
+import io.vertx.ext.unit.TestContext;
+import io.vertx.ext.unit.junit.Repeat;
+import io.vertx.ext.unit.junit.RepeatRule;
+import io.vertx.ext.unit.junit.RunTestOnContext;
+import io.vertx.ext.unit.junit.VertxUnitRunner;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicInteger;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
+@RunWith(VertxUnitRunner.class)
+public final class AsyncUtilsTest {
+
+    /**
+     * Limits
+     */
+    private static final int TIMEOUT_LIMIT = 1500;
+    private static final int REPEAT_LIMIT = 100;
+    
+    @Rule
+    public RepeatRule repeater = new RepeatRule();
+    @Rule
+    public RunTestOnContext rule = new RunTestOnContext();
+
+    @Test(expected = InvocationTargetException.class)
+    public void testPrivateConstructor() throws Exception {
+        final Constructor<AsyncUtils> c = AsyncUtils.class.getDeclaredConstructor();
+        c.setAccessible(true);
+        c.newInstance();
+    }
+
+    @Test(timeout = AsyncUtilsTest.TIMEOUT_LIMIT)
+    @Repeat(AsyncUtilsTest.REPEAT_LIMIT)
+    public void timeoutNotRaised(final TestContext context) {
+        final AtomicInteger handlerCallCount = new AtomicInteger(0);
+        final Async async = context.async();
+        AsyncUtils.<Void>timeout(handler -> {
+            handler.handle(DefaultAsyncResult.succeed());
+        }, TimeUnit.MILLISECONDS, 100L, result -> {
+            context.assertNotNull(result);
+            context.assertTrue(result.succeeded());
+            context.assertNull(result.result());
+            context.assertEquals(1, handlerCallCount.incrementAndGet());
+            async.complete();
+        });
+    }
+    
+    @Test(timeout = AsyncUtilsTest.TIMEOUT_LIMIT)
+    @Repeat(AsyncUtilsTest.REPEAT_LIMIT)
+    public void timeoutNotRaisedWithError(final TestContext context) {
+        final AtomicInteger handlerCallCount = new AtomicInteger(0);
+        final Async async = context.async();
+        AsyncUtils.<Void>timeout(handler -> {
+            handler.handle(DefaultAsyncResult.fail(new IllegalArgumentException()));
+        }, TimeUnit.MILLISECONDS, 100L, result -> {
+            context.assertNotNull(result);
+            context.assertFalse(result.succeeded());
+            context.assertNull(result.result());
+            context.assertTrue(result.cause() instanceof IllegalArgumentException);
+            context.assertEquals(1, handlerCallCount.incrementAndGet());
+            async.complete();
+        });
+    }
+    
+    @Test(timeout = AsyncUtilsTest.TIMEOUT_LIMIT)
+    @Repeat(AsyncUtilsTest.REPEAT_LIMIT)
+    public void timeoutRaised(final TestContext context) {
+        final AtomicInteger handlerCallCount = new AtomicInteger(0);
+        final Async async = context.async();
+        AsyncUtils.<Void>timeout(handler -> {
+            Vertx.currentContext().owner().setTimer(1000, id -> {
+                handler.handle(DefaultAsyncResult.succeed());
+            });
+        }, TimeUnit.MILLISECONDS, 100L, result -> {
+            context.assertNotNull(result);
+            context.assertFalse(result.succeeded());
+            context.assertNull(result.result());
+            context.assertTrue(result.cause() instanceof TimeoutException);
+            context.assertEquals(1, handlerCallCount.incrementAndGet());
+            async.complete();
+        });
+    }
+    
+    @Test(timeout = AsyncUtilsTest.TIMEOUT_LIMIT)
+    @Repeat(AsyncUtilsTest.REPEAT_LIMIT)
+    public void timeoutRaisedWithError(final TestContext context) {
+        final AtomicInteger handlerCallCount = new AtomicInteger(0);
+        final Async async = context.async();
+        AsyncUtils.<Void>timeout(handler -> {
+            Vertx.currentContext().owner().setTimer(1000, id -> {
+                handler.handle(DefaultAsyncResult.fail(new IllegalArgumentException()));
+            });
+        }, TimeUnit.MILLISECONDS, 100L, result -> {
+            context.assertNotNull(result);
+            context.assertFalse(result.succeeded());
+            context.assertNull(result.result());
+            context.assertTrue(result.cause() instanceof TimeoutException);
+            context.assertEquals(1, handlerCallCount.incrementAndGet());
+            async.complete();
+        });
+    }
+
+}
