@@ -15,6 +15,8 @@
  */
 package io.zatarox.vertx.async;
 
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
@@ -27,6 +29,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.BiConsumer;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -39,7 +42,7 @@ public final class AsyncUtilsTest {
      */
     private static final int TIMEOUT_LIMIT = 1500;
     private static final int REPEAT_LIMIT = 100;
-    
+
     @Rule
     public RepeatRule repeater = new RepeatRule();
     @Rule
@@ -67,7 +70,7 @@ public final class AsyncUtilsTest {
             async.complete();
         });
     }
-    
+
     @Test(timeout = AsyncUtilsTest.TIMEOUT_LIMIT)
     @Repeat(AsyncUtilsTest.REPEAT_LIMIT)
     public void timeoutNotRaisedWithError(final TestContext context) {
@@ -84,7 +87,7 @@ public final class AsyncUtilsTest {
             async.complete();
         });
     }
-    
+
     @Test(timeout = AsyncUtilsTest.TIMEOUT_LIMIT)
     @Repeat(AsyncUtilsTest.REPEAT_LIMIT)
     public void timeoutRaised(final TestContext context) {
@@ -103,7 +106,7 @@ public final class AsyncUtilsTest {
             async.complete();
         });
     }
-    
+
     @Test(timeout = AsyncUtilsTest.TIMEOUT_LIMIT)
     @Repeat(AsyncUtilsTest.REPEAT_LIMIT)
     public void timeoutRaisedWithError(final TestContext context) {
@@ -120,6 +123,13 @@ public final class AsyncUtilsTest {
             context.assertTrue(result.cause() instanceof TimeoutException);
             context.assertEquals(1, handlerCallCount.incrementAndGet());
             async.complete();
+        });
+    }
+
+    @Test(timeout = AsyncUtilsTest.TIMEOUT_LIMIT)
+    public void createMemoize(final TestContext context) {
+        AsyncUtils.<Void, Void>memoize((item, handler) -> {
+            handler.handle(DefaultAsyncResult.succeed());
         });
     }
 

@@ -30,7 +30,6 @@ import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
-import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -683,8 +682,8 @@ public final class AsyncFlowsTest {
     }
 
     @Test
-    public void queueCreate() {
-        Assert.assertNotNull(AsyncFlows.<Integer>queue((t, u) -> {
+    public void createQueue(final TestContext context) {
+        context.assertNotNull(AsyncFlows.<Integer>queue((t, u) -> {
             rule.vertx().setTimer(t, event -> {
                 u.handle(DefaultAsyncResult.succeed());
             });
