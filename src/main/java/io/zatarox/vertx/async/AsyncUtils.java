@@ -24,6 +24,7 @@ import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 public final class AsyncUtils {
 
@@ -69,7 +70,7 @@ public final class AsyncUtils {
      * @param function The function to proxy and cache results from.
      * @return A proxy cache for the function.
      */
-    public static <I, O> AsyncMemoize<I, O> memoize(BiConsumer<I, Handler<AsyncResult<O>>> function) {
+    public static <I, O> AsyncMemoize<I, O> memoize(final BiConsumer<I, Handler<AsyncResult<O>>> function) {
         return new AsyncMemoizeImpl(function);
     }
 
@@ -81,9 +82,31 @@ public final class AsyncUtils {
      * @param value value of the "constant".
      * @return An handler wrapper of "constant" value.
      */
-    public static <T> Consumer<Handler<AsyncResult<T>>> constant(T value) {
+    public static <T> Consumer<Handler<AsyncResult<T>>> constant(final T value) {
         return handler -> {
             handler.handle(DefaultAsyncResult.succeed(value));
+        };
+    }
+
+    /**
+     * Take a sync function and make it async, passing its return value to a
+     * callback. This is useful for plugging sync functions into a waterfall,
+     * series, or other async functions. Any arguments passed to the generated
+     * function will be passed to the wrapped function (except for the final
+     * callback argument). Errors thrown will be passed to the callback.
+     *
+     * @param <I> Handled input generic type.
+     * @param <O> Handled output generic type.
+     * @param function The synchronous function to manage.
+     * @return An asynchronous wrapper ready to be use with Vertx.
+     */
+    public static <I, O> BiConsumer<I, Handler<AsyncResult<O>>> asyncify(final Function<I, O> function) {
+        return (item, handler) -> {
+            try {
+                handler.handle(DefaultAsyncResult.succeed(function.apply(item)));
+            } catch (Throwable ex) {
+                handler.handle(DefaultAsyncResult.fail(ex));
+            }
         };
     }
 

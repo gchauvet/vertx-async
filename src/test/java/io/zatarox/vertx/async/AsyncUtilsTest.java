@@ -28,7 +28,9 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -128,7 +130,7 @@ public final class AsyncUtilsTest {
     @Test(timeout = AsyncUtilsTest.TIMEOUT_LIMIT)
     public void createMemoize(final TestContext context) {
         AsyncUtils.<Void, Void>memoize((item, handler) -> {
-            handler.handle(DefaultAsyncResult.succeed());
+            handler.handle(DefaultAsyncResult.succeed(item));
         });
     }
 
@@ -143,6 +145,22 @@ public final class AsyncUtilsTest {
             function.accept(event1 -> {
                 context.assertTrue(event1.succeeded());
                 context.assertEquals(value, event1.result());
+                async.complete();
+            });
+        });
+    }
+    @Test(timeout = AsyncUtilsTest.TIMEOUT_LIMIT)
+    @Repeat(AsyncUtilsTest.REPEAT_LIMIT)
+    public void asyncifyAFunction(final TestContext context) {
+        final Async async = context.async();
+        final BiConsumer<Integer, Handler<AsyncResult<Integer>>> function = AsyncUtils.asyncify((Integer t) -> {
+            return t + 1;
+        });
+        context.assertNotNull(function);
+        rule.vertx().runOnContext(handler -> {
+            function.accept(72, result ->{
+                context.assertTrue(result.succeeded());
+                context.assertEquals(73, result.result());
                 async.complete();
             });
         });
