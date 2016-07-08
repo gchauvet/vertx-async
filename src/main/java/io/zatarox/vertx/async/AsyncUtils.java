@@ -73,4 +73,18 @@ public final class AsyncUtils {
         return new AsyncMemoizeImpl(function);
     }
 
+    /**
+     * Returns a function that when called, calls-back with the values provided.
+     * Useful as the first function in a {@code waterfall}.
+     *
+     * @param <T> Handled generic type.
+     * @param value value of the "constant".
+     * @return An handler wrapper of "constant" value.
+     */
+    public static <T> Consumer<Handler<AsyncResult<T>>> constant(T value) {
+        return handler -> {
+            handler.handle(DefaultAsyncResult.succeed(value));
+        };
+    }
+
 }

@@ -17,7 +17,6 @@ package io.zatarox.vertx.async;
 
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
-import io.vertx.core.Vertx;
 import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.Repeat;
@@ -29,7 +28,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -94,7 +93,7 @@ public final class AsyncUtilsTest {
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
         AsyncUtils.<Void>timeout(handler -> {
-            Vertx.currentContext().owner().setTimer(1000, id -> {
+            rule.vertx().setTimer(1000, id -> {
                 handler.handle(DefaultAsyncResult.succeed());
             });
         }, TimeUnit.MILLISECONDS, 100L, result -> {
@@ -113,7 +112,7 @@ public final class AsyncUtilsTest {
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
         AsyncUtils.<Void>timeout(handler -> {
-            Vertx.currentContext().owner().setTimer(1000, id -> {
+            rule.vertx().setTimer(1000, id -> {
                 handler.handle(DefaultAsyncResult.fail(new IllegalArgumentException()));
             });
         }, TimeUnit.MILLISECONDS, 100L, result -> {
@@ -133,4 +132,19 @@ public final class AsyncUtilsTest {
         });
     }
 
+    @Test(timeout = AsyncUtilsTest.TIMEOUT_LIMIT)
+    @Repeat(AsyncUtilsTest.REPEAT_LIMIT)
+    public void constantWithNull(final TestContext context) {
+        final Long value = (long) 73;
+        final Consumer<Handler<AsyncResult<Long>>> function = AsyncUtils.constant(value);
+        final Async async = context.async();
+        context.assertNotNull(function);
+        rule.vertx().runOnContext(event -> {
+            function.accept(event1 -> {
+                context.assertTrue(event1.succeeded());
+                context.assertEquals(value, event1.result());
+                async.complete();
+            });
+        });
+    }
 }
