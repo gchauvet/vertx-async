@@ -15,12 +15,15 @@
  */
 package io.zatarox.vertx.async.impl;
 
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
 import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.Repeat;
 import io.vertx.ext.unit.junit.RepeatRule;
 import io.vertx.ext.unit.junit.RunTestOnContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
+import io.zatarox.vertx.async.AsyncFlows;
 import io.zatarox.vertx.async.DefaultAsyncResult;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.Rule;
@@ -65,6 +68,64 @@ public final class AsyncMemoizeImplTest {
 
     @Test(timeout = AsyncMemoizeImplTest.TIMEOUT_LIMIT)
     @Repeat(AsyncMemoizeImplTest.REPEAT_LIMIT)
+    public void executeSucceedAndUnset(final TestContext context) {
+        final Async async = context.async();
+        final AtomicInteger counter = new AtomicInteger(0);
+        final AsyncMemoizeImpl<Integer, Integer> memoize = new AsyncMemoizeImpl<>((item, handler) -> {
+            counter.incrementAndGet();
+            handler.handle(DefaultAsyncResult.succeed(item + 1));
+        });
+
+        context.assertTrue(memoize.isEmpty());
+        memoize.accept(1, event -> {
+            context.assertTrue(event.succeeded());
+            context.assertFalse(memoize.isEmpty());
+            context.assertEquals(2, memoize.get(1));
+            context.assertEquals(1, counter.get());
+            context.assertTrue(memoize.unset(1));
+            context.assertFalse(memoize.unset(1));
+            context.assertTrue(memoize.isEmpty());
+            async.complete();
+        });
+    }
+
+    @Test(timeout = AsyncMemoizeImplTest.TIMEOUT_LIMIT)
+    @Repeat(AsyncMemoizeImplTest.REPEAT_LIMIT)
+    public void executeSucceedAndTestCache(final TestContext context) {
+        final Async async = context.async();
+        final AtomicInteger counter = new AtomicInteger(0);
+        final AsyncMemoizeImpl<Integer, Integer> memoize = new AsyncMemoizeImpl<>((item, handler) -> {
+            counter.incrementAndGet();
+            handler.handle(DefaultAsyncResult.succeed(item + 1));
+        });
+
+        context.assertTrue(memoize.isEmpty());
+        AsyncFlows.<Void, Void>seq((t, u) -> {
+            memoize.accept(1, event -> {
+                context.assertTrue(event.succeeded());
+                context.assertFalse(memoize.isEmpty());
+                context.assertEquals(2, memoize.get(1));
+                context.assertEquals(1, counter.get());
+                u.handle(DefaultAsyncResult.succeed());
+            });
+        }, (t, u) -> {
+            memoize.accept(1, event -> {
+                context.assertTrue(event.succeeded());
+                context.assertFalse(memoize.isEmpty());
+                context.assertEquals(2, memoize.get(1));
+                context.assertEquals(1, counter.get());
+                context.assertTrue(memoize.unset(1));
+                context.assertFalse(memoize.unset(1));
+                context.assertTrue(memoize.isEmpty());
+                u.handle(DefaultAsyncResult.succeed());
+            });
+        }).accept(null, event -> {
+            async.complete();
+        });
+    }
+
+    @Test(timeout = AsyncMemoizeImplTest.TIMEOUT_LIMIT)
+    @Repeat(AsyncMemoizeImplTest.REPEAT_LIMIT)
     public void executeFailedAndClear(final TestContext context) {
         final Async async = context.async();
         final AtomicInteger counter = new AtomicInteger(0);
@@ -78,6 +139,29 @@ public final class AsyncMemoizeImplTest {
             context.assertNull(memoize.get(1));
             context.assertEquals(1, counter.get());
             memoize.clear();
+            context.assertTrue(memoize.isEmpty());
+            async.complete();
+        });
+    }
+
+    @Test(timeout = AsyncMemoizeImplTest.TIMEOUT_LIMIT)
+    @Repeat(AsyncMemoizeImplTest.REPEAT_LIMIT)
+    public void executeFailedAndUnset(final TestContext context) {
+        final Async async = context.async();
+        final AtomicInteger counter = new AtomicInteger(0);
+        final AsyncMemoizeImpl<Integer, Integer> memoize = new AsyncMemoizeImpl<>((item, handler) -> {
+            counter.incrementAndGet();
+            handler.handle(DefaultAsyncResult.fail(new IllegalArgumentException()));
+        });
+
+        context.assertTrue(memoize.isEmpty());
+        memoize.accept(1, event -> {
+            context.assertFalse(event.succeeded());
+            context.assertTrue(memoize.isEmpty());
+            context.assertNull(memoize.get(1));
+            context.assertEquals(1, counter.get());
+            context.assertTrue(memoize.isEmpty());
+            context.assertFalse(memoize.unset(1));
             context.assertTrue(memoize.isEmpty());
             async.complete();
         });
