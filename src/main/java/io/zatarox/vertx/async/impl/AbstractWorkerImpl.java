@@ -15,30 +15,22 @@
  */
 package io.zatarox.vertx.async.impl;
 
-import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.impl.ConcurrentHashSet;
 import io.zatarox.vertx.async.Workers;
-import java.util.Deque;
 import java.util.Set;
-import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.BiConsumer;
-import org.javatuples.Pair;
 
 public abstract class AbstractWorkerImpl<T> implements Workers<T>, Handler<Void> {
 
-    protected final BiConsumer<T, Handler<AsyncResult<Void>>> worker;
-    protected final Deque<Pair<T, Handler<AsyncResult<Void>>>> tasks = new ConcurrentLinkedDeque();
     protected final Set<AsyncWorkerListener> listeners = new ConcurrentHashSet();
     protected final AtomicInteger concurrency = new AtomicInteger(0);
     protected final AtomicBoolean paused = new AtomicBoolean(false);
     protected final AtomicInteger current = new AtomicInteger(0);
 
-    public AbstractWorkerImpl(final BiConsumer<T, Handler<AsyncResult<Void>>> worker, final int concurrency) {
-        this.worker = worker;
+    protected AbstractWorkerImpl(final int concurrency) {
         this.concurrency.set(concurrency);
     }
 
@@ -57,39 +49,12 @@ public abstract class AbstractWorkerImpl<T> implements Workers<T>, Handler<Void>
         return current.get();
     }
 
-    public boolean add(final T task, final Handler<AsyncResult<Void>> handler, final boolean top) {
-        try {
-            final Pair<T, Handler<AsyncResult<Void>>> item = new Pair(task, handler);
-            final boolean result;
-            if (!top) {
-                result = tasks.offer(item);
-            } else {
-                result = tasks.offerFirst(item);
-            }
-            return result;
-        } finally {
-            if (current.get() < 1 && !paused.get()) {
-                Vertx.currentContext().runOnContext(this);
-            }
-        }
-    }
-
     public boolean add(final AsyncWorkerListener listener) {
         return listeners.add(listener);
     }
 
     public boolean remove(final AsyncWorkerListener listener) {
         return listeners.remove(listener);
-    }
-
-    @Override
-    public boolean isIdle() {
-        return current.get() == 0 && tasks.isEmpty();
-    }
-
-    @Override
-    public void clear() {
-        tasks.clear();
     }
 
     @Override
