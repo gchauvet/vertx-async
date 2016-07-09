@@ -30,7 +30,7 @@ public class EachCollection extends AbstractVerticle {
 
     @Override
     public void start(final Future<Void> startFuture) {
-        AsyncCollections.each(this.getVertx(), Arrays.asList(1, 2, 3, 4, 5, 6, 7), (item, handler) -> {
+        AsyncCollections.each(Arrays.asList(1, 2, 3, 4, 5, 6, 7), (item, handler) -> {
             System.out.println("get " + item);
             handler.handle(DefaultAsyncResult.succeed());
         }, e -> {
