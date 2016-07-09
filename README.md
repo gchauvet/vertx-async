@@ -45,12 +45,7 @@ vertx-async snapshots are available on OSSRH repository:
 ```java
     @Override
     public void start(final Future<Void> startFuture) {
-        final Map<String, Integer> values = new HashMap<>();
-        for(int i = 0; i < 50; i++) {
-            values.put(Integer.toString(i), i);
-        }
-        
-        AsyncCollections.each(values, (item, handler) -> {
+        AsyncCollections.each(IntStream.iterate(0, i -> i + 1).limit(100).boxed().collect(Collectors.toMap(p -> p.toString(), Function.identity())), (item, handler) -> {
             System.out.println(item.getKey() + " -> " + item.getValue());
             handler.handle(DefaultAsyncResult.succeed());
         }, e -> {
