@@ -31,7 +31,7 @@ public abstract class AbstractWorkerImpl<T> implements AsyncWorker<T>, Handler<V
     protected final AtomicInteger current = new AtomicInteger(0);
 
     protected AbstractWorkerImpl(final int concurrency) {
-        this.concurrency.set(concurrency);
+        setConcurrency(concurrency);
     }
 
     public int getConcurrency() {
