@@ -13,17 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.zatarox.vertx.async;
+package io.zatarox.vertx.async.impl;
 
-import io.vertx.core.AsyncResult;
-import io.vertx.core.Handler;
-import java.util.function.Consumer;
+import io.zatarox.vertx.async.api.RetryOptions;
 
 /**
  * This class define an abstract parameters entity for a retry method call.
- * 
+ * @param <T> Handled result type
  */
-public abstract class AbstractRetryOptions<T> {
+public abstract class AbstractRetryOptions<T> implements RetryOptions<T> {
 
     protected final long tries;
 
@@ -35,10 +33,10 @@ public abstract class AbstractRetryOptions<T> {
         this.tries = tries;
     }
 
+    @Override
     public long getTries() {
         return tries;
     }
     
-    public abstract Handler<Void> build(final Consumer<Handler<AsyncResult<T>>> task, final Handler<AsyncResult<T>> handler);
 
 }

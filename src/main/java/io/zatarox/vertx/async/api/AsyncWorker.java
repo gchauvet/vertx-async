@@ -13,16 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.zatarox.vertx.async;
+package io.zatarox.vertx.async.api;
 
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 
-public interface Workers<T> {
+public interface AsyncWorker<T> {
 
     public interface AsyncWorkerListener {
 
-        void poolEmpty(final Workers instance);
+        void poolEmpty(final AsyncWorker instance);
 
     };
 

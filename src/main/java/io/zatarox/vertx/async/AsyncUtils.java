@@ -15,6 +15,8 @@
  */
 package io.zatarox.vertx.async;
 
+import io.zatarox.vertx.async.utils.DefaultAsyncResult;
+import io.zatarox.vertx.async.api.AsyncMemoize;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;

@@ -18,12 +18,12 @@ package io.zatarox.vertx.async.impl;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.impl.ConcurrentHashSet;
-import io.zatarox.vertx.async.Workers;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import io.zatarox.vertx.async.api.AsyncWorker;
 
-public abstract class AbstractWorkerImpl<T> implements Workers<T>, Handler<Void> {
+public abstract class AbstractWorkerImpl<T> implements AsyncWorker<T>, Handler<Void> {
 
     protected final Set<AsyncWorkerListener> listeners = new ConcurrentHashSet();
     protected final AtomicInteger concurrency = new AtomicInteger(0);

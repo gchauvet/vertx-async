@@ -17,7 +17,7 @@ package io.zatarox.vertx.async.fakes;
 
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
-import io.zatarox.vertx.async.DefaultAsyncResult;
+import io.zatarox.vertx.async.utils.DefaultAsyncResult;
 
 public class FakeFailingAsyncFunction<T, R> extends FakeAsyncFunction<T, R> {
 

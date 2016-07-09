@@ -15,6 +15,9 @@
  */
 package io.zatarox.vertx.async;
 
+import io.zatarox.vertx.async.utils.DefaultAsyncResult;
+import io.zatarox.vertx.async.impl.AbstractRetryOptions;
+import io.zatarox.vertx.async.api.AsyncWorker;
 import io.zatarox.vertx.async.impl.AsyncQueueImpl;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
@@ -383,7 +386,7 @@ public final class AsyncFlows {
      * @param worker The worker used to process the queue
      * @return A queue of tasks for the worker function to complete.
      */
-    public static <T> Workers queue(final BiConsumer<T, Handler<AsyncResult<Void>>> worker) {
+    public static <T> AsyncWorker queue(final BiConsumer<T, Handler<AsyncResult<Void>>> worker) {
         return new AsyncQueueImpl(worker);
     }
 

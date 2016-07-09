@@ -1,5 +1,5 @@
 /*
- * Copyright 2004-2016 Guillaume Chauvet.
+ * Copyright 2016 Guillaume Chauvet.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,25 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.zatarox.vertx.async;
+package io.zatarox.vertx.async.api;
 
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
+import java.util.function.Consumer;
 
-public final class AsyncResultHandlerWrapper<T, R> implements Handler<AsyncResult<R>> {
+public interface RetryOptions<T> {
 
-    private final Handler<AsyncResult<T>> handler;
+    Handler<Void> build(final Consumer<Handler<AsyncResult<T>>> task, final Handler<AsyncResult<T>> handler);
 
-    public AsyncResultHandlerWrapper(Handler<AsyncResult<T>> handler) {
-        this.handler = handler;
-    }
-
-    @Override
-    public void handle(AsyncResult<R> asyncResult) {
-        if (asyncResult.failed()) {
-            handler.handle(DefaultAsyncResult.fail(asyncResult.cause()));
-        } else {
-            handler.handle(DefaultAsyncResult.succeed((T) asyncResult.result()));
-        }
-    }
+    long getTries();
+    
 }

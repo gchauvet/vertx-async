@@ -13,14 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.zatarox.vertx.async;
+package io.zatarox.vertx.async.impl;
 
+import io.zatarox.vertx.async.impl.LoopRetryOptions;
 import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.Repeat;
 import io.vertx.ext.unit.junit.RepeatRule;
 import io.vertx.ext.unit.junit.RunTestOnContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
+import io.zatarox.vertx.async.AsyncFlows;
 import io.zatarox.vertx.async.fakes.FakeFailingAsyncSupplier;
 import io.zatarox.vertx.async.fakes.FakeSuccessfulAsyncSupplier;
 import java.util.concurrent.atomic.AtomicInteger;
