@@ -485,7 +485,7 @@ public final class AsyncFlows {
      * @param worker The worker used to process the queue
      * @return A queue of tasks for the worker function to complete.
      */
-    public static <T> AsyncWorker queue(final BiConsumer<T, Handler<AsyncResult<Void>>> worker) {
+    public static <T> AsyncWorker createQueue(final BiConsumer<T, Handler<AsyncResult<Void>>> worker) {
         return new AsyncQueueImpl(worker);
     }
 
@@ -504,7 +504,7 @@ public final class AsyncFlows {
      * @param worker The worker used to process tasks
      * @return A cargo for processing tasks through the provided worker function.
      */
-    public static <T> AsyncWorker cargo(final BiConsumer<T, Handler<AsyncResult<Void>>> worker) {
+    public static <T> AsyncWorker createCargo(final BiConsumer<T, Handler<AsyncResult<Void>>> worker) {
         return new AsyncCargoImpl(worker);
     }
 

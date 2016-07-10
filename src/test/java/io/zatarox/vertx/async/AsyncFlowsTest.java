@@ -837,7 +837,7 @@ public final class AsyncFlowsTest {
 
     @Test
     public void createQueue(final TestContext context) {
-        context.assertNotNull(AsyncFlows.<Integer>queue((t, u) -> {
+        context.assertNotNull(AsyncFlows.<Integer>createQueue((t, u) -> {
             rule.vertx().setTimer(t, event -> {
                 u.handle(DefaultAsyncResult.succeed());
             });
@@ -846,7 +846,7 @@ public final class AsyncFlowsTest {
     
     @Test
     public void createCargo(final TestContext context) {
-        context.assertNotNull(AsyncFlows.<Integer>cargo((delay, u) -> {
+        context.assertNotNull(AsyncFlows.<Integer>createCargo((delay, u) -> {
             rule.vertx().setTimer(delay, event -> {
                 u.handle(DefaultAsyncResult.succeed());
             });
