@@ -62,16 +62,27 @@ public final class AsyncCollections {
             final AtomicBoolean stop = new AtomicBoolean(false);
             final AtomicInteger counter = new AtomicInteger(iterable.size());
             iterable.stream().forEach((item) -> {
-                Vertx.currentContext().runOnContext(aVoid -> consumer.accept(item, result -> {
-                    if (result.failed() || stop.get()) {
-                        if (!stop.get()) {
-                            stop.set(true);
-                            handler.handle(DefaultAsyncResult.fail(result));
+                if (!stop.get()) {
+                    Vertx.currentContext().runOnContext(aVoid -> {
+                        try {
+                            consumer.accept(item, result -> {
+                                if (result.failed() || stop.get()) {
+                                    if (!stop.get()) {
+                                        stop.set(true);
+                                        handler.handle(DefaultAsyncResult.fail(result));
+                                    }
+                                } else if (counter.decrementAndGet() == 0 && !stop.get()) {
+                                    handler.handle(DefaultAsyncResult.succeed());
+                                }
+                            });
+                        } catch (Throwable ex) {
+                            if (!stop.get()) {
+                                stop.set(true);
+                                handler.handle(DefaultAsyncResult.fail(ex));
+                            }
                         }
-                    } else if (counter.decrementAndGet() == 0 && !stop.get()) {
-                        handler.handle(DefaultAsyncResult.succeed());
-                    }
-                }));
+                    });
+                }
             });
         }
     }
@@ -149,19 +160,28 @@ public final class AsyncCollections {
             for (int i = 0; i < iterable.size(); i++) {
                 final I item = iterable.get(i);
                 final int pos = i;
-                Vertx.currentContext().runOnContext(aVoid -> consumer.accept(item, result -> {
-                    if (result.failed() || stop.get()) {
+                Vertx.currentContext().runOnContext(aVoid -> {
+                    try {
+                        consumer.accept(item, result -> {
+                            if (result.failed() || stop.get()) {
+                                if (!stop.get()) {
+                                    stop.set(true);
+                                    handler.handle(DefaultAsyncResult.fail(result));
+                                }
+                            } else {
+                                mapped.add(pos, result.result());
+                                if (counter.decrementAndGet() == 0 && !stop.get()) {
+                                    handler.handle(DefaultAsyncResult.succeed(mapped));
+                                }
+                            }
+                        });
+                    } catch (Throwable ex) {
                         if (!stop.get()) {
                             stop.set(true);
-                            handler.handle(DefaultAsyncResult.fail(result));
-                        }
-                    } else {
-                        mapped.add(pos, result.result());
-                        if (counter.decrementAndGet() == 0 && !stop.get()) {
-                            handler.handle(DefaultAsyncResult.succeed(mapped));
+                            handler.handle(DefaultAsyncResult.fail(ex));
                         }
                     }
-                }));
+                });
             }
         }
     }
@@ -188,21 +208,30 @@ public final class AsyncCollections {
             final AtomicInteger counter = new AtomicInteger(iterable.size());
 
             iterable.stream().forEach((item) -> {
-                Vertx.currentContext().runOnContext(aVoid -> consumer.accept(item, result -> {
-                    if (result.failed() || stop.get()) {
+                Vertx.currentContext().runOnContext(aVoid -> {
+                    try {
+                        consumer.accept(item, result -> {
+                            if (result.failed() || stop.get()) {
+                                if (!stop.get()) {
+                                    stop.set(true);
+                                    handler.handle(DefaultAsyncResult.fail(result));
+                                }
+                            } else {
+                                if (result.result()) {
+                                    filtered.add(item);
+                                }
+                                if (counter.decrementAndGet() == 0 && !stop.get()) {
+                                    handler.handle(DefaultAsyncResult.succeed(filtered));
+                                }
+                            }
+                        });
+                    } catch (Throwable ex) {
                         if (!stop.get()) {
                             stop.set(true);
-                            handler.handle(DefaultAsyncResult.fail(result));
-                        }
-                    } else {
-                        if (result.result()) {
-                            filtered.add(item);
-                        }
-                        if (counter.decrementAndGet() == 0 && !stop.get()) {
-                            handler.handle(DefaultAsyncResult.succeed(filtered));
+                            handler.handle(DefaultAsyncResult.fail(ex));
                         }
                     }
-                }));
+                });
             });
         }
     }
@@ -258,14 +287,18 @@ public final class AsyncCollections {
                 if (!iterator.hasNext()) {
                     handler.handle(DefaultAsyncResult.succeed(result));
                 } else {
-                    consumer.accept(iterator.next(), event1 -> {
-                        if (event1.succeeded()) {
-                            result.add(event1.result());
-                            Vertx.currentContext().runOnContext(this);
-                        } else {
-                            handler.handle(DefaultAsyncResult.fail(event1));
-                        }
-                    });
+                    try {
+                        consumer.accept(iterator.next(), event1 -> {
+                            if (event1.succeeded()) {
+                                result.add(event1.result());
+                                Vertx.currentContext().runOnContext(this);
+                            } else {
+                                handler.handle(DefaultAsyncResult.fail(event1));
+                            }
+                        });
+                    } catch (Throwable ex) {
+                        handler.handle(DefaultAsyncResult.fail(ex));
+                    }
                 }
             }
         });
@@ -300,14 +333,18 @@ public final class AsyncCollections {
                     handler.handle(DefaultAsyncResult.succeed(results));
                 } else {
                     final Map.Entry<K, V> item = iterator.next();
-                    consumer.accept(new KeyValue<>(item.getKey(), item.getValue()), event1 -> {
-                        if (event1.succeeded()) {
-                            results.put(event1.result().getKey(), event1.result().getValue());
-                            Vertx.currentContext().runOnContext(this);
-                        } else {
-                            handler.handle(DefaultAsyncResult.fail(event1));
-                        }
-                    });
+                    try {
+                        consumer.accept(new KeyValue<>(item.getKey(), item.getValue()), event1 -> {
+                            if (event1.succeeded()) {
+                                results.put(event1.result().getKey(), event1.result().getValue());
+                                Vertx.currentContext().runOnContext(this);
+                            } else {
+                                handler.handle(DefaultAsyncResult.fail(event1));
+                            }
+                        });
+                    } catch (Throwable ex) {
+                        handler.handle(DefaultAsyncResult.fail(ex));
+                    }
                 }
             }
         });
@@ -345,14 +382,18 @@ public final class AsyncCollections {
                 if (!iterator.hasNext()) {
                     handler.handle(DefaultAsyncResult.succeed(value.get()));
                 } else {
-                    function.accept(new Pair<>(iterator.next(), value.get()), event1 -> {
-                        if (event1.failed()) {
-                            handler.handle(DefaultAsyncResult.fail(event1));
-                        } else {
-                            value.set(event1.result());
-                            Vertx.currentContext().runOnContext(this);
-                        }
-                    });
+                    try {
+                        function.accept(new Pair<>(iterator.next(), value.get()), event1 -> {
+                            if (event1.failed()) {
+                                handler.handle(DefaultAsyncResult.fail(event1));
+                            } else {
+                                value.set(event1.result());
+                                Vertx.currentContext().runOnContext(this);
+                            }
+                        });
+                    } catch (Throwable ex) {
+                        handler.handle(DefaultAsyncResult.fail(ex));
+                    }
                 }
             }
         });
@@ -382,22 +423,30 @@ public final class AsyncCollections {
             final AtomicBoolean stop = new AtomicBoolean(false);
             final AtomicInteger counter = new AtomicInteger(collection.size());
             collection.stream().forEach((item) -> {
-                Vertx.currentContext().runOnContext(aVoid -> function.accept(item, event -> {
-                    if (event.succeeded()) {
-                        // Prevent Unhandled exception in Netty
-                        if (null != event.result() && event.result() || stop.get()) {
-                            if (!stop.get()) {
+                Vertx.currentContext().runOnContext(aVoid -> {
+                    try {
+                        function.accept(item, event -> {
+                            if (event.succeeded()) {
+                                if (event.result() || stop.get()) {
+                                    if (!stop.get()) {
+                                        stop.set(true);
+                                        handler.handle(DefaultAsyncResult.succeed(item));
+                                    }
+                                } else if (counter.decrementAndGet() == 0 && !stop.get()) {
+                                    handler.handle(DefaultAsyncResult.succeed(null));
+                                }
+                            } else if (!stop.get()) {
                                 stop.set(true);
-                                handler.handle(DefaultAsyncResult.succeed(item));
+                                handler.handle(DefaultAsyncResult.fail(event));
                             }
-                        } else if (counter.decrementAndGet() == 0 && !stop.get()) {
-                            handler.handle(DefaultAsyncResult.succeed(null));
+                        });
+                    } catch (Throwable ex) {
+                        if (!stop.get()) {
+                            stop.set(true);
+                            handler.handle(DefaultAsyncResult.fail(ex));
                         }
-                    } else {
-                        stop.set(true);
-                        handler.handle(DefaultAsyncResult.fail(event));
                     }
-                }));
+                });
             });
         }
     }
@@ -424,22 +473,31 @@ public final class AsyncCollections {
             final AtomicInteger counter = new AtomicInteger(collection.size());
 
             collection.stream().forEach((item) -> {
-                Vertx.currentContext().runOnContext(aVoid -> function.accept(item, event -> {
-                    if (event.succeeded()) {
-                        // Prevent Unhandled exception in Netty
-                        if (null != event.result() && event.result() || stop.get()) {
-                            if (!stop.get()) {
+                Vertx.currentContext().runOnContext(aVoid -> {
+                    try {
+                        function.accept(item, event -> {
+                            if (event.succeeded()) {
+                                // Prevent Unhandled exception in Netty
+                                if (null != event.result() && event.result() || stop.get()) {
+                                    if (!stop.get()) {
+                                        stop.set(true);
+                                        handler.handle(DefaultAsyncResult.succeed(true));
+                                    }
+                                } else if (counter.decrementAndGet() == 0 && !stop.get()) {
+                                    handler.handle(DefaultAsyncResult.succeed(false));
+                                }
+                            } else if (!stop.get()) {
                                 stop.set(true);
-                                handler.handle(DefaultAsyncResult.succeed(true));
+                                handler.handle(DefaultAsyncResult.fail(event));
                             }
-                        } else if (counter.decrementAndGet() == 0 && !stop.get()) {
-                            handler.handle(DefaultAsyncResult.succeed(false));
+                        });
+                    } catch (Throwable ex) {
+                        if (!stop.get()) {
+                            stop.set(true);
+                            handler.handle(DefaultAsyncResult.fail(ex));
                         }
-                    } else {
-                        stop.set(true);
-                        handler.handle(DefaultAsyncResult.fail(event));
                     }
-                }));
+                });
             });
         }
     }
@@ -464,22 +522,31 @@ public final class AsyncCollections {
             final AtomicBoolean stop = new AtomicBoolean(false);
             final AtomicInteger counter = new AtomicInteger(collection.size());
             collection.stream().forEach((item) -> {
-                Vertx.currentContext().runOnContext(aVoid -> function.accept(item, event -> {
-                    if (event.succeeded()) {
-                        // Prevent Unhandled exception in Netty
-                        if (null != event.result() && !event.result() || stop.get()) {
-                            if (!stop.get()) {
+                Vertx.currentContext().runOnContext(aVoid -> {
+                    try {
+                        function.accept(item, event -> {
+                            if (event.succeeded()) {
+                                // Prevent Unhandled exception in Netty
+                                if (null != event.result() && !event.result() || stop.get()) {
+                                    if (!stop.get()) {
+                                        stop.set(true);
+                                        handler.handle(DefaultAsyncResult.succeed(false));
+                                    }
+                                } else if (counter.decrementAndGet() == 0 && !stop.get()) {
+                                    handler.handle(DefaultAsyncResult.succeed(true));
+                                }
+                            } else {
                                 stop.set(true);
-                                handler.handle(DefaultAsyncResult.succeed(false));
+                                handler.handle(DefaultAsyncResult.fail(event));
                             }
-                        } else if (counter.decrementAndGet() == 0 && !stop.get()) {
-                            handler.handle(DefaultAsyncResult.succeed(true));
+                        });
+                    } catch (Throwable ex) {
+                        if (!stop.get()) {
+                            stop.set(true);
+                            handler.handle(DefaultAsyncResult.fail(ex));
                         }
-                    } else {
-                        stop.set(true);
-                        handler.handle(DefaultAsyncResult.fail(event));
                     }
-                }));
+                });
             });
         }
     }
@@ -507,21 +574,30 @@ public final class AsyncCollections {
             final AtomicInteger counter = new AtomicInteger(iterable.size());
 
             iterable.stream().forEach((item) -> {
-                Vertx.currentContext().runOnContext(aVoid -> consumer.accept(item, result -> {
-                    if (result.failed() || stop.get()) {
+                Vertx.currentContext().runOnContext(aVoid -> {
+                    try {
+                        consumer.accept(item, result -> {
+                            if (result.failed() || stop.get()) {
+                                if (!stop.get()) {
+                                    stop.set(true);
+                                    handler.handle(DefaultAsyncResult.fail(result));
+                                }
+                            } else {
+                                if (result.result() != null) {
+                                    results.addAll(result.result());
+                                }
+                                if (counter.decrementAndGet() == 0 && !stop.get()) {
+                                    handler.handle(DefaultAsyncResult.succeed(results));
+                                }
+                            }
+                        });
+                    } catch (Throwable ex) {
                         if (!stop.get()) {
                             stop.set(true);
-                            handler.handle(DefaultAsyncResult.fail(result));
-                        }
-                    } else {
-                        if (result.result() != null) {
-                            results.addAll(result.result());
-                        }
-                        if (counter.decrementAndGet() == 0 && !stop.get()) {
-                            handler.handle(DefaultAsyncResult.succeed(results));
+                            handler.handle(DefaultAsyncResult.fail(ex));
                         }
                     }
-                }));
+                });
             });
         }
     }
@@ -555,13 +631,17 @@ public final class AsyncCollections {
      */
     public static <T> void sort(final Collection<T> iterable, final Comparator<T> comparator, final Handler<AsyncResult<Collection<T>>> handler) {
         Vertx.currentContext().runOnContext(event -> {
-            Stream<T> stream = iterable.parallelStream();
-            if (comparator != null) {
-                stream = stream.sorted(comparator);
-            } else {
-                stream = stream.sorted();
+            try {
+                Stream<T> stream = iterable.parallelStream();
+                if (comparator != null) {
+                    stream = stream.sorted(comparator);
+                } else {
+                    stream = stream.sorted();
+                }
+                handler.handle(DefaultAsyncResult.succeed(new ArrayList<>(Arrays.asList((T[]) stream.toArray()))));
+            } catch (Throwable ex) {
+                handler.handle(DefaultAsyncResult.fail(ex));
             }
-            handler.handle(DefaultAsyncResult.succeed(new ArrayList<>(Arrays.asList((T[]) stream.toArray()))));
         });
     }
 }

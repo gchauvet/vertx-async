@@ -122,13 +122,17 @@ public final class AsyncFlows {
         Vertx.currentContext().runOnContext(new Handler<Void>() {
             @Override
             public void handle(Void event) {
-                task.accept((result) -> {
-                    if (result.failed()) {
-                        handler.handle(DefaultAsyncResult.fail(result));
-                    } else {
-                        Vertx.currentContext().runOnContext(this);
-                    }
-                });
+                try {
+                    task.accept((result) -> {
+                        if (result.failed()) {
+                            handler.handle(DefaultAsyncResult.fail(result));
+                        } else {
+                            Vertx.currentContext().runOnContext(this);
+                        }
+                    });
+                } catch (Throwable ex) {
+                    handler.handle(DefaultAsyncResult.fail(ex));
+                }
             }
         });
     }
@@ -149,19 +153,28 @@ public final class AsyncFlows {
     public static <I, O> void waterfall(final Iterable<BiConsumer<I, Handler<AsyncResult<O>>>> tasks, final Handler<AsyncResult<?>> handler) {
         Vertx.currentContext().runOnContext(new Handler<Void>() {
             private final Iterator<BiConsumer<I, Handler<AsyncResult<O>>>> iterator = tasks.iterator();
+            private final AtomicBoolean stop = new AtomicBoolean();
             private I result = null;
 
             @Override
             public void handle(Void event) {
                 if (iterator.hasNext()) {
-                    iterator.next().accept(result, event1 -> {
-                        if (event1.succeeded()) {
-                            result = (I) event1.result();
-                            Vertx.currentContext().runOnContext(this);
-                        } else {
-                            handler.handle(DefaultAsyncResult.fail(event1));
+                    try {
+                        iterator.next().accept(result, event1 -> {
+                            if (event1.succeeded()) {
+                                result = (I) event1.result();
+                                Vertx.currentContext().runOnContext(this);
+                            } else {
+                                stop.set(true);
+                                handler.handle(DefaultAsyncResult.fail(event1));
+                            }
+                        });
+                    } catch (Throwable ex) {
+                        if (!stop.get()) {
+                            stop.set(true);
+                            handler.handle(DefaultAsyncResult.fail(ex));
                         }
-                    });
+                    }
                 } else {
                     handler.handle(DefaultAsyncResult.succeed(result));
                 }
@@ -199,19 +212,28 @@ public final class AsyncFlows {
             for (int i = 0; i < tasks.size(); i++) {
                 final Consumer<Handler<AsyncResult<T>>> task = tasks.get(i);
                 final int pos = i;
-                Vertx.currentContext().runOnContext(aVoid -> task.accept(result -> {
-                    if (result.failed() || stop.get()) {
+                Vertx.currentContext().runOnContext(aVoid -> {
+                    try {
+                        task.accept(result -> {
+                            if (result.failed() || stop.get()) {
+                                if (!stop.get()) {
+                                    stop.set(true);
+                                    handler.handle(DefaultAsyncResult.fail(result));
+                                }
+                            } else {
+                                results.add(pos, result.result());
+                                if (counter.decrementAndGet() == 0 && !stop.get()) {
+                                    handler.handle(DefaultAsyncResult.succeed(results));
+                                }
+                            }
+                        });
+                    } catch (Throwable ex) {
                         if (!stop.get()) {
                             stop.set(true);
-                            handler.handle(DefaultAsyncResult.fail(result));
-                        }
-                    } else {
-                        results.add(pos, result.result());
-                        if (counter.decrementAndGet() == 0 && !stop.get()) {
-                            handler.handle(DefaultAsyncResult.succeed(results));
+                            handler.handle(DefaultAsyncResult.fail(ex));
                         }
                     }
-                }));
+                });
             }
         }
     }
@@ -233,17 +255,24 @@ public final class AsyncFlows {
 
             @Override
             public void handle(Void e) {
-                if (tester.getAsBoolean()) {
-                    consumer.accept(e1 -> {
-                        if (e1.succeeded()) {
-                            Vertx.currentContext().runOnContext(this);
-                        } else {
-                            stop.set(true);
-                            handler.handle(DefaultAsyncResult.fail(e1));
-                        }
-                    });
-                } else if (!stop.get()) {
-                    handler.handle(DefaultAsyncResult.succeed());
+                try {
+                    if (tester.getAsBoolean()) {
+                        consumer.accept(e1 -> {
+                            if (e1.succeeded()) {
+                                Vertx.currentContext().runOnContext(this);
+                            } else {
+                                stop.set(true);
+                                handler.handle(DefaultAsyncResult.fail(e1));
+                            }
+                        });
+                    } else if (!stop.get()) {
+                        handler.handle(DefaultAsyncResult.succeed());
+                    }
+                } catch (Throwable ex) {
+                    if (!stop.get()) {
+                        stop.set(true);
+                        handler.handle(DefaultAsyncResult.fail(ex));
+                    }
                 }
             }
         });
@@ -264,17 +293,21 @@ public final class AsyncFlows {
         Vertx.currentContext().runOnContext(new Handler<Void>() {
             @Override
             public void handle(Void e) {
-                consumer.accept(e1 -> {
-                    if (e1.succeeded()) {
-                        if (tester.getAsBoolean()) {
-                            Vertx.currentContext().runOnContext(this);
+                try {
+                    consumer.accept(e1 -> {
+                        if (e1.succeeded()) {
+                            if (tester.getAsBoolean()) {
+                                Vertx.currentContext().runOnContext(this);
+                            } else {
+                                handler.handle(DefaultAsyncResult.succeed());
+                            }
                         } else {
-                            handler.handle(DefaultAsyncResult.succeed());
+                            handler.handle(DefaultAsyncResult.fail(e1));
                         }
-                    } else {
-                        handler.handle(DefaultAsyncResult.fail(e1));
-                    }
-                });
+                    });
+                } catch (Throwable ex) {
+                    handler.handle(DefaultAsyncResult.fail(ex));
+                }
             }
         });
     }
@@ -295,20 +328,24 @@ public final class AsyncFlows {
             private final AtomicReference<BiConsumer<I, Handler<AsyncResult<O>>>> current = new AtomicReference(null);
 
             @Override
-            public void accept(final I t, final Handler<AsyncResult<O>> u) {
+            public void accept(final I item, final Handler<AsyncResult<O>> handler) {
                 if (iterator.hasNext()) {
                     current.set(iterator.next());
                     Vertx.currentContext().runOnContext(e1 -> {
-                        current.get().accept(t, e2 -> {
-                            if (e2.succeeded()) {
-                                this.accept((I) e2.result(), u);
-                            } else {
-                                u.handle(DefaultAsyncResult.fail(e2));
-                            }
-                        });
+                        try {
+                            current.get().accept(item, e2 -> {
+                                if (e2.succeeded()) {
+                                    this.accept((I) e2.result(), handler);
+                                } else {
+                                    handler.handle(DefaultAsyncResult.fail(e2));
+                                }
+                            });
+                        } catch (Throwable ex) {
+                            handler.handle(DefaultAsyncResult.fail(ex));
+                        }
                     });
                 } else {
-                    u.handle(DefaultAsyncResult.succeed((O) t));
+                    handler.handle(DefaultAsyncResult.succeed((O) item));
                 }
             }
         };
@@ -336,19 +373,26 @@ public final class AsyncFlows {
 
             for (int i = 0; i < counter; i++) {
                 final int pos = i;
-                Vertx.currentContext().runOnContext(aVoid -> consumer.accept(pos, result -> {
-                    if (result.failed() || stop.get()) {
-                        if (!stop.get()) {
-                            stop.set(true);
-                            handler.handle(DefaultAsyncResult.fail(result));
-                        }
-                    } else {
-                        mapped.add(pos, result.result());
-                        if (execution.decrementAndGet() < 1 && !stop.get()) {
-                            handler.handle(DefaultAsyncResult.succeed(mapped));
-                        }
+                Vertx.currentContext().runOnContext(aVoid -> {
+                    try {
+                        consumer.accept(pos, result -> {
+                            if (result.failed() || stop.get()) {
+                                if (!stop.get()) {
+                                    stop.set(true);
+                                    handler.handle(DefaultAsyncResult.fail(result));
+                                }
+                            } else {
+                                mapped.add(pos, result.result());
+                                if (execution.decrementAndGet() < 1 && !stop.get()) {
+                                    handler.handle(DefaultAsyncResult.succeed(mapped));
+                                }
+                            }
+                        });
+                    } catch (Throwable ex) {
+                        stop.set(true);
+                        handler.handle(DefaultAsyncResult.fail(ex));
                     }
-                }));
+                });
             }
         }
     }
@@ -371,12 +415,21 @@ public final class AsyncFlows {
         } else {
             final AtomicBoolean stop = new AtomicBoolean(false);
             tasks.stream().forEach(task -> {
-                Vertx.currentContext().runOnContext(event -> task.accept(result -> {
-                    if (!stop.get()) {
-                        stop.set(true);
-                        handler.handle(result);
+                Vertx.currentContext().runOnContext(event -> {
+                    try {
+                        task.accept(result -> {
+                            if (!stop.get()) {
+                                stop.set(true);
+                                handler.handle(result);
+                            }
+                        });
+                    } catch (Throwable ex) {
+                        if (!stop.get()) {
+                            stop.set(true);
+                            handler.handle(DefaultAsyncResult.fail(ex));
+                        }
                     }
-                }));
+                });
             });
         }
     }
@@ -411,18 +464,23 @@ public final class AsyncFlows {
             final AtomicInteger counter = new AtomicInteger(functions.size());
 
             functions.stream().forEach(function -> {
-                Vertx.currentContext().runOnContext(aVoid -> function.accept(args, result -> {
-                    if (result.failed() || stop.get()) {
-                        if (!stop.get()) {
-                            stop.set(true);
-                            handler.handle(DefaultAsyncResult.fail(result));
-                        }
-                    } else {
-                        if (counter.decrementAndGet() == 0 && !stop.get()) {
-                            handler.handle(DefaultAsyncResult.succeed());
-                        }
+                Vertx.currentContext().runOnContext(event -> {
+                    try {
+                        function.accept(args, result -> {
+                            if (result.failed() || stop.get()) {
+                                if (!stop.get()) {
+                                    stop.set(true);
+                                    handler.handle(DefaultAsyncResult.fail(result));
+                                }
+                            } else if (counter.decrementAndGet() == 0 && !stop.get()) {
+                                handler.handle(DefaultAsyncResult.succeed());
+                            }
+                        });
+                    } catch (Throwable ex) {
+                        stop.set(true);
+                        handler.handle(DefaultAsyncResult.fail(ex));
                     }
-                }));
+                });
             });
         }
     }

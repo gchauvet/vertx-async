@@ -23,16 +23,22 @@ public class FakeFailingAsyncFunction<T, R> extends FakeAsyncFunction<T, R> {
 
     private final int successCount;
     private final R result;
-    private final Throwable cause;
-
-    public FakeFailingAsyncFunction(Throwable cause) {
-        this(0, null, cause);
+    private final RuntimeException cause;
+    private final boolean catched;
+    
+    public FakeFailingAsyncFunction(RuntimeException cause) {
+        this(cause, true);
     }
 
-    public FakeFailingAsyncFunction(int successCount, R result, Throwable cause) {
+    public FakeFailingAsyncFunction(RuntimeException cause, boolean catched) {
+        this(0, null, cause, catched);
+    }
+
+    public FakeFailingAsyncFunction(int successCount, R result, RuntimeException cause, boolean catched) {
         this.successCount = successCount;
         this.result = result;
         this.cause = cause;
+        this.catched = catched;
     }
 
     @Override
@@ -41,7 +47,11 @@ public class FakeFailingAsyncFunction<T, R> extends FakeAsyncFunction<T, R> {
         incrementRunCount();
 
         if (runCount() > successCount) {
-            handler.handle(DefaultAsyncResult.fail(cause));
+            if(catched) {
+                handler.handle(DefaultAsyncResult.fail(cause));
+            } else {
+                throw cause;
+            }
         } else {
             handler.handle(DefaultAsyncResult.succeed(result));
         }

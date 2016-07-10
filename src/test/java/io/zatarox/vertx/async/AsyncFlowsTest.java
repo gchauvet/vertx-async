@@ -117,7 +117,7 @@ public final class AsyncFlowsTest {
     @Test(timeout = AsyncFlowsTest.TIMEOUT_LIMIT)
     @Repeat(AsyncFlowsTest.REPEAT_LIMIT)
     public void seriesFailsWhenATaskFails(final TestContext context) {
-        final FakeFailingAsyncSupplier<String> task1 = new FakeFailingAsyncSupplier<>(new Throwable("Failed"));
+        final FakeFailingAsyncSupplier<String> task1 = new FakeFailingAsyncSupplier<>(new RuntimeException("Failed"));
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
@@ -135,7 +135,7 @@ public final class AsyncFlowsTest {
     @Test(timeout = AsyncFlowsTest.TIMEOUT_LIMIT)
     @Repeat(AsyncFlowsTest.REPEAT_LIMIT)
     public void seriesExecutesNoMoreTasksWhenATaskFails(final TestContext context) {
-        final FakeFailingAsyncSupplier<String> task1 = new FakeFailingAsyncSupplier<>(new Throwable("Failed"));
+        final FakeFailingAsyncSupplier<String> task1 = new FakeFailingAsyncSupplier<>(new RuntimeException("Failed"));
         final FakeSuccessfulAsyncSupplier<String> task2 = new FakeSuccessfulAsyncSupplier<>("Task 2");
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
@@ -155,7 +155,25 @@ public final class AsyncFlowsTest {
     @Test(timeout = AsyncFlowsTest.TIMEOUT_LIMIT)
     @Repeat(AsyncFlowsTest.REPEAT_LIMIT)
     public void foreverExecutesTheTaskUntilItFails(final TestContext context) {
-        final FakeFailingAsyncSupplier<Void> task1 = new FakeFailingAsyncSupplier<>(2, null, new Throwable("Failed"));
+        final FakeFailingAsyncSupplier<Void> task1 = new FakeFailingAsyncSupplier<>(2, null, new RuntimeException("Failed"));
+        final AtomicInteger handlerCallCount = new AtomicInteger(0);
+        final Async async = context.async();
+
+        AsyncFlows.forever(task1, result -> {
+            context.assertEquals(3, task1.runCount());
+            context.assertNotNull(result);
+            context.assertFalse(result.succeeded());
+            final Object resultValue = result.result();
+            context.assertNull(resultValue);
+            context.assertEquals(1, handlerCallCount.incrementAndGet());
+            async.complete();
+        });
+    }
+
+    @Test(timeout = AsyncFlowsTest.TIMEOUT_LIMIT)
+    @Repeat(AsyncFlowsTest.REPEAT_LIMIT)
+    public void foreverExecutesWithRaisedException(final TestContext context) {
+        final FakeFailingAsyncSupplier<Void> task1 = new FakeFailingAsyncSupplier<>(2, null, new RuntimeException("Failed"), false);
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
@@ -212,7 +230,7 @@ public final class AsyncFlowsTest {
     @Test(timeout = AsyncFlowsTest.TIMEOUT_LIMIT)
     @Repeat(AsyncFlowsTest.REPEAT_LIMIT)
     public void waterfallFailsWhenATaskFails(final TestContext context) {
-        final FakeFailingAsyncFunction<Void, String> task1 = new FakeFailingAsyncFunction<>(new Throwable("Failed"));
+        final FakeFailingAsyncFunction<Void, String> task1 = new FakeFailingAsyncFunction<>(new RuntimeException("Failed"));
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
@@ -229,8 +247,23 @@ public final class AsyncFlowsTest {
 
     @Test(timeout = AsyncFlowsTest.TIMEOUT_LIMIT)
     @Repeat(AsyncFlowsTest.REPEAT_LIMIT)
+    public void waterfallFailsWhenAExceptionTaskRaised(final TestContext context) {
+        final Async async = context.async();
+
+        AsyncFlows.waterfall(Arrays.asList((item, handler) -> {
+            throw new ClassCastException();
+        }), result -> {
+            context.assertNotNull(result);
+            context.assertFalse(result.succeeded());
+            context.assertTrue(result.cause() instanceof ClassCastException);
+            async.complete();
+        });
+    }
+
+    @Test(timeout = AsyncFlowsTest.TIMEOUT_LIMIT)
+    @Repeat(AsyncFlowsTest.REPEAT_LIMIT)
     public void waterfallNoMoreTasksWhenATaskFails(final TestContext context) {
-        final FakeFailingAsyncFunction<Void, String> task1 = new FakeFailingAsyncFunction<>(new Throwable("Failed"));
+        final FakeFailingAsyncFunction<Void, String> task1 = new FakeFailingAsyncFunction<>(new RuntimeException("Failed"));
         final FakeSuccessfulAsyncFunction<String, Integer> task2 = new FakeSuccessfulAsyncFunction<>(2);
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
@@ -251,7 +284,7 @@ public final class AsyncFlowsTest {
     @Repeat(AsyncFlowsTest.REPEAT_LIMIT)
     public void waterfallFailsWhenAConsumerTaskFails(final TestContext context) {
         final FakeSuccessfulAsyncFunction<Void, String> task1 = new FakeSuccessfulAsyncFunction<>("Task 1");
-        final FakeFailingAsyncFunction<String, Integer> task2 = new FakeFailingAsyncFunction<>(new Throwable("Failed"));
+        final FakeFailingAsyncFunction<String, Integer> task2 = new FakeFailingAsyncFunction<>(new RuntimeException("Failed"));
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
@@ -272,7 +305,7 @@ public final class AsyncFlowsTest {
     @Repeat(AsyncFlowsTest.REPEAT_LIMIT)
     public void waterfallExecutesNoMoreTasksWhenAConsumerTaskFails(final TestContext context) {
         final FakeSuccessfulAsyncFunction<Void, String> task1 = new FakeSuccessfulAsyncFunction<>("Task 1");
-        final FakeFailingAsyncFunction<String, Integer> task2 = new FakeFailingAsyncFunction<>(new Throwable("Failed"));
+        final FakeFailingAsyncFunction<String, Integer> task2 = new FakeFailingAsyncFunction<>(new RuntimeException("Failed"));
         final FakeSuccessfulAsyncFunction<Integer, String> task3 = new FakeSuccessfulAsyncFunction<>("Task 3");
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
@@ -348,7 +381,7 @@ public final class AsyncFlowsTest {
     @Test(timeout = AsyncFlowsTest.TIMEOUT_LIMIT)
     @Repeat(AsyncFlowsTest.REPEAT_LIMIT)
     public void parallelFailsWhenATaskFails(final TestContext context) {
-        final FakeFailingAsyncSupplier<String> task1 = new FakeFailingAsyncSupplier<>(new Throwable("Failed"));
+        final FakeFailingAsyncSupplier<String> task1 = new FakeFailingAsyncSupplier<>(new RuntimeException("Failed"));
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
@@ -366,7 +399,7 @@ public final class AsyncFlowsTest {
     @Test(timeout = AsyncFlowsTest.TIMEOUT_LIMIT)
     @Repeat(AsyncFlowsTest.REPEAT_LIMIT)
     public void parallelExecutesNoMoreTasksWhenATaskFails(final TestContext context) {
-        final FakeFailingAsyncSupplier<String> task1 = new FakeFailingAsyncSupplier<>(new Throwable("Failed"));
+        final FakeFailingAsyncSupplier<String> task1 = new FakeFailingAsyncSupplier<>(new RuntimeException("Failed"));
         final FakeSuccessfulAsyncSupplier<String> task2 = new FakeSuccessfulAsyncSupplier<>("Task 2");
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
@@ -378,6 +411,24 @@ public final class AsyncFlowsTest {
             context.assertNull(result.result());
             context.assertEquals(1, (int) task1.runCount());
             context.assertEquals(0, (int) task2.runCount());
+            context.assertEquals(1, handlerCallCount.incrementAndGet());
+            async.complete();
+        });
+    }
+
+    @Test(timeout = AsyncFlowsTest.TIMEOUT_LIMIT)
+    @Repeat(AsyncFlowsTest.REPEAT_LIMIT)
+    public void parallelFailsWhenATaskRaisedException(final TestContext context) {
+        final FakeFailingAsyncSupplier<String> task1 = new FakeFailingAsyncSupplier<>(new RuntimeException("Failed"), false);
+        final AtomicInteger handlerCallCount = new AtomicInteger(0);
+        final Async async = context.async();
+
+        AsyncFlows.parallel(Arrays.<Consumer<Handler<AsyncResult<String>>>>asList(task1), result -> {
+            context.assertEquals(1, task1.runCount());
+            context.assertNotNull(result);
+            context.assertFalse(result.succeeded());
+            context.assertEquals(task1.cause(), result.cause());
+            context.assertNull(result.result());
             context.assertEquals(1, handlerCallCount.incrementAndGet());
             async.complete();
         });
@@ -413,7 +464,7 @@ public final class AsyncFlowsTest {
 
     @Test(timeout = AsyncFlowsTest.TIMEOUT_LIMIT)
     @Repeat(AsyncFlowsTest.REPEAT_LIMIT)
-    public void whilstExecutesAnException(final TestContext context) {
+    public void whilstExecutesWithFails(final TestContext context) {
         final AtomicInteger counter = new AtomicInteger();
         final Async async = context.async();
         AsyncFlows.whilst(() -> counter.incrementAndGet() < 2, t -> {
@@ -421,6 +472,21 @@ public final class AsyncFlowsTest {
         }, e -> {
             context.assertFalse(e.succeeded());
             context.assertTrue(e.cause() instanceof IllegalAccessException);
+            context.assertEquals(1, counter.get());
+            async.complete();
+        });
+    }
+
+    @Test(timeout = AsyncFlowsTest.TIMEOUT_LIMIT)
+    @Repeat(AsyncFlowsTest.REPEAT_LIMIT)
+    public void whilstExecutesWithRaiseException(final TestContext context) {
+        final AtomicInteger counter = new AtomicInteger();
+        final Async async = context.async();
+        AsyncFlows.whilst(() -> counter.incrementAndGet() < 2, t -> {
+            throw new IllegalAccessError();
+        }, e -> {
+            context.assertFalse(e.succeeded());
+            context.assertTrue(e.cause() instanceof IllegalAccessError);
             context.assertEquals(1, counter.get());
             async.complete();
         });
@@ -457,7 +523,7 @@ public final class AsyncFlowsTest {
 
     @Test(timeout = AsyncFlowsTest.TIMEOUT_LIMIT)
     @Repeat(AsyncFlowsTest.REPEAT_LIMIT)
-    public void untilExecutesAnException(final TestContext context) {
+    public void untilExecutesAndFails(final TestContext context) {
         final AtomicInteger counter = new AtomicInteger();
         final Async async = context.async();
         AsyncFlows.until(() -> counter.incrementAndGet() < 2, t -> {
@@ -465,6 +531,21 @@ public final class AsyncFlowsTest {
         }, e -> {
             context.assertFalse(e.succeeded());
             context.assertTrue(e.cause() instanceof IllegalAccessException);
+            context.assertEquals(0, counter.get());
+            async.complete();
+        });
+    }
+
+    @Test(timeout = AsyncFlowsTest.TIMEOUT_LIMIT)
+    @Repeat(AsyncFlowsTest.REPEAT_LIMIT)
+    public void untilExecutesExceptionRaised(final TestContext context) {
+        final AtomicInteger counter = new AtomicInteger();
+        final Async async = context.async();
+        AsyncFlows.until(() -> counter.incrementAndGet() < 2, t -> {
+            throw new IllegalAccessError();
+        }, e -> {
+            context.assertFalse(e.succeeded());
+            context.assertTrue(e.cause() instanceof IllegalAccessError);
             context.assertEquals(0, counter.get());
             async.complete();
         });
@@ -509,7 +590,7 @@ public final class AsyncFlowsTest {
 
     @Test(timeout = AsyncFlowsTest.TIMEOUT_LIMIT)
     @Repeat(AsyncFlowsTest.REPEAT_LIMIT)
-    public void seqFunctionsWithException(final TestContext context) {
+    public void seqFunctionsWithFails(final TestContext context) {
         final Async async = context.async();
 
         final BiConsumer<Integer, Handler<AsyncResult<Integer>>> result = AsyncFlows.seq(
@@ -524,6 +605,29 @@ public final class AsyncFlowsTest {
             result.accept(3, e1 -> {
                 context.assertFalse(e1.succeeded());
                 context.assertTrue(e1.cause() instanceof IllegalArgumentException);
+                context.assertNull(e1.result());
+                async.complete();
+            });
+        });
+    }
+
+    @Test(timeout = AsyncFlowsTest.TIMEOUT_LIMIT)
+    @Repeat(AsyncFlowsTest.REPEAT_LIMIT)
+    public void seqFunctionsWithExceptionRaised(final TestContext context) {
+        final Async async = context.async();
+
+        final BiConsumer<Integer, Handler<AsyncResult<Integer>>> result = AsyncFlows.seq(
+                (t, u) -> {
+                    u.handle(DefaultAsyncResult.succeed(t + 1));
+                }, (t, u) -> {
+                    throw new IllegalAccessError();
+                });
+
+        context.assertNotNull(result);
+        rule.vertx().runOnContext(e -> {
+            result.accept(3, e1 -> {
+                context.assertFalse(e1.succeeded());
+                context.assertTrue(e1.cause() instanceof IllegalAccessError);
                 context.assertNull(e1.result());
                 async.complete();
             });
@@ -551,7 +655,22 @@ public final class AsyncFlowsTest {
     @Test(timeout = AsyncFlowsTest.TIMEOUT_LIMIT)
     @Repeat(AsyncFlowsTest.REPEAT_LIMIT)
     public void timesInFail(final TestContext context) {
-        final FakeFailingAsyncFunction function = new FakeFailingAsyncFunction<>(2, null, new Throwable("Failed"));
+        final FakeFailingAsyncFunction function = new FakeFailingAsyncFunction<>(2, null, new RuntimeException("Failed"), true);
+        final Async async = context.async();
+
+        AsyncFlows.times(3, function, result -> {
+            context.assertNotNull(result);
+            context.assertFalse(result.succeeded());
+            context.assertNull(result.result());
+            context.assertEquals(3, function.runCount());
+            async.complete();
+        });
+    }
+
+    @Test(timeout = AsyncFlowsTest.TIMEOUT_LIMIT)
+    @Repeat(AsyncFlowsTest.REPEAT_LIMIT)
+    public void timesWithExceptionRaised(final TestContext context) {
+        final FakeFailingAsyncFunction function = new FakeFailingAsyncFunction<>(2, null, new RuntimeException("Failed"), false);
         final Async async = context.async();
 
         AsyncFlows.times(3, function, result -> {
@@ -619,7 +738,6 @@ public final class AsyncFlowsTest {
             public void accept(Handler<AsyncResult<String>> u) {
                 rule.vertx().setTimer(200, id -> {
                     incrementRunCount();
-                    rule.vertx().cancelTimer(id);
                     u.handle(DefaultAsyncResult.succeed("Task 1"));
                 });
             }
@@ -629,7 +747,6 @@ public final class AsyncFlowsTest {
             public void accept(Handler<AsyncResult<String>> u) {
                 rule.vertx().setTimer(100, id -> {
                     incrementRunCount();
-                    rule.vertx().cancelTimer(id);
                     u.handle(DefaultAsyncResult.succeed("Task 2"));
                 });
             }
@@ -650,13 +767,12 @@ public final class AsyncFlowsTest {
 
     @Test(timeout = AsyncFlowsTest.TIMEOUT_LIMIT)
     @Repeat(AsyncFlowsTest.REPEAT_LIMIT)
-    public void raceExecutesExceptionTask(final TestContext context) {
+    public void raceExecutesTaskInFails(final TestContext context) {
         final FakeAsyncSupplier<String> task1 = new FakeAsyncSupplier<String>() {
             @Override
             public void accept(Handler<AsyncResult<String>> u) {
                 rule.vertx().setTimer(200, id -> {
                     incrementRunCount();
-                    rule.vertx().cancelTimer(id);
                     u.handle(DefaultAsyncResult.succeed("Task 1"));
                 });
             }
@@ -666,7 +782,6 @@ public final class AsyncFlowsTest {
             public void accept(Handler<AsyncResult<String>> u) {
                 rule.vertx().setTimer(100, id -> {
                     incrementRunCount();
-                    rule.vertx().cancelTimer(id);
                     u.handle(DefaultAsyncResult.fail(new IllegalArgumentException()));
                 });
             }
@@ -686,6 +801,40 @@ public final class AsyncFlowsTest {
         });
     }
 
+    @Test(timeout = AsyncFlowsTest.TIMEOUT_LIMIT)
+    @Repeat(AsyncFlowsTest.REPEAT_LIMIT)
+    public void raceExecutesTaskWithExceptionRaised(final TestContext context) {
+        final FakeAsyncSupplier<String> task1 = new FakeAsyncSupplier<String>() {
+            @Override
+            public void accept(Handler<AsyncResult<String>> u) {
+                rule.vertx().setTimer(200, id -> {
+                    incrementRunCount();
+                    u.handle(DefaultAsyncResult.succeed("Task 1"));
+                });
+            }
+        };
+        final FakeAsyncSupplier<String> task2 = new FakeAsyncSupplier<String>() {
+            @Override
+            public void accept(Handler<AsyncResult<String>> u) {
+                incrementRunCount();
+                throw new IllegalAccessError();
+            }
+        };
+        final AtomicInteger handlerCallCount = new AtomicInteger(0);
+        final Async async = context.async();
+
+        AsyncFlows.race(Arrays.asList(task1, task2), result -> {
+            context.assertEquals(0, task1.runCount());
+            context.assertEquals(1, task2.runCount());
+            context.assertFalse(result.succeeded());
+            context.assertNotNull(result);
+            context.assertNull(result.result());
+            context.assertTrue(result.cause() instanceof IllegalAccessError);
+            context.assertEquals(1, handlerCallCount.incrementAndGet());
+            async.complete();
+        });
+    }
+
     @Test
     public void createQueue(final TestContext context) {
         context.assertNotNull(AsyncFlows.<Integer>queue((t, u) -> {
@@ -694,7 +843,7 @@ public final class AsyncFlowsTest {
             });
         }));
     }
-    
+
     @Test(timeout = AsyncFlowsTest.TIMEOUT_LIMIT)
     @Repeat(AsyncFlowsTest.REPEAT_LIMIT)
     public void eachWithNoFunctions(final TestContext context) {
@@ -705,7 +854,7 @@ public final class AsyncFlowsTest {
             async.complete();
         });
     }
-    
+
     @Test(timeout = AsyncFlowsTest.TIMEOUT_LIMIT)
     @Repeat(AsyncFlowsTest.REPEAT_LIMIT)
     public void eachWithSingleFunction(final TestContext context) {
@@ -722,7 +871,7 @@ public final class AsyncFlowsTest {
             async.complete();
         });
     }
-    
+
     @Test(timeout = AsyncFlowsTest.TIMEOUT_LIMIT)
     @Repeat(AsyncFlowsTest.REPEAT_LIMIT)
     public void eachWithtwoFunctions(final TestContext context) {
@@ -741,7 +890,7 @@ public final class AsyncFlowsTest {
             async.complete();
         });
     }
-    
+
     @Test(timeout = AsyncFlowsTest.TIMEOUT_LIMIT)
     @Repeat(AsyncFlowsTest.REPEAT_LIMIT)
     public void eachWithFailingFunction(final TestContext context) {
@@ -755,10 +904,31 @@ public final class AsyncFlowsTest {
             context.assertEquals("TEST3", t);
             counter.incrementAndGet();
             u.handle(DefaultAsyncResult.fail(new IllegalArgumentException()));
-        }) , "TEST3", result -> {
+        }), "TEST3", result -> {
             context.assertFalse(result.succeeded());
             context.assertNull(result.result());
             context.assertTrue(result.cause() instanceof IllegalArgumentException);
+            context.assertEquals(2, counter.get());
+            async.complete();
+        });
+    }
+
+    @Test(timeout = AsyncFlowsTest.TIMEOUT_LIMIT)
+    @Repeat(AsyncFlowsTest.REPEAT_LIMIT)
+    public void eachWithRaisExceptionFunction(final TestContext context) {
+        final AtomicInteger counter = new AtomicInteger(0);
+        final Async async = context.async();
+        AsyncFlows.each(Arrays.asList((t, u) -> {
+            context.assertEquals("TEST3", t);
+            counter.incrementAndGet();
+            u.handle(DefaultAsyncResult.succeed());
+        }, (t, u) -> {
+            counter.incrementAndGet();
+            throw new ClassCastException();
+        }), "TEST3", result -> {
+            context.assertFalse(result.succeeded());
+            context.assertNull(result.result());
+            context.assertTrue(result.cause() instanceof ClassCastException);
             context.assertEquals(2, counter.get());
             async.complete();
         });

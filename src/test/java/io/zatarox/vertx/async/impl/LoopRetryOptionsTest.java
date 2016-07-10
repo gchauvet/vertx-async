@@ -84,7 +84,7 @@ public final class LoopRetryOptionsTest {
     @Test(timeout = LoopRetryOptionsTest.TIMEOUT_LIMIT)
     @Repeat(LoopRetryOptionsTest.REPEAT_LIMIT)
     public void retryExecutesAndFaildOnAllIteratee(final TestContext context) {
-        final FakeFailingAsyncSupplier<String> task1 = new FakeFailingAsyncSupplier<>(new Throwable("Failed"));
+        final FakeFailingAsyncSupplier<String> task1 = new FakeFailingAsyncSupplier<>(new RuntimeException("Failed"));
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 

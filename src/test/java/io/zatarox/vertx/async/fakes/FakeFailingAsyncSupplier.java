@@ -23,24 +23,38 @@ public class FakeFailingAsyncSupplier<T> extends FakeAsyncSupplier<T> {
 
     private final int successCount;
     private final T result;
-    private final Throwable cause;
+    private final RuntimeException cause;
+    private final boolean catched;
 
-    public FakeFailingAsyncSupplier(Throwable cause) {
+    public FakeFailingAsyncSupplier(RuntimeException cause) {
         this(0, null, cause);
     }
+    
+    public FakeFailingAsyncSupplier(RuntimeException cause, boolean catched) {
+        this(0, null, cause, catched);
+    }
 
-    public FakeFailingAsyncSupplier(int successCount, T result, Throwable cause) {
+    public FakeFailingAsyncSupplier(int successCount, T result, RuntimeException cause) {
+        this(successCount, result, cause, true);
+    }
+    
+    public FakeFailingAsyncSupplier(int successCount, T result, RuntimeException cause, boolean catched) {
         this.successCount = successCount;
         this.result = result;
         this.cause = cause;
-    }
+        this.catched = catched;
+    }    
 
     @Override
     public void accept(Handler<AsyncResult<T>> handler) {
         incrementRunCount();
 
         if (runCount() > successCount) {
+            if(catched) {
             handler.handle(DefaultAsyncResult.fail(cause));
+            } else {
+                throw cause;
+            }
         } else {
             handler.handle(DefaultAsyncResult.succeed(result));
         }
