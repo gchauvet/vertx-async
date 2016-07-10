@@ -49,7 +49,7 @@ public final class DefaultAsyncResultTest {
     public void validFailedException(final TestContext context) {
         final Async async = context.async();
         final AsyncResult<Void> instance = DefaultAsyncResult.fail(new UnsupportedOperationException());
-        rule.vertx().runOnContext((Void event) -> {
+        rule.vertx().runOnContext(event -> {
             context.assertFalse(instance.succeeded());
             context.assertTrue(instance.failed());
             context.assertTrue(instance.cause() instanceof UnsupportedOperationException);
@@ -62,7 +62,7 @@ public final class DefaultAsyncResultTest {
     public void validFaileAsyncResult(final TestContext context) {
         final Async async = context.async();
         final AsyncResult<Void> instance = DefaultAsyncResult.fail(DefaultAsyncResult.fail(new UnsupportedOperationException()));
-        rule.vertx().runOnContext((Void event) -> {
+        rule.vertx().runOnContext(event -> {
             context.assertFalse(instance.succeeded());
             context.assertTrue(instance.failed());
             context.assertTrue(instance.cause() instanceof UnsupportedOperationException);
@@ -75,7 +75,7 @@ public final class DefaultAsyncResultTest {
     public void unvalidFailed(final TestContext context) {
         final Async async = context.async();
         final AsyncResult<Void> instance = DefaultAsyncResult.fail((Throwable) null);
-        rule.vertx().runOnContext((Void event) -> {
+        rule.vertx().runOnContext(event -> {
             context.assertNull(instance);
             context.fail();
             async.complete();
@@ -87,7 +87,7 @@ public final class DefaultAsyncResultTest {
     public void validVoidSuccess(final TestContext context) {
         final Async async = context.async();
         final AsyncResult<Void> instance = DefaultAsyncResult.succeed();
-        rule.vertx().runOnContext((Void event) -> {
+        rule.vertx().runOnContext(event -> {
             context.assertTrue(instance.succeeded());
             context.assertFalse(instance.failed());
             context.assertNull(instance.cause());
@@ -101,7 +101,7 @@ public final class DefaultAsyncResultTest {
     public void validValueSuccess(final TestContext context) {
         final Async async = context.async();
         final AsyncResult<Integer> instance = DefaultAsyncResult.succeed(73);
-        rule.vertx().runOnContext((Void event) -> {
+        rule.vertx().runOnContext(event -> {
             context.assertTrue(instance.succeeded());
             context.assertFalse(instance.failed());
             context.assertNull(instance.cause());
