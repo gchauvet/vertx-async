@@ -278,6 +278,50 @@ public final class AsyncFlows {
         });
     }
 
+    public static void whilst(final Consumer<Handler<AsyncResult<Boolean>>> tester, Consumer<Handler<AsyncResult<Void>>> consumer, final Handler<AsyncResult<Void>> handler) {
+        Vertx.currentContext().runOnContext(new Handler<Void>() {
+            final AtomicBoolean stop = new AtomicBoolean(false);
+
+            @Override
+            public void handle(Void e) {
+                try {
+                    tester.accept(event -> {
+                        if (event.succeeded()) {
+                            if (event.result()) {
+                                try {
+                                    consumer.accept(e1 -> {
+                                        if (e1.succeeded()) {
+                                            Vertx.currentContext().runOnContext(this);
+                                        } else {
+                                            stop.set(true);
+                                            handler.handle(DefaultAsyncResult.fail(e1));
+                                        }
+                                    });
+                                } catch (Throwable ex) {
+                                    if (!stop.get()) {
+                                        stop.set(true);
+                                        handler.handle(DefaultAsyncResult.fail(ex));
+                                    }
+                                }
+                            } else {
+                                stop.set(true);
+                                handler.handle(DefaultAsyncResult.succeed());
+                            }
+                        } else if (!stop.get()) {
+                            stop.set(true);
+                            handler.handle(DefaultAsyncResult.fail(event));
+                        }
+                    });
+                } catch (Throwable ex) {
+                    if (!stop.get()) {
+                        stop.set(true);
+                        handler.handle(DefaultAsyncResult.fail(ex));
+                    }
+                }
+            }
+        });
+    }
+
     /**
      * Repeatedly call {@code consumer} until {@code tester} returns
      * {@code false}. Calls {@code handler} when stopped, or an error occurs.
