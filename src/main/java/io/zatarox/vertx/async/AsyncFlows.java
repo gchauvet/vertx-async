@@ -22,6 +22,7 @@ import io.zatarox.vertx.async.impl.AsyncQueueImpl;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
+import io.zatarox.vertx.async.impl.AsyncCargoImpl;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -486,6 +487,25 @@ public final class AsyncFlows {
      */
     public static <T> AsyncWorker queue(final BiConsumer<T, Handler<AsyncResult<Void>>> worker) {
         return new AsyncQueueImpl(worker);
+    }
+
+    /**
+     * Creates a cargo object with the specified payload. Tasks added to the
+     * cargo will be processed altogether (up to the payload limit). If the
+     * worker is in progress, the task is queued until it becomes available.
+     * Once the worker has completed some tasks, each callback of those tasks is
+     * called. Check out these animations for how cargo and queue work.
+     *
+     * While queue passes only one task to one of a group of workers at a time,
+     * cargo passes an array of tasks to a single worker, repeating when the
+     * worker is finished.
+     *
+     * @param <T> The manipulated type.
+     * @param worker The worker used to process tasks
+     * @return A cargo for processing tasks through the provided worker function.
+     */
+    public static <T> AsyncWorker cargo(final BiConsumer<T, Handler<AsyncResult<Void>>> worker) {
+        return new AsyncCargoImpl(worker);
     }
 
     /**

@@ -843,6 +843,15 @@ public final class AsyncFlowsTest {
             });
         }));
     }
+    
+    @Test
+    public void createCargo(final TestContext context) {
+        context.assertNotNull(AsyncFlows.<Integer>cargo((delay, u) -> {
+            rule.vertx().setTimer(delay, event -> {
+                u.handle(DefaultAsyncResult.succeed());
+            });
+        }));
+    }
 
     @Test(timeout = AsyncFlowsTest.TIMEOUT_LIMIT)
     @Repeat(AsyncFlowsTest.REPEAT_LIMIT)
