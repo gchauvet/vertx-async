@@ -146,7 +146,7 @@ public final class AsyncCollectionsTest {
     
     @Test(timeout = AsyncCollectionsTest.TIMEOUT_LIMIT)
     @Repeat(AsyncCollectionsTest.REPEAT_LIMIT)
-    public void eachFailsWhenAnExceptionRaised(final TestContext context) {
+    public void eachFailsWhenAnUnhandledException(final TestContext context) {
         final List<String> items = Arrays.asList("One");
         final FakeFailingAsyncFunction<String, Void> each = new FakeFailingAsyncFunction<>(new RuntimeException("Failed"), false);
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
@@ -341,7 +341,7 @@ public final class AsyncCollectionsTest {
     
     @Test(timeout = AsyncCollectionsTest.TIMEOUT_LIMIT)
     @Repeat(AsyncCollectionsTest.REPEAT_LIMIT)
-    public void mapCollectionExceptionRaised(final TestContext context) {
+    public void mapCollectionUnhandledException(final TestContext context) {
         final List<Integer> items = Arrays.asList(1, 2, 3);
         final FakeFailingAsyncFunction<Integer, Integer> each = new FakeFailingAsyncFunction<>(new RuntimeException("Failed"), false);
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
@@ -477,7 +477,7 @@ public final class AsyncCollectionsTest {
     
     @Test(timeout = AsyncCollectionsTest.TIMEOUT_LIMIT)
     @Repeat(AsyncCollectionsTest.REPEAT_LIMIT)
-    public void filterFailsWhenAnExceptionRaised(final TestContext context) {
+    public void filterFailsWhenAnUnhandledException(final TestContext context) {
         final List<String> items = Arrays.asList("One");
         final FakeFailingAsyncFunction<String, Boolean> filter = new FakeFailingAsyncFunction<>(new RuntimeException("Failed"), false);
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
@@ -666,7 +666,7 @@ public final class AsyncCollectionsTest {
     
     @Test(timeout = AsyncCollectionsTest.TIMEOUT_LIMIT)
     @Repeat(AsyncCollectionsTest.REPEAT_LIMIT)
-    public void rejectFailsWhenAnExceptionRaised(final TestContext context) {
+    public void rejectFailsWhenAnUnhandledException(final TestContext context) {
         final List<String> items = Arrays.asList("One");
         final FakeFailingAsyncFunction<String, Boolean> filter = new FakeFailingAsyncFunction<>(new RuntimeException("Failed"), false);
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
@@ -762,7 +762,7 @@ public final class AsyncCollectionsTest {
     
     @Test(timeout = AsyncCollectionsTest.TIMEOUT_LIMIT)
     @Repeat(AsyncCollectionsTest.REPEAT_LIMIT)
-    public void rejectNoMoreThanOnceExceptionRaised(final TestContext context) {
+    public void rejectNoMoreThanOnceUnhandledException(final TestContext context) {
         final List<String> items = Arrays.asList("One", "Two");
         final FakeFailingAsyncFunction<String, Boolean> filter = new FakeFailingAsyncFunction<>(new RuntimeException("Failed"), false);
         final AtomicInteger resultCount = new AtomicInteger(0);
@@ -852,7 +852,7 @@ public final class AsyncCollectionsTest {
     
     @Test(timeout = AsyncCollectionsTest.TIMEOUT_LIMIT)
     @Repeat(AsyncCollectionsTest.REPEAT_LIMIT)
-    public void transformCollectionExceptionRaised(final TestContext context) {
+    public void transformCollectionUnhandledException(final TestContext context) {
         final List<Integer> items = Arrays.asList(1, 3, 10);
         final FakeFailingAsyncFunction<Integer, String> mapper = new FakeFailingAsyncFunction<>(new RuntimeException("Failed"), false);
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
@@ -891,7 +891,7 @@ public final class AsyncCollectionsTest {
     
     @Test(timeout = AsyncCollectionsTest.TIMEOUT_LIMIT)
     @Repeat(AsyncCollectionsTest.REPEAT_LIMIT)
-    public void transformMapExceptionRaise(final TestContext context) {
+    public void transformMapUnhandledException(final TestContext context) {
         final Map<Integer, String> items = new HashMap<>();
         final FakeAsyncFunction<KeyValue<Integer, String>, KeyValue<String, Integer>> mapper = new FakeFailingAsyncFunction<>(new RuntimeException("Failed"), false);
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
@@ -1036,7 +1036,7 @@ public final class AsyncCollectionsTest {
     
     @Test(timeout = AsyncCollectionsTest.TIMEOUT_LIMIT)
     @Repeat(AsyncCollectionsTest.REPEAT_LIMIT)
-    public void reduceWhenThereAreAnItemExceptionRaise(final TestContext context) {
+    public void reduceWhenThereAreAnItemUnhandledException(final TestContext context) {
         final List<String> items = Arrays.asList("1", "2", "3");
         final FakeFailingAsyncFunction<Pair<String, Integer>, Integer> reducer = new FakeFailingAsyncFunction<>(new RuntimeException("Failed"), false);
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
@@ -1072,7 +1072,7 @@ public final class AsyncCollectionsTest {
     
     @Test(timeout = AsyncCollectionsTest.TIMEOUT_LIMIT)
     @Repeat(AsyncCollectionsTest.REPEAT_LIMIT)
-    public void reduceWhenThereAreLastItemExceptionRaise(final TestContext context) {
+    public void reduceWhenThereAreLastItemUnhandledException(final TestContext context) {
         final List<String> items = Arrays.asList("1", "2", "3");
         final FakeFailingAsyncFunction<Pair<String, Integer>, Integer> reducer = new FakeFailingAsyncFunction<>(2, null, new RuntimeException("Failed"), false);
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
@@ -1181,7 +1181,7 @@ public final class AsyncCollectionsTest {
     
     @Test(timeout = AsyncCollectionsTest.TIMEOUT_LIMIT)
     @Repeat(AsyncCollectionsTest.REPEAT_LIMIT)
-    public void detectWithAExceptionRaised(final TestContext context) {
+    public void detectWithAUnhandledException(final TestContext context) {
         final List<String> items = Arrays.asList("1", "2", "3");
         final FakeFailingAsyncFunction<String, Boolean> tester = new FakeFailingAsyncFunction<>(2, false, new RuntimeException("Failed"), false);
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
@@ -1289,7 +1289,7 @@ public final class AsyncCollectionsTest {
     
     @Test(timeout = AsyncCollectionsTest.TIMEOUT_LIMIT)
     @Repeat(AsyncCollectionsTest.REPEAT_LIMIT)
-    public void someWithAExceptionRaise(final TestContext context) {
+    public void someWithAUnhandledException(final TestContext context) {
         final List<String> items = Arrays.asList("1", "2", "3");
         final FakeFailingAsyncFunction<String, Boolean> tester = new FakeFailingAsyncFunction<>(2, null, new RuntimeException("Failed"), false);
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
@@ -1396,7 +1396,7 @@ public final class AsyncCollectionsTest {
     
     @Test(timeout = AsyncCollectionsTest.TIMEOUT_LIMIT)
     @Repeat(AsyncCollectionsTest.REPEAT_LIMIT)
-    public void everyWithAExceptionRaised(final TestContext context) {
+    public void everyWithAUnhandledException(final TestContext context) {
         final List<String> items = Arrays.asList("1", "2", "3");
         final FakeFailingAsyncFunction<String, Boolean> tester = new FakeFailingAsyncFunction<>(2, null, new RuntimeException("Failed"), false);
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
@@ -1491,7 +1491,7 @@ public final class AsyncCollectionsTest {
     
     @Test(timeout = AsyncCollectionsTest.TIMEOUT_LIMIT)
     @Repeat(AsyncCollectionsTest.REPEAT_LIMIT)
-    public void concatExceptionRaised(final TestContext context) {
+    public void concatUnhandledException(final TestContext context) {
         final List<String> items = Arrays.asList("One", "Two", "Three");
         final FakeAsyncFunction<String, Collection<Boolean>> tester = new FakeFailingAsyncFunction<>(2, null, new RuntimeException("Failed"), false);
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
@@ -1552,7 +1552,7 @@ public final class AsyncCollectionsTest {
     
     @Test(timeout = AsyncCollectionsTest.TIMEOUT_LIMIT)
     @Repeat(AsyncCollectionsTest.REPEAT_LIMIT)
-    public void sortItemsWithValidatorExceptionRaised(final TestContext context) {
+    public void sortItemsWithValidatorUnhandledException(final TestContext context) {
         final List<Integer> items = Arrays.asList(2, 3, 1);
         final Async async = context.async();
         AsyncCollections.sort(items, (a, b) -> { throw new RuntimeException(); }, result -> {

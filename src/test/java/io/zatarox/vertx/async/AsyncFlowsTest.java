@@ -538,7 +538,7 @@ public final class AsyncFlowsTest {
 
     @Test(timeout = AsyncFlowsTest.TIMEOUT_LIMIT)
     @Repeat(AsyncFlowsTest.REPEAT_LIMIT)
-    public void untilExecutesExceptionRaised(final TestContext context) {
+    public void untilExecutesUnhandledException(final TestContext context) {
         final AtomicInteger counter = new AtomicInteger();
         final Async async = context.async();
         AsyncFlows.until(() -> counter.incrementAndGet() < 2, t -> {
@@ -613,7 +613,7 @@ public final class AsyncFlowsTest {
 
     @Test(timeout = AsyncFlowsTest.TIMEOUT_LIMIT)
     @Repeat(AsyncFlowsTest.REPEAT_LIMIT)
-    public void seqFunctionsWithExceptionRaised(final TestContext context) {
+    public void seqFunctionsWithUnhandledException(final TestContext context) {
         final Async async = context.async();
 
         final BiConsumer<Integer, Handler<AsyncResult<Integer>>> result = AsyncFlows.seq(
@@ -669,7 +669,7 @@ public final class AsyncFlowsTest {
 
     @Test(timeout = AsyncFlowsTest.TIMEOUT_LIMIT)
     @Repeat(AsyncFlowsTest.REPEAT_LIMIT)
-    public void timesWithExceptionRaised(final TestContext context) {
+    public void timesWithUnhandledException(final TestContext context) {
         final FakeFailingAsyncFunction function = new FakeFailingAsyncFunction<>(2, null, new RuntimeException("Failed"), false);
         final Async async = context.async();
 
@@ -803,7 +803,7 @@ public final class AsyncFlowsTest {
 
     @Test(timeout = AsyncFlowsTest.TIMEOUT_LIMIT)
     @Repeat(AsyncFlowsTest.REPEAT_LIMIT)
-    public void raceExecutesTaskWithExceptionRaised(final TestContext context) {
+    public void raceExecutesTaskWithUnhandledException(final TestContext context) {
         final FakeAsyncSupplier<String> task1 = new FakeAsyncSupplier<String>() {
             @Override
             public void accept(Handler<AsyncResult<String>> u) {
