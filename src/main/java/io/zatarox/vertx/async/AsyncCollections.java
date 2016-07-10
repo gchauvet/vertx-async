@@ -562,8 +562,9 @@ public final class AsyncCollections {
      * @param <I> Define input type.
      * @param <O> Define output type.
      * @param iterable A collection to iterate over.
-     * @param consumer
-     * @param handler
+     * @param consumer A function to apply to each item in collection
+     * @param handler A callback which is called after all the {@code iterable}
+     * functions have finished, or an error occurs.
      */
     public static <I, O> void concat(final Collection<I> iterable, final BiConsumer<I, Handler<AsyncResult<Collection<O>>>> consumer, final Handler<AsyncResult<Collection<O>>> handler) {
         final List<O> results = new ArrayList<>(iterable.size());
@@ -610,8 +611,8 @@ public final class AsyncCollections {
      * @param iterable A collection to iterate over.
      * @param handler A callback which is called after all the {@code iterable}
      * functions have finished, or an error occurs. Results is the items from
-     * the original {@code collection} sorted by the values returned by the {
-     * @ code iterable} calls.
+     * the original {@code collection} sorted by the values returned by the
+     * {@code iterable} calls.
      */
     public static <T> void sort(final Collection<T> iterable, final Handler<AsyncResult<Collection<T>>> handler) {
         sort(iterable, null, handler);

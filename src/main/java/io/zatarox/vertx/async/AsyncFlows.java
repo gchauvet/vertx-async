@@ -319,8 +319,9 @@ public final class AsyncFlows {
      *
      * @param <I> Define input data type of functions
      * @param <O> Define ouput data type of functions
+     *
      * @param functions Asynchronous functions to seq
-     * @return
+     * @return A proxy for asynchronous functions
      */
     public static <I, O> BiConsumer<I, Handler<AsyncResult<O>>> seq(final BiConsumer<I, Handler<AsyncResult<O>>>... functions) {
         return new BiConsumer<I, Handler<AsyncResult<O>>>() {
@@ -354,7 +355,7 @@ public final class AsyncFlows {
     /**
      * Calls the {@code consumer} function {@code counter} times, and
      * accumulates results in the same manner you would use with
-     * {@link #CollectionsAsync.map}.
+     * {@code AsyncCollections.map}.
      *
      * @param <T> Define the manipulated type.
      * @param counter The number of times to run the function.
