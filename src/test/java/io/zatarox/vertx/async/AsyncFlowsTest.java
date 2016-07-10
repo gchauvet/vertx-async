@@ -34,6 +34,8 @@ import java.util.function.Consumer;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
 
 @RunWith(VertxUnitRunner.class)
 public final class AsyncFlowsTest {
@@ -48,6 +50,8 @@ public final class AsyncFlowsTest {
     public RepeatRule repeater = new RepeatRule();
     @Rule
     public RunTestOnContext rule = new RunTestOnContext();
+    @Rule
+    public MockitoRule mockitoRule = MockitoJUnit.rule();
 
     @Test(expected = InvocationTargetException.class)
     public void testPrivateConstructor() throws Exception {

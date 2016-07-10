@@ -15,8 +15,6 @@
  */
 package io.zatarox.vertx.async.impl;
 
-import io.vertx.core.AsyncResult;
-import io.vertx.core.Handler;
 import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.Repeat;
@@ -29,6 +27,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
 
 @RunWith(VertxUnitRunner.class)
 public final class AsyncMemoizeImplTest {
@@ -43,6 +43,8 @@ public final class AsyncMemoizeImplTest {
     public RepeatRule repeater = new RepeatRule();
     @Rule
     public RunTestOnContext rule = new RunTestOnContext();
+    @Rule
+    public MockitoRule mockitoRule = MockitoJUnit.rule();
 
     @Test(timeout = AsyncMemoizeImplTest.TIMEOUT_LIMIT)
     @Repeat(AsyncMemoizeImplTest.REPEAT_LIMIT)

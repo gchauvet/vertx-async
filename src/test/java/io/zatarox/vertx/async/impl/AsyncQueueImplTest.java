@@ -33,6 +33,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import io.zatarox.vertx.async.api.AsyncWorker.AsyncWorkerListener;
 import io.zatarox.vertx.async.api.AsyncWorker;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
 
 @RunWith(VertxUnitRunner.class)
 public final class AsyncQueueImplTest {
@@ -50,6 +52,8 @@ public final class AsyncQueueImplTest {
     public RepeatRule repeater = new RepeatRule();
     @Rule
     public RunTestOnContext rule = new RunTestOnContext();
+    @Rule
+    public MockitoRule mockitoRule = MockitoJUnit.rule();
 
     @Before
     public void setUp(final TestContext context) {

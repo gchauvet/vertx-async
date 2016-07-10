@@ -31,10 +31,11 @@ import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
 
 @RunWith(VertxUnitRunner.class)
 public final class AsyncUtilsTest {
@@ -49,6 +50,8 @@ public final class AsyncUtilsTest {
     public RepeatRule repeater = new RepeatRule();
     @Rule
     public RunTestOnContext rule = new RunTestOnContext();
+    @Rule
+    public MockitoRule mockitoRule = MockitoJUnit.rule();
 
     @Test(expected = InvocationTargetException.class)
     public void testPrivateConstructor() throws Exception {

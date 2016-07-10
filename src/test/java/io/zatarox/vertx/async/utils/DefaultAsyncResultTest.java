@@ -15,7 +15,6 @@
  */
 package io.zatarox.vertx.async.utils;
 
-import io.zatarox.vertx.async.utils.DefaultAsyncResult;
 import io.vertx.core.AsyncResult;
 import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
@@ -26,6 +25,8 @@ import io.vertx.ext.unit.junit.VertxUnitRunner;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
 
 @RunWith(VertxUnitRunner.class)
 public final class DefaultAsyncResultTest {
@@ -40,6 +41,8 @@ public final class DefaultAsyncResultTest {
     public RepeatRule repeater = new RepeatRule();
     @Rule
     public RunTestOnContext rule = new RunTestOnContext();
+    @Rule
+    public MockitoRule mockitoRule = MockitoJUnit.rule();
 
     @Test(timeout = DefaultAsyncResultTest.TIMEOUT_LIMIT)
     @Repeat(DefaultAsyncResultTest.REPEAT_LIMIT)

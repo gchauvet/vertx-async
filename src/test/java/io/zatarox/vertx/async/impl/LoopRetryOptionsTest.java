@@ -15,7 +15,6 @@
  */
 package io.zatarox.vertx.async.impl;
 
-import io.zatarox.vertx.async.impl.LoopRetryOptions;
 import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.Repeat;
@@ -31,6 +30,8 @@ import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.runner.RunWith;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
 
 @RunWith(VertxUnitRunner.class)
 public final class LoopRetryOptionsTest {
@@ -47,6 +48,8 @@ public final class LoopRetryOptionsTest {
     public RepeatRule repeater = new RepeatRule();
     @Rule
     public RunTestOnContext rule = new RunTestOnContext();
+    @Rule
+    public MockitoRule mockitoRule = MockitoJUnit.rule();
 
     @Before
     public void setUp() {

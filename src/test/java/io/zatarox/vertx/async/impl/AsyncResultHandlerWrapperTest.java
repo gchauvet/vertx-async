@@ -16,16 +16,25 @@
 package io.zatarox.vertx.async.impl;
 
 import io.vertx.core.AsyncResult;
+import io.vertx.ext.unit.junit.VertxUnitRunner;
 import io.zatarox.vertx.async.utils.DefaultAsyncResult;
 import org.junit.Test;
 import static org.junit.Assert.*;
+import org.junit.Rule;
+import org.junit.runner.RunWith;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
 
+@RunWith(VertxUnitRunner.class)
 public final class AsyncResultHandlerWrapperTest {
 
     /**
      * Timelimit
      */
     private static final int LIMIT = 1000;
+    
+    @Rule
+    public MockitoRule mockitoRule = MockitoJUnit.rule();
     
     @Test(timeout = AsyncResultHandlerWrapperTest.LIMIT)
     public void testWrapperSucceed() {
