@@ -153,11 +153,12 @@ public final class AsyncUtilsTest {
             });
         });
     }
+    
     @Test(timeout = AsyncUtilsTest.TIMEOUT_LIMIT)
     @Repeat(AsyncUtilsTest.REPEAT_LIMIT)
     public void asyncifyAFunction(final TestContext context) {
         final Async async = context.async();
-        final BiConsumer<Integer, Handler<AsyncResult<Integer>>> function = AsyncUtils.asyncify((Integer t) -> {
+        final BiConsumer<Integer, Handler<AsyncResult<Integer>>> function = AsyncUtils.asyncify(t -> {
             return t + 1;
         });
         context.assertNotNull(function);
@@ -165,6 +166,23 @@ public final class AsyncUtilsTest {
             function.accept(72, result ->{
                 context.assertTrue(result.succeeded());
                 context.assertEquals(73, result.result());
+                async.complete();
+            });
+        });
+    }
+    
+    @Test(timeout = AsyncUtilsTest.TIMEOUT_LIMIT)
+    @Repeat(AsyncUtilsTest.REPEAT_LIMIT)
+    public void asyncifyAFunctionUnhandledException(final TestContext context) {
+        final Async async = context.async();
+        final BiConsumer<Integer, Handler<AsyncResult<Integer>>> function = AsyncUtils.asyncify(t -> {
+            throw new RuntimeException();
+        });
+        context.assertNotNull(function);
+        rule.vertx().runOnContext(handler -> {
+            function.accept(72, result ->{
+                context.assertFalse(result.succeeded());
+                context.assertTrue(result.cause() instanceof RuntimeException);
                 async.complete();
             });
         });
