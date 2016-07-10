@@ -481,6 +481,11 @@ public final class AsyncFlows {
     }
 
     /**
+     * Creates a queue object with the specified concurrency. Tasks added to the
+     * queue are processed in parallel (up to the concurrency limit). If all
+     * workers are in progress, the task is queued until one becomes available.
+     * Once a worker completes a task, that task's callback is called.
+     *
      * @param <T> The manipulated type.
      * @param worker The worker used to process the queue
      * @return A queue of tasks for the worker function to complete.
@@ -502,7 +507,8 @@ public final class AsyncFlows {
      *
      * @param <T> The manipulated type.
      * @param worker The worker used to process tasks
-     * @return A cargo for processing tasks through the provided worker function.
+     * @return A cargo for processing tasks through the provided worker
+     * function.
      */
     public static <T> AsyncWorker createCargo(final BiConsumer<T, Handler<AsyncResult<Void>>> worker) {
         return new AsyncCargoImpl(worker);
