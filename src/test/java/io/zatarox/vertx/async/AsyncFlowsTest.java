@@ -992,7 +992,7 @@ public final class AsyncFlowsTest {
 
     @Test(timeout = AsyncFlowsTest.TIMEOUT_LIMIT)
     @Repeat(AsyncFlowsTest.REPEAT_LIMIT)
-    public void duringExecutesWithUnhandledExceptionInLoop(final TestContext context) {
+    public void duringExecutesWithHandledExceptionInLoop(final TestContext context) {
         final AtomicInteger counter = new AtomicInteger();
         final Async async = context.async();
         AsyncFlows.whilst(handler -> {
@@ -1002,6 +1002,23 @@ public final class AsyncFlowsTest {
         }, e -> {
             context.assertFalse(e.succeeded());
             context.assertTrue(e.cause() instanceof IllegalAccessException);
+            context.assertEquals(1, counter.get());
+            async.complete();
+        });
+    }
+    
+    @Test(timeout = AsyncFlowsTest.TIMEOUT_LIMIT)
+    @Repeat(AsyncFlowsTest.REPEAT_LIMIT)
+    public void duringExecutesWithUnhandledExceptionInLoop(final TestContext context) {
+        final AtomicInteger counter = new AtomicInteger();
+        final Async async = context.async();
+        AsyncFlows.whilst(handler -> {
+            handler.handle(DefaultAsyncResult.succeed(counter.incrementAndGet() < 2));
+        }, t -> {
+            throw new IllegalAccessError();
+        }, e -> {
+            context.assertFalse(e.succeeded());
+            context.assertTrue(e.cause() instanceof IllegalAccessError);
             context.assertEquals(1, counter.get());
             async.complete();
         });
