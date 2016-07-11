@@ -53,7 +53,7 @@ public final class AsyncQueueImplTest {
     @Rule
     public RunTestOnContext rule = new RunTestOnContext();
     @Rule
-    public MockitoRule mockitoRule = MockitoJUnit.rule();
+    public MockitoRule mockito = MockitoJUnit.rule();
 
     @Before
     public void setUp(final TestContext context) {

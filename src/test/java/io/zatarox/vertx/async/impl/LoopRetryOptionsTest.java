@@ -15,6 +15,8 @@
  */
 package io.zatarox.vertx.async.impl;
 
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
 import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.Repeat;
@@ -22,14 +24,16 @@ import io.vertx.ext.unit.junit.RepeatRule;
 import io.vertx.ext.unit.junit.RunTestOnContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
 import io.zatarox.vertx.async.AsyncFlows;
-import io.zatarox.vertx.async.fakes.FakeFailingAsyncSupplier;
 import io.zatarox.vertx.async.fakes.FakeSuccessfulAsyncSupplier;
+import io.zatarox.vertx.async.utils.DefaultAsyncResult;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.runner.RunWith;
+import static org.mockito.Mockito.*;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 
@@ -49,7 +53,7 @@ public final class LoopRetryOptionsTest {
     @Rule
     public RunTestOnContext rule = new RunTestOnContext();
     @Rule
-    public MockitoRule mockitoRule = MockitoJUnit.rule();
+    public MockitoRule mockito = MockitoJUnit.rule();
 
     @Before
     public void setUp() {
@@ -65,18 +69,20 @@ public final class LoopRetryOptionsTest {
     @Test(timeout = LoopRetryOptionsTest.TIMEOUT_LIMIT)
     @Repeat(LoopRetryOptionsTest.REPEAT_LIMIT)
     public void retryExecutesTheTaskWithoutError(final TestContext context) {
-        final FakeSuccessfulAsyncSupplier<String> task1 = new FakeSuccessfulAsyncSupplier<>("Task 1");
-        final AtomicInteger handlerCallCount = new AtomicInteger(0);
+        final Consumer<Handler<AsyncResult<String>>> task = mock(Consumer.class);
         final Async async = context.async();
 
-        AsyncFlows.retry(options, task1, result -> {
-            context.assertEquals(1, task1.runCount());
+        doAnswer(invocation -> {
+            final Handler<AsyncResult<String>> handler = invocation.getArgumentAt(0, Handler.class);
+            handler.handle(DefaultAsyncResult.succeed("TEST"));
+            return null;
+        }).when(task).accept(any(Handler.class));
+        
+        AsyncFlows.retry(options, task, result -> {
+            verify(task, times(1)).accept(any(Handler.class));
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
-            final String resultValue = result.result();
-            context.assertNotNull(resultValue);
-            context.assertEquals(task1.result(), resultValue);
-            context.assertEquals(1, handlerCallCount.incrementAndGet());
+            context.assertEquals("TEST", result.result());
             async.complete();
         });
     }
@@ -84,16 +90,20 @@ public final class LoopRetryOptionsTest {
     @Test(timeout = LoopRetryOptionsTest.TIMEOUT_LIMIT)
     @Repeat(LoopRetryOptionsTest.REPEAT_LIMIT)
     public void retryExecutesAndFaildOnAllIteratee(final TestContext context) {
-        final FakeFailingAsyncSupplier<String> task1 = new FakeFailingAsyncSupplier<>(new RuntimeException("Failed"));
-        final AtomicInteger handlerCallCount = new AtomicInteger(0);
+        final Consumer<Handler<AsyncResult<String>>> task = mock(Consumer.class);
         final Async async = context.async();
+        
+        doAnswer(invocation -> {
+            final Handler<AsyncResult<String>> handler = invocation.getArgumentAt(0, Handler.class);
+            handler.handle(DefaultAsyncResult.fail(new RuntimeException("Failed")));
+            return null;
+        }).when(task).accept(any(Handler.class));
 
-        AsyncFlows.retry(options, task1, result -> {
-            context.assertEquals(10, task1.runCount());
+        AsyncFlows.retry(options, task, result -> {
+            verify(task, times(10)).accept(any(Handler.class));
             context.assertNotNull(result);
             context.assertFalse(result.succeeded());
             context.assertNull(result.result());
-            context.assertEquals(1, handlerCallCount.incrementAndGet());
             async.complete();
         });
     }
@@ -101,18 +111,26 @@ public final class LoopRetryOptionsTest {
     @Test(timeout = LoopRetryOptionsTest.TIMEOUT_LIMIT)
     @Repeat(LoopRetryOptionsTest.REPEAT_LIMIT)
     public void retryExecutesSuccessBeforeLastFailure(final TestContext context) {
-        final FakeSuccessfulAsyncSupplier<String> task1 = new FakeSuccessfulAsyncSupplier<>(9, new Throwable("Failed"), "Task 1");
-        final AtomicInteger handlerCallCount = new AtomicInteger(0);
+        final Consumer<Handler<AsyncResult<String>>> task = mock(Consumer.class);
+        final AtomicInteger counter = new AtomicInteger(0);
         final Async async = context.async();
+        
+        doAnswer(invocation -> {
+            final Handler<AsyncResult<String>> handler = invocation.getArgumentAt(0, Handler.class);
+            if(counter.incrementAndGet() < 10) {
+            handler.handle(DefaultAsyncResult.fail(new RuntimeException("Failed")));
+            } else {
+                handler.handle(DefaultAsyncResult.succeed("TASK 1"));
+            }
+            return null;
+        }).when(task).accept(any(Handler.class));
+        
 
-        AsyncFlows.retry(options, task1, result -> {
-            context.assertEquals(10, task1.runCount());
+        AsyncFlows.retry(options, task, result -> {
+            verify(task, times(10)).accept(any(Handler.class));
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
-            final String resultValue = result.result();
-            context.assertNotNull(resultValue);
-            context.assertEquals(task1.result(), resultValue);
-            context.assertEquals(1, handlerCallCount.incrementAndGet());
+            context.assertEquals("TASK 1", result.result());
             async.complete();
         });
     }

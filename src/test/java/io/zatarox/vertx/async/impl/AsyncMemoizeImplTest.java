@@ -44,7 +44,7 @@ public final class AsyncMemoizeImplTest {
     @Rule
     public RunTestOnContext rule = new RunTestOnContext();
     @Rule
-    public MockitoRule mockitoRule = MockitoJUnit.rule();
+    public MockitoRule mockito = MockitoJUnit.rule();
 
     @Test(timeout = AsyncMemoizeImplTest.TIMEOUT_LIMIT)
     @Repeat(AsyncMemoizeImplTest.REPEAT_LIMIT)

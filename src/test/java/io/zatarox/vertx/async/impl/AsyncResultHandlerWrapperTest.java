@@ -34,7 +34,7 @@ public final class AsyncResultHandlerWrapperTest {
     private static final int LIMIT = 1000;
     
     @Rule
-    public MockitoRule mockitoRule = MockitoJUnit.rule();
+    public MockitoRule mockito = MockitoJUnit.rule();
     
     @Test(timeout = AsyncResultHandlerWrapperTest.LIMIT)
     public void testWrapperSucceed() {

@@ -42,7 +42,7 @@ public final class DefaultAsyncResultTest {
     @Rule
     public RunTestOnContext rule = new RunTestOnContext();
     @Rule
-    public MockitoRule mockitoRule = MockitoJUnit.rule();
+    public MockitoRule mockito = MockitoJUnit.rule();
 
     @Test(timeout = DefaultAsyncResultTest.TIMEOUT_LIMIT)
     @Repeat(DefaultAsyncResultTest.REPEAT_LIMIT)

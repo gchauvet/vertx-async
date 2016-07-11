@@ -51,7 +51,7 @@ public final class AsyncUtilsTest {
     @Rule
     public RunTestOnContext rule = new RunTestOnContext();
     @Rule
-    public MockitoRule mockitoRule = MockitoJUnit.rule();
+    public MockitoRule mockito = MockitoJUnit.rule();
 
     @Test(expected = InvocationTargetException.class)
     public void testPrivateConstructor() throws Exception {
