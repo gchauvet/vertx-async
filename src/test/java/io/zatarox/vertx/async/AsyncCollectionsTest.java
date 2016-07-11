@@ -274,6 +274,30 @@ public final class AsyncCollectionsTest {
             async.complete();
         });
     }
+    
+    @Test(timeout = AsyncCollectionsTest.TIMEOUT_LIMIT)
+    @Repeat(AsyncCollectionsTest.REPEAT_LIMIT)
+    public void eachOfFailsUnhandledException(final TestContext context) {
+        final Map<String, Integer> items = new HashMap<>();
+        final FakeFailingAsyncFunction<KeyValue<String, Integer>, Void> each = new FakeFailingAsyncFunction<>(new RuntimeException("Failed"), false);
+        final AtomicInteger handlerCallCount = new AtomicInteger(0);
+        final Async async = context.async();
+        items.put("One", 1);
+
+        AsyncCollections.each(items, each, result -> {
+            context.assertNotNull(result);
+            context.assertFalse(result.succeeded());
+            context.assertEquals(each.cause(), result.cause());
+            context.assertNull(result.result());
+
+            context.assertEquals(1, each.runCount());
+            each.consumedValues().stream().forEach((item) -> {
+                context.assertEquals(item.getValue(), items.get(item.getKey()));
+            });
+            context.assertEquals(1, handlerCallCount.incrementAndGet());
+            async.complete();
+        });
+    }
 
     @Test(timeout = AsyncCollectionsTest.TIMEOUT_LIMIT)
     @Repeat(AsyncCollectionsTest.REPEAT_LIMIT)

@@ -57,7 +57,7 @@ public final class AsyncFlows {
      * completed. This function gets a results array (or object) containing all
      * the result arguments passed to the {@code task} handlers.
      */
-    public static <T> void series(Collection<Consumer<Handler<AsyncResult<T>>>> tasks, final Handler<AsyncResult<List<T>>> handler) {
+    public static <T> void series(final Collection<Consumer<Handler<AsyncResult<T>>>> tasks, final Handler<AsyncResult<List<T>>> handler) {
         Vertx.currentContext().runOnContext(new Handler<Void>() {
             final Iterator<Consumer<Handler<AsyncResult<T>>>> iterator = tasks.iterator();
             final List<T> results = new ArrayList<>(tasks.size());
@@ -202,7 +202,7 @@ public final class AsyncFlows {
      * successfully. This function gets a results array (or object) containing
      * all the result arguments passed to the task callbacks.
      */
-    public static <T> void parallel(List<Consumer<Handler<AsyncResult<T>>>> tasks, final Handler<AsyncResult<List<T>>> handler) {
+    public static <T> void parallel(final List<Consumer<Handler<AsyncResult<T>>>> tasks, final Handler<AsyncResult<List<T>>> handler) {
         final List<T> results = new ArrayList<>(tasks.size());
         if (tasks.isEmpty()) {
             handler.handle(DefaultAsyncResult.succeed(results));
@@ -250,7 +250,7 @@ public final class AsyncFlows {
      * @param handler A callback which is called after the test function has
      * failed and repeated execution of {@code consumer} has stopped.
      */
-    public static void whilst(final BooleanSupplier tester, Consumer<Handler<AsyncResult<Void>>> consumer, final Handler<AsyncResult<Void>> handler) {
+    public static void whilst(final BooleanSupplier tester, final Consumer<Handler<AsyncResult<Void>>> consumer, final Handler<AsyncResult<Void>> handler) {
         Vertx.currentContext().runOnContext(new Handler<Void>() {
             final AtomicBoolean stop = new AtomicBoolean(false);
 
@@ -279,7 +279,7 @@ public final class AsyncFlows {
         });
     }
 
-    public static void whilst(final Consumer<Handler<AsyncResult<Boolean>>> tester, Consumer<Handler<AsyncResult<Void>>> consumer, final Handler<AsyncResult<Void>> handler) {
+    public static void whilst(final Consumer<Handler<AsyncResult<Boolean>>> tester, final Consumer<Handler<AsyncResult<Void>>> consumer, final Handler<AsyncResult<Void>> handler) {
         Vertx.currentContext().runOnContext(new Handler<Void>() {
             final AtomicBoolean stop = new AtomicBoolean(false);
 
@@ -455,7 +455,7 @@ public final class AsyncFlows {
      * completed. This function gets an error or result from the first function
      * that completed.
      */
-    public static <T> void race(List<Consumer<Handler<AsyncResult<T>>>> tasks, final Handler<AsyncResult<T>> handler) {
+    public static <T> void race(final List<Consumer<Handler<AsyncResult<T>>>> tasks, final Handler<AsyncResult<T>> handler) {
         if (tasks.isEmpty()) {
             handler.handle(DefaultAsyncResult.succeed(null));
         } else {

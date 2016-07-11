@@ -109,16 +109,23 @@ public final class AsyncCollections {
             final AtomicBoolean stop = new AtomicBoolean(false);
             final AtomicInteger counter = new AtomicInteger(iterable.size());
             iterable.entrySet().stream().forEach((item) -> {
-                Vertx.currentContext().runOnContext(aVoid -> consumer.accept(new KeyValue<>(item.getKey(), item.getValue()), result -> {
-                    if (result.failed() || stop.get()) {
-                        if (!stop.get()) {
-                            stop.set(true);
-                            handler.handle(DefaultAsyncResult.fail(result));
-                        }
-                    } else if (counter.decrementAndGet() == 0 && !stop.get()) {
-                        handler.handle(DefaultAsyncResult.succeed());
+                Vertx.currentContext().runOnContext(aVoid -> {
+                    try {
+                        consumer.accept(new KeyValue<>(item.getKey(), item.getValue()), result -> {
+                            if (result.failed() || stop.get()) {
+                                if (!stop.get()) {
+                                    stop.set(true);
+                                    handler.handle(DefaultAsyncResult.fail(result));
+                                }
+                            } else if (counter.decrementAndGet() == 0 && !stop.get()) {
+                                handler.handle(DefaultAsyncResult.succeed());
+                            }
+                        });
+                    } catch (Throwable ex) {
+                        handler.handle(DefaultAsyncResult.fail(ex));
                     }
-                }));
+
+                });
             });
         }
     }
