@@ -45,7 +45,7 @@ public final class DefaultAsyncResultTest {
     public MockitoRule mockito = MockitoJUnit.rule();
 
     @Test(timeout = DefaultAsyncResultTest.TIMEOUT_LIMIT)
-    @Repeat(DefaultAsyncResultTest.REPEAT_LIMIT)
+    @Repeat(value = DefaultAsyncResultTest.REPEAT_LIMIT, silent = true)
     public void validFailedException(final TestContext context) {
         final Async async = context.async();
         final AsyncResult<Void> instance = DefaultAsyncResult.fail(new UnsupportedOperationException());
@@ -58,7 +58,7 @@ public final class DefaultAsyncResultTest {
     }
 
     @Test(timeout = DefaultAsyncResultTest.TIMEOUT_LIMIT)
-    @Repeat(DefaultAsyncResultTest.REPEAT_LIMIT)
+    @Repeat(value = DefaultAsyncResultTest.REPEAT_LIMIT, silent = true)
     public void validFaileAsyncResult(final TestContext context) {
         final Async async = context.async();
         final AsyncResult<Void> instance = DefaultAsyncResult.fail(DefaultAsyncResult.fail(new UnsupportedOperationException()));
@@ -71,7 +71,7 @@ public final class DefaultAsyncResultTest {
     }
 
     @Test(timeout = DefaultAsyncResultTest.TIMEOUT_LIMIT, expected = IllegalArgumentException.class)
-    @Repeat(DefaultAsyncResultTest.REPEAT_LIMIT)
+    @Repeat(value = DefaultAsyncResultTest.REPEAT_LIMIT, silent = true)
     public void unvalidFailed(final TestContext context) {
         final Async async = context.async();
         final AsyncResult<Void> instance = DefaultAsyncResult.fail((Throwable) null);
@@ -83,7 +83,7 @@ public final class DefaultAsyncResultTest {
     }
 
     @Test(timeout = DefaultAsyncResultTest.TIMEOUT_LIMIT)
-    @Repeat(DefaultAsyncResultTest.REPEAT_LIMIT)
+    @Repeat(value = DefaultAsyncResultTest.REPEAT_LIMIT, silent = true)
     public void validVoidSuccess(final TestContext context) {
         final Async async = context.async();
         final AsyncResult<Void> instance = DefaultAsyncResult.succeed();
@@ -97,7 +97,7 @@ public final class DefaultAsyncResultTest {
     }
 
     @Test(timeout = DefaultAsyncResultTest.TIMEOUT_LIMIT)
-    @Repeat(DefaultAsyncResultTest.REPEAT_LIMIT)
+    @Repeat(value = DefaultAsyncResultTest.REPEAT_LIMIT, silent = true)
     public void validValueSuccess(final TestContext context) {
         final Async async = context.async();
         final AsyncResult<Integer> instance = DefaultAsyncResult.succeed(73);

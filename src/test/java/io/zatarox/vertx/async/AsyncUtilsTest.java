@@ -61,7 +61,7 @@ public final class AsyncUtilsTest {
     }
 
     @Test(timeout = AsyncUtilsTest.TIMEOUT_LIMIT)
-    @Repeat(AsyncUtilsTest.REPEAT_LIMIT)
+    @Repeat(value = AsyncUtilsTest.REPEAT_LIMIT, silent = true)
     public void timeoutNotRaised(final TestContext context) {
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
@@ -77,7 +77,7 @@ public final class AsyncUtilsTest {
     }
 
     @Test(timeout = AsyncUtilsTest.TIMEOUT_LIMIT)
-    @Repeat(AsyncUtilsTest.REPEAT_LIMIT)
+    @Repeat(value = AsyncUtilsTest.REPEAT_LIMIT, silent = true)
     public void timeoutNotRaisedWithError(final TestContext context) {
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
@@ -94,7 +94,7 @@ public final class AsyncUtilsTest {
     }
 
     @Test(timeout = AsyncUtilsTest.TIMEOUT_LIMIT)
-    @Repeat(AsyncUtilsTest.REPEAT_LIMIT)
+    @Repeat(value = AsyncUtilsTest.REPEAT_LIMIT, silent = true)
     public void timeoutRaised(final TestContext context) {
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
@@ -113,7 +113,7 @@ public final class AsyncUtilsTest {
     }
 
     @Test(timeout = AsyncUtilsTest.TIMEOUT_LIMIT)
-    @Repeat(AsyncUtilsTest.REPEAT_LIMIT)
+    @Repeat(value = AsyncUtilsTest.REPEAT_LIMIT, silent = true)
     public void timeoutRaisedWithError(final TestContext context) {
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
@@ -139,7 +139,7 @@ public final class AsyncUtilsTest {
     }
 
     @Test(timeout = AsyncUtilsTest.TIMEOUT_LIMIT)
-    @Repeat(AsyncUtilsTest.REPEAT_LIMIT)
+    @Repeat(value = AsyncUtilsTest.REPEAT_LIMIT, silent = true)
     public void constantWithNull(final TestContext context) {
         final Long value = (long) 73;
         final Consumer<Handler<AsyncResult<Long>>> function = AsyncUtils.constant(value);
@@ -153,9 +153,9 @@ public final class AsyncUtilsTest {
             });
         });
     }
-    
+
     @Test(timeout = AsyncUtilsTest.TIMEOUT_LIMIT)
-    @Repeat(AsyncUtilsTest.REPEAT_LIMIT)
+    @Repeat(value = AsyncUtilsTest.REPEAT_LIMIT, silent = true)
     public void asyncifyAFunction(final TestContext context) {
         final Async async = context.async();
         final BiConsumer<Integer, Handler<AsyncResult<Integer>>> function = AsyncUtils.asyncify(t -> {
@@ -163,16 +163,16 @@ public final class AsyncUtilsTest {
         });
         context.assertNotNull(function);
         rule.vertx().runOnContext(handler -> {
-            function.accept(72, result ->{
+            function.accept(72, result -> {
                 context.assertTrue(result.succeeded());
                 context.assertEquals(73, result.result());
                 async.complete();
             });
         });
     }
-    
+
     @Test(timeout = AsyncUtilsTest.TIMEOUT_LIMIT)
-    @Repeat(AsyncUtilsTest.REPEAT_LIMIT)
+    @Repeat(value = AsyncUtilsTest.REPEAT_LIMIT, silent = true)
     public void asyncifyAFunctionUnhandledException(final TestContext context) {
         final Async async = context.async();
         final BiConsumer<Integer, Handler<AsyncResult<Integer>>> function = AsyncUtils.asyncify(t -> {
@@ -180,7 +180,7 @@ public final class AsyncUtilsTest {
         });
         context.assertNotNull(function);
         rule.vertx().runOnContext(handler -> {
-            function.accept(72, result ->{
+            function.accept(72, result -> {
                 context.assertFalse(result.succeeded());
                 context.assertTrue(result.cause() instanceof RuntimeException);
                 async.complete();

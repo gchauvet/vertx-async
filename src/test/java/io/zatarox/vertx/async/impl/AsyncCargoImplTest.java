@@ -76,7 +76,7 @@ public final class AsyncCargoImplTest {
     }
 
     @Test(timeout = AsyncCargoImplTest.TIMEOUT_LIMIT)
-    @Repeat(AsyncCargoImplTest.REPEAT_LIMIT)
+    @Repeat(value = AsyncCargoImplTest.REPEAT_LIMIT, silent = true)
     public void executeEmptyCargo(final TestContext context) {
         context.assertTrue(cargo.isIdle());
         rule.vertx().runOnContext(cargo);
@@ -89,7 +89,7 @@ public final class AsyncCargoImplTest {
     }
 
     @Test(timeout = AsyncCargoImplTest.TIMEOUT_LIMIT)
-    @Repeat(AsyncCargoImplTest.REPEAT_LIMIT)
+    @Repeat(value = AsyncCargoImplTest.REPEAT_LIMIT, silent = true)
     public void testListeners(final TestContext context) {
         final Async async = context.async();
         final AtomicBoolean empty = new AtomicBoolean(false);
@@ -113,7 +113,7 @@ public final class AsyncCargoImplTest {
     }
 
     @Test(timeout = AsyncCargoImplTest.TIMEOUT_LIMIT)
-    @Repeat(AsyncCargoImplTest.REPEAT_LIMIT)
+    @Repeat(value = AsyncCargoImplTest.REPEAT_LIMIT, silent = true)
     public void executeOneTaskSucceedInCargo(final TestContext context) {
         final Async async = context.async();
         context.assertTrue(cargo.add(Arrays.asList(100), event -> {
@@ -124,7 +124,7 @@ public final class AsyncCargoImplTest {
     }
 
     @Test(timeout = AsyncCargoImplTest.TIMEOUT_LIMIT)
-    @Repeat(AsyncCargoImplTest.REPEAT_LIMIT)
+    @Repeat(value = AsyncCargoImplTest.REPEAT_LIMIT, silent = true)
     public void executeTwoTaskSucceedWithOneWorker(final TestContext context) {
         final Async async = context.async();
         @SuppressWarnings("LocalVariableHidesMemberVariable")
@@ -137,7 +137,7 @@ public final class AsyncCargoImplTest {
     }
 
     @Test(timeout = AsyncCargoImplTest.TIMEOUT_LIMIT)
-    @Repeat(AsyncCargoImplTest.REPEAT_LIMIT)
+    @Repeat(value = AsyncCargoImplTest.REPEAT_LIMIT, silent = true)
     public void executeTwoTaskSucceedWithDefaultNumberWorkers(final TestContext context) {
         final Async async = context.async();
         final AtomicInteger counter = new AtomicInteger();
@@ -150,7 +150,7 @@ public final class AsyncCargoImplTest {
     }
 
     @Test(timeout = AsyncCargoImplTest.TIMEOUT_LIMIT)
-    @Repeat(AsyncCargoImplTest.REPEAT_LIMIT)
+    @Repeat(value = AsyncCargoImplTest.REPEAT_LIMIT, silent = true)
     public void executeOneTaskFailedInCargo(final TestContext context) {
         final Async async = context.async();
         cargo = new AsyncCargoImpl<>((tasks, handler) -> {
@@ -168,7 +168,7 @@ public final class AsyncCargoImplTest {
     }
 
     @Test(timeout = AsyncCargoImplTest.TIMEOUT_LIMIT)
-    @Repeat(AsyncCargoImplTest.REPEAT_LIMIT)
+    @Repeat(value = AsyncCargoImplTest.REPEAT_LIMIT, silent = true)
     public void executePauseAndUnpause(final TestContext context) {
         final Async async = context.async();
         final AtomicInteger counter = new AtomicInteger();
@@ -188,7 +188,7 @@ public final class AsyncCargoImplTest {
     }
 
     @Test(timeout = AsyncCargoImplTest.TIMEOUT_LIMIT)
-    @Repeat(AsyncCargoImplTest.REPEAT_LIMIT)
+    @Repeat(value = AsyncCargoImplTest.REPEAT_LIMIT, silent = true)
     public void executeAddToTop(final TestContext context) {
         final Async async = context.async();
         final AtomicInteger counter = new AtomicInteger();
@@ -209,7 +209,7 @@ public final class AsyncCargoImplTest {
     }
 
     @Test(timeout = AsyncCargoImplTest.TIMEOUT_LIMIT)
-    @Repeat(AsyncCargoImplTest.REPEAT_LIMIT)
+    @Repeat(value = AsyncCargoImplTest.REPEAT_LIMIT, silent = true)
     public void executeClear(final TestContext context) {
         final Async async = context.async();
         final AtomicInteger counter = new AtomicInteger();

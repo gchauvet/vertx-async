@@ -67,7 +67,7 @@ public final class LoopRetryOptionsTest {
     }
 
     @Test(timeout = LoopRetryOptionsTest.TIMEOUT_LIMIT)
-    @Repeat(LoopRetryOptionsTest.REPEAT_LIMIT)
+    @Repeat(value = LoopRetryOptionsTest.REPEAT_LIMIT, silent = true)
     public void retryExecutesTheTaskWithoutError(final TestContext context) {
         final Consumer<Handler<AsyncResult<String>>> task = mock(Consumer.class);
         final Async async = context.async();
@@ -77,22 +77,23 @@ public final class LoopRetryOptionsTest {
             handler.handle(DefaultAsyncResult.succeed("TEST"));
             return null;
         }).when(task).accept(any(Handler.class));
-        
+
         AsyncFlows.retry(options, task, result -> {
             verify(task, times(1)).accept(any(Handler.class));
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
             context.assertEquals("TEST", result.result());
             async.complete();
+            async.complete();
         });
     }
 
     @Test(timeout = LoopRetryOptionsTest.TIMEOUT_LIMIT)
-    @Repeat(LoopRetryOptionsTest.REPEAT_LIMIT)
+    @Repeat(value = LoopRetryOptionsTest.REPEAT_LIMIT, silent = true)
     public void retryExecutesAndFaildOnAllIteratee(final TestContext context) {
         final Consumer<Handler<AsyncResult<String>>> task = mock(Consumer.class);
         final Async async = context.async();
-        
+
         doAnswer(invocation -> {
             final Handler<AsyncResult<String>> handler = invocation.getArgumentAt(0, Handler.class);
             handler.handle(DefaultAsyncResult.fail(new RuntimeException("Failed")));
@@ -109,22 +110,21 @@ public final class LoopRetryOptionsTest {
     }
 
     @Test(timeout = LoopRetryOptionsTest.TIMEOUT_LIMIT)
-    @Repeat(LoopRetryOptionsTest.REPEAT_LIMIT)
+    @Repeat(value = LoopRetryOptionsTest.REPEAT_LIMIT, silent = true)
     public void retryExecutesSuccessBeforeLastFailure(final TestContext context) {
         final Consumer<Handler<AsyncResult<String>>> task = mock(Consumer.class);
         final AtomicInteger counter = new AtomicInteger(0);
         final Async async = context.async();
-        
+
         doAnswer(invocation -> {
             final Handler<AsyncResult<String>> handler = invocation.getArgumentAt(0, Handler.class);
-            if(counter.incrementAndGet() < 10) {
-            handler.handle(DefaultAsyncResult.fail(new RuntimeException("Failed")));
+            if (counter.incrementAndGet() < 10) {
+                handler.handle(DefaultAsyncResult.fail(new RuntimeException("Failed")));
             } else {
                 handler.handle(DefaultAsyncResult.succeed("TASK 1"));
             }
             return null;
         }).when(task).accept(any(Handler.class));
-        
 
         AsyncFlows.retry(options, task, result -> {
             verify(task, times(10)).accept(any(Handler.class));

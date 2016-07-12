@@ -69,7 +69,7 @@ public final class AsyncQueueImplTest {
     }
 
     @Test(timeout = AsyncQueueImplTest.TIMEOUT_LIMIT)
-    @Repeat(AsyncQueueImplTest.REPEAT_LIMIT)
+    @Repeat(value = AsyncQueueImplTest.REPEAT_LIMIT, silent = true)
     public void executeEmptyQueue(final TestContext context) {
         context.assertTrue(queue.isIdle());
         rule.vertx().runOnContext(queue);
@@ -82,7 +82,7 @@ public final class AsyncQueueImplTest {
     }
 
     @Test(timeout = AsyncQueueImplTest.TIMEOUT_LIMIT)
-    @Repeat(AsyncQueueImplTest.REPEAT_LIMIT)
+    @Repeat(value = AsyncQueueImplTest.REPEAT_LIMIT, silent = true)
     public void testListeners(final TestContext context) {
         final Async async = context.async();
         final AtomicBoolean empty = new AtomicBoolean(false);
@@ -106,7 +106,7 @@ public final class AsyncQueueImplTest {
     }
 
     @Test(timeout = AsyncQueueImplTest.TIMEOUT_LIMIT)
-    @Repeat(AsyncQueueImplTest.REPEAT_LIMIT)
+    @Repeat(value = AsyncQueueImplTest.REPEAT_LIMIT, silent = true)
     public void executeOneTaskSucceedInQueue(final TestContext context) {
         final Async async = context.async();
         context.assertTrue(queue.add(100, event -> {
@@ -117,7 +117,7 @@ public final class AsyncQueueImplTest {
     }
 
     @Test(timeout = AsyncQueueImplTest.TIMEOUT_LIMIT)
-    @Repeat(AsyncQueueImplTest.REPEAT_LIMIT)
+    @Repeat(value = AsyncQueueImplTest.REPEAT_LIMIT, silent = true)
     public void executeTwoTaskSucceedWithOneWorker(final TestContext context) {
         final Async async = context.async();
         @SuppressWarnings("LocalVariableHidesMemberVariable")
@@ -133,7 +133,7 @@ public final class AsyncQueueImplTest {
     }
 
     @Test(timeout = AsyncQueueImplTest.TIMEOUT_LIMIT)
-    @Repeat(AsyncQueueImplTest.REPEAT_LIMIT)
+    @Repeat(value = AsyncQueueImplTest.REPEAT_LIMIT, silent = true)
     public void executeTwoTaskSucceedWithDefaultNumberWorkers(final TestContext context) {
         final Async async = context.async();
         final AtomicInteger counter = new AtomicInteger();
@@ -149,7 +149,7 @@ public final class AsyncQueueImplTest {
     }
 
     @Test(timeout = AsyncQueueImplTest.TIMEOUT_LIMIT)
-    @Repeat(AsyncQueueImplTest.REPEAT_LIMIT)
+    @Repeat(value = AsyncQueueImplTest.REPEAT_LIMIT, silent = true)
     public void executeOneTaskFailedInQueue(final TestContext context) {
         final Async async = context.async();
         queue = new AsyncQueueImpl<>((t, u) -> {
@@ -164,9 +164,9 @@ public final class AsyncQueueImplTest {
         }, false));
         context.assertFalse(queue.isIdle());
     }
-    
+
     @Test(timeout = AsyncQueueImplTest.TIMEOUT_LIMIT)
-    @Repeat(AsyncQueueImplTest.REPEAT_LIMIT)
+    @Repeat(value = AsyncQueueImplTest.REPEAT_LIMIT, silent = true)
     public void executePauseAndUnpause(final TestContext context) {
         final Async async = context.async();
         final AtomicInteger counter = new AtomicInteger();
@@ -187,9 +187,9 @@ public final class AsyncQueueImplTest {
         queue.setPaused(false);
         context.assertFalse(queue.isIdle());
     }
-    
+
     @Test(timeout = AsyncQueueImplTest.TIMEOUT_LIMIT)
-    @Repeat(AsyncQueueImplTest.REPEAT_LIMIT)
+    @Repeat(value = AsyncQueueImplTest.REPEAT_LIMIT, silent = true)
     public void executeAddToTop(final TestContext context) {
         final Async async = context.async();
         final AtomicInteger counter = new AtomicInteger();
@@ -210,9 +210,9 @@ public final class AsyncQueueImplTest {
         queue.setPaused(false);
         context.assertFalse(queue.isIdle());
     }
-    
+
     @Test(timeout = AsyncQueueImplTest.TIMEOUT_LIMIT)
-    @Repeat(AsyncQueueImplTest.REPEAT_LIMIT)
+    @Repeat(value = AsyncQueueImplTest.REPEAT_LIMIT, silent = true)
     public void executeClear(final TestContext context) {
         final Async async = context.async();
         final AtomicInteger counter = new AtomicInteger();

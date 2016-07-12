@@ -47,7 +47,7 @@ public final class AsyncMemoizeImplTest {
     public MockitoRule mockito = MockitoJUnit.rule();
 
     @Test(timeout = AsyncMemoizeImplTest.TIMEOUT_LIMIT)
-    @Repeat(AsyncMemoizeImplTest.REPEAT_LIMIT)
+    @Repeat(value = AsyncMemoizeImplTest.REPEAT_LIMIT, silent = true)
     public void executeSucceedAndClear(final TestContext context) {
         final Async async = context.async();
         final AtomicInteger counter = new AtomicInteger(0);
@@ -69,7 +69,7 @@ public final class AsyncMemoizeImplTest {
     }
 
     @Test(timeout = AsyncMemoizeImplTest.TIMEOUT_LIMIT)
-    @Repeat(AsyncMemoizeImplTest.REPEAT_LIMIT)
+    @Repeat(value = AsyncMemoizeImplTest.REPEAT_LIMIT, silent = true)
     public void executeSucceedAndUnset(final TestContext context) {
         final Async async = context.async();
         final AtomicInteger counter = new AtomicInteger(0);
@@ -92,7 +92,7 @@ public final class AsyncMemoizeImplTest {
     }
 
     @Test(timeout = AsyncMemoizeImplTest.TIMEOUT_LIMIT)
-    @Repeat(AsyncMemoizeImplTest.REPEAT_LIMIT)
+    @Repeat(value = AsyncMemoizeImplTest.REPEAT_LIMIT, silent = true)
     public void executeSucceedAndTestCache(final TestContext context) {
         final Async async = context.async();
         final AtomicInteger counter = new AtomicInteger(0);
@@ -127,7 +127,7 @@ public final class AsyncMemoizeImplTest {
     }
 
     @Test(timeout = AsyncMemoizeImplTest.TIMEOUT_LIMIT)
-    @Repeat(AsyncMemoizeImplTest.REPEAT_LIMIT)
+    @Repeat(value = AsyncMemoizeImplTest.REPEAT_LIMIT, silent = true)
     public void executeFailedAndClear(final TestContext context) {
         final Async async = context.async();
         final AtomicInteger counter = new AtomicInteger(0);
@@ -147,7 +147,7 @@ public final class AsyncMemoizeImplTest {
     }
 
     @Test(timeout = AsyncMemoizeImplTest.TIMEOUT_LIMIT)
-    @Repeat(AsyncMemoizeImplTest.REPEAT_LIMIT)
+    @Repeat(value = AsyncMemoizeImplTest.REPEAT_LIMIT, silent = true)
     public void executeFailedAndUnset(final TestContext context) {
         final Async async = context.async();
         final AtomicInteger counter = new AtomicInteger(0);
