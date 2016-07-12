@@ -7,12 +7,9 @@ install:
   - mvn install -DskipTests=true
 
 script:
-  - mvn test
+  - mvn clean test jacoco:report coveralls:report
 
 before_install:
   - sudo add-apt-repository ppa:openjdk-r/ppa -y
   - sudo apt-get update -q
   - sudo apt-get install openjdk-8-jdk-headless -y
-
-after_success:
-  - mvn clean test jacoco:report coveralls:report
