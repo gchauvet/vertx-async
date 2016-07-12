@@ -24,7 +24,6 @@ import io.vertx.ext.unit.junit.RepeatRule;
 import io.vertx.ext.unit.junit.RunTestOnContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
 import io.zatarox.vertx.async.AsyncFlows;
-import io.zatarox.vertx.async.fakes.FakeSuccessfulAsyncSupplier;
 import io.zatarox.vertx.async.utils.DefaultAsyncResult;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
@@ -83,7 +82,6 @@ public final class LoopRetryOptionsTest {
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
             context.assertEquals("TEST", result.result());
-            async.complete();
             async.complete();
         });
     }
