@@ -19,7 +19,7 @@ vertx-async snapshots are available on OSSRH repository:
     <dependency>
         <groupId>io.zatarox</groupId>
         <artifactId>vertx-async</artifactId>
-        <version>0.XX.XX-SNAPSHOT</version>
+        <version>1.XX.XX</version>
     </dependency>
 ```
 
