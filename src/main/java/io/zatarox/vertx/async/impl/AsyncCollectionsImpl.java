@@ -13,12 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.zatarox.vertx.async;
+package io.zatarox.vertx.async.impl;
 
 import io.zatarox.vertx.async.utils.DefaultAsyncResult;
 import io.vertx.core.AsyncResult;
+import io.vertx.core.Context;
 import io.vertx.core.Handler;
-import io.vertx.core.Vertx;
+import io.zatarox.vertx.async.api.AsyncCollections;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -27,10 +28,12 @@ import java.util.function.BiConsumer;
 import java.util.stream.Stream;
 import org.javatuples.*;
 
-public final class AsyncCollections {
+public final class AsyncCollectionsImpl implements AsyncCollections {
+    
+    private final Context context;
 
-    private AsyncCollections() throws InstantiationException {
-        throw new InstantiationException();
+    public AsyncCollectionsImpl(final Context context) {
+        this.context = context;
     }
 
     /**
@@ -55,7 +58,8 @@ public final class AsyncCollections {
      * @param handler A callback which is called when all {@code consumer}
      * functions have finished, or an error occurs.
      */
-    public static <T> void each(final Collection<T> iterable, final BiConsumer<T, Handler<AsyncResult<Void>>> consumer, final Handler<AsyncResult<Void>> handler) {
+    @Override
+    public <T> void each(final Collection<T> iterable, final BiConsumer<T, Handler<AsyncResult<Void>>> consumer, final Handler<AsyncResult<Void>> handler) {
         if (iterable.isEmpty()) {
             handler.handle(DefaultAsyncResult.succeed());
         } else {
@@ -63,7 +67,7 @@ public final class AsyncCollections {
             final AtomicInteger counter = new AtomicInteger(iterable.size());
             iterable.stream().forEach((item) -> {
                 if (!stop.get()) {
-                    Vertx.currentContext().runOnContext(aVoid -> {
+                    context.runOnContext(aVoid -> {
                         try {
                             consumer.accept(item, result -> {
                                 if (result.failed() || stop.get()) {
@@ -102,14 +106,15 @@ public final class AsyncCollections {
      * @param handler A callback which is called when all {@code consumer}
      * functions have finished, or an error occurs.
      */
-    public static <K, V> void each(final Map<K, V> iterable, final BiConsumer<KeyValue<K, V>, Handler<AsyncResult<Void>>> consumer, final Handler<AsyncResult<Void>> handler) {
+    @Override
+    public <K, V> void each(final Map<K, V> iterable, final BiConsumer<KeyValue<K, V>, Handler<AsyncResult<Void>>> consumer, final Handler<AsyncResult<Void>> handler) {
         if (iterable.isEmpty()) {
             handler.handle(DefaultAsyncResult.succeed());
         } else {
             final AtomicBoolean stop = new AtomicBoolean(false);
             final AtomicInteger counter = new AtomicInteger(iterable.size());
             iterable.entrySet().stream().forEach((item) -> {
-                Vertx.currentContext().runOnContext(aVoid -> {
+                context.runOnContext(aVoid -> {
                     try {
                         consumer.accept(new KeyValue<>(item.getKey(), item.getValue()), result -> {
                             if (result.failed() || stop.get()) {
@@ -156,7 +161,8 @@ public final class AsyncCollections {
      * functions have finished, or an error occurs. Results is a List of the
      * transformed items from the {@code iterable}.
      */
-    public static <I, O> void map(final List<I> iterable, final BiConsumer<I, Handler<AsyncResult<O>>> consumer, final Handler<AsyncResult<Collection<O>>> handler) {
+    @Override
+    public <I, O> void map(final List<I> iterable, final BiConsumer<I, Handler<AsyncResult<O>>> consumer, final Handler<AsyncResult<Collection<O>>> handler) {
         final List<O> mapped = new ArrayList<>(iterable.size());
         if (iterable.isEmpty()) {
             handler.handle(DefaultAsyncResult.succeed(mapped));
@@ -167,7 +173,7 @@ public final class AsyncCollections {
             for (int i = 0; i < iterable.size(); i++) {
                 final I item = iterable.get(i);
                 final int pos = i;
-                Vertx.currentContext().runOnContext(aVoid -> {
+                context.runOnContext(aVoid -> {
                     try {
                         consumer.accept(item, result -> {
                             if (result.failed() || stop.get()) {
@@ -206,7 +212,8 @@ public final class AsyncCollections {
      * @param handler A callback which is called after all the {@code consumer}
      * functions have finished.
      */
-    public static <T> void filter(final Collection<T> iterable, final BiConsumer<T, Handler<AsyncResult<Boolean>>> consumer, final Handler<AsyncResult<Collection<T>>> handler) {
+    @Override
+    public <T> void filter(final Collection<T> iterable, final BiConsumer<T, Handler<AsyncResult<Boolean>>> consumer, final Handler<AsyncResult<Collection<T>>> handler) {
         final List<T> filtered = new LinkedList<>();
         if (iterable.isEmpty()) {
             handler.handle(DefaultAsyncResult.succeed(filtered));
@@ -215,7 +222,7 @@ public final class AsyncCollections {
             final AtomicInteger counter = new AtomicInteger(iterable.size());
 
             iterable.stream().forEach((item) -> {
-                Vertx.currentContext().runOnContext(aVoid -> {
+                context.runOnContext(aVoid -> {
                     try {
                         consumer.accept(item, result -> {
                             if (result.failed() || stop.get()) {
@@ -255,7 +262,8 @@ public final class AsyncCollections {
      * @param handler A callback which is called after all the {@code consumer}
      * functions have finished.
      */
-    public static <T> void reject(final Collection<T> iterable, final BiConsumer<T, Handler<AsyncResult<Boolean>>> consumer, final Handler<AsyncResult<Collection<T>>> handler) {
+    @Override
+    public <T> void reject(final Collection<T> iterable, final BiConsumer<T, Handler<AsyncResult<Boolean>>> consumer, final Handler<AsyncResult<Collection<T>>> handler) {
         filter(iterable, (t, u) -> {
             consumer.accept(t, event -> {
                 if (event.succeeded()) {
@@ -284,8 +292,9 @@ public final class AsyncCollections {
      * @param handler A callback which is called after all the {@code consumer}
      * functions have finished. Result is the transformed accumulator.
      */
-    public static <I, O> void transform(final Collection<I> iterable, final BiConsumer<I, Handler<AsyncResult<O>>> consumer, final Handler<AsyncResult<Collection<O>>> handler) {
-        Vertx.currentContext().runOnContext(new Handler<Void>() {
+    @Override
+    public <I, O> void transform(final Collection<I> iterable, final BiConsumer<I, Handler<AsyncResult<O>>> consumer, final Handler<AsyncResult<Collection<O>>> handler) {
+        context.runOnContext(new Handler<Void>() {
             final Iterator<I> iterator = iterable.iterator();
             final List<O> result = new ArrayList<>(iterable.size());
 
@@ -298,7 +307,7 @@ public final class AsyncCollections {
                         consumer.accept(iterator.next(), event1 -> {
                             if (event1.succeeded()) {
                                 result.add(event1.result());
-                                Vertx.currentContext().runOnContext(this);
+                                context.runOnContext(this);
                             } else {
                                 handler.handle(DefaultAsyncResult.fail(event1));
                             }
@@ -329,8 +338,9 @@ public final class AsyncCollections {
      * @param handler A callback which is called after all the {@code consumer}
      * functions have finished. Result is the transformed accumulator.
      */
-    public static <K, V, T, R> void transform(final Map<K, V> iterable, final BiConsumer<KeyValue<K, V>, Handler<AsyncResult<KeyValue<T, R>>>> consumer, final Handler<AsyncResult<Map<T, R>>> handler) {
-        Vertx.currentContext().runOnContext(new Handler<Void>() {
+    @Override
+    public <K, V, T, R> void transform(final Map<K, V> iterable, final BiConsumer<KeyValue<K, V>, Handler<AsyncResult<KeyValue<T, R>>>> consumer, final Handler<AsyncResult<Map<T, R>>> handler) {
+        context.runOnContext(new Handler<Void>() {
             final Iterator<Map.Entry<K, V>> iterator = iterable.entrySet().iterator();
             final Map<T, R> results = new HashMap<>(iterable.size());
 
@@ -344,7 +354,7 @@ public final class AsyncCollections {
                         consumer.accept(new KeyValue<>(item.getKey(), item.getValue()), event1 -> {
                             if (event1.succeeded()) {
                                 results.put(event1.result().getKey(), event1.result().getValue());
-                                Vertx.currentContext().runOnContext(this);
+                                context.runOnContext(this);
                             } else {
                                 handler.handle(DefaultAsyncResult.fail(event1));
                             }
@@ -379,8 +389,9 @@ public final class AsyncCollections {
      * @param handler A callback which is called after all the {@code function}
      * functions have finished. Result is the transformed accumulator.
      */
-    public static <I, O> void reduce(final Collection<I> collection, final O memo, final BiConsumer<Pair<I, O>, Handler<AsyncResult<O>>> function, final Handler<AsyncResult<O>> handler) {
-        Vertx.currentContext().runOnContext(new Handler<Void>() {
+    @Override
+    public <I, O> void reduce(final Collection<I> collection, final O memo, final BiConsumer<Pair<I, O>, Handler<AsyncResult<O>>> function, final Handler<AsyncResult<O>> handler) {
+        context.runOnContext(new Handler<Void>() {
             final Iterator<I> iterator = collection.iterator();
             final AtomicReference<O> value = new AtomicReference<>(memo);
 
@@ -395,7 +406,7 @@ public final class AsyncCollections {
                                 handler.handle(DefaultAsyncResult.fail(event1));
                             } else {
                                 value.set(event1.result());
-                                Vertx.currentContext().runOnContext(this);
+                                context.runOnContext(this);
                             }
                         });
                     } catch (Throwable ex) {
@@ -423,14 +434,15 @@ public final class AsyncCollections {
      * Result will be the first item in the array that passes the truth test
      * (function) or the value {@code null} if none passed.
      */
-    public static <T> void detect(final Collection<T> collection, final BiConsumer<T, Handler<AsyncResult<Boolean>>> function, final Handler<AsyncResult<T>> handler) {
+    @Override
+    public <T> void detect(final Collection<T> collection, final BiConsumer<T, Handler<AsyncResult<Boolean>>> function, final Handler<AsyncResult<T>> handler) {
         if (collection.isEmpty()) {
             handler.handle(DefaultAsyncResult.succeed(null));
         } else {
             final AtomicBoolean stop = new AtomicBoolean(false);
             final AtomicInteger counter = new AtomicInteger(collection.size());
             collection.stream().forEach((item) -> {
-                Vertx.currentContext().runOnContext(aVoid -> {
+                context.runOnContext(aVoid -> {
                     try {
                         function.accept(item, event -> {
                             if (event.succeeded()) {
@@ -472,7 +484,8 @@ public final class AsyncCollections {
      * will be either {@code true} or {@code false} depending on the values of
      * the async tests.
      */
-    public static <T> void some(final Collection<T> collection, final BiConsumer<T, Handler<AsyncResult<Boolean>>> function, final Handler<AsyncResult<Boolean>> handler) {
+    @Override
+    public <T> void some(final Collection<T> collection, final BiConsumer<T, Handler<AsyncResult<Boolean>>> function, final Handler<AsyncResult<Boolean>> handler) {
         if (collection.isEmpty()) {
             handler.handle(DefaultAsyncResult.succeed(false));
         } else {
@@ -480,7 +493,7 @@ public final class AsyncCollections {
             final AtomicInteger counter = new AtomicInteger(collection.size());
 
             collection.stream().forEach((item) -> {
-                Vertx.currentContext().runOnContext(aVoid -> {
+                context.runOnContext(aVoid -> {
                     try {
                         function.accept(item, event -> {
                             if (event.succeeded()) {
@@ -522,14 +535,15 @@ public final class AsyncCollections {
      * functions have finished. Result will be either {@code true} or
      * {@code false} depending on the values of the async tests.
      */
-    public static <T> void every(final Collection<T> collection, final BiConsumer<T, Handler<AsyncResult<Boolean>>> function, final Handler<AsyncResult<Boolean>> handler) {
+    @Override
+    public <T> void every(final Collection<T> collection, final BiConsumer<T, Handler<AsyncResult<Boolean>>> function, final Handler<AsyncResult<Boolean>> handler) {
         if (collection.isEmpty()) {
             handler.handle(DefaultAsyncResult.succeed(false));
         } else {
             final AtomicBoolean stop = new AtomicBoolean(false);
             final AtomicInteger counter = new AtomicInteger(collection.size());
             collection.stream().forEach((item) -> {
-                Vertx.currentContext().runOnContext(aVoid -> {
+                context.runOnContext(aVoid -> {
                     try {
                         function.accept(item, event -> {
                             if (event.succeeded()) {
@@ -573,7 +587,8 @@ public final class AsyncCollections {
      * @param handler A callback which is called after all the {@code iterable}
      * functions have finished, or an error occurs.
      */
-    public static <I, O> void concat(final Collection<I> iterable, final BiConsumer<I, Handler<AsyncResult<Collection<O>>>> consumer, final Handler<AsyncResult<Collection<O>>> handler) {
+    @Override
+    public <I, O> void concat(final Collection<I> iterable, final BiConsumer<I, Handler<AsyncResult<Collection<O>>>> consumer, final Handler<AsyncResult<Collection<O>>> handler) {
         final List<O> results = new ArrayList<>(iterable.size());
         if (iterable.isEmpty()) {
             handler.handle(DefaultAsyncResult.succeed(results));
@@ -582,7 +597,7 @@ public final class AsyncCollections {
             final AtomicInteger counter = new AtomicInteger(iterable.size());
 
             iterable.stream().forEach((item) -> {
-                Vertx.currentContext().runOnContext(aVoid -> {
+                context.runOnContext(aVoid -> {
                     try {
                         consumer.accept(item, result -> {
                             if (result.failed() || stop.get()) {
@@ -621,7 +636,8 @@ public final class AsyncCollections {
      * the original {@code collection} sorted by the values returned by the
      * {@code iterable} calls.
      */
-    public static <T> void sort(final Collection<T> iterable, final Handler<AsyncResult<Collection<T>>> handler) {
+    @Override
+    public <T> void sort(final Collection<T> iterable, final Handler<AsyncResult<Collection<T>>> handler) {
         sort(iterable, null, handler);
     }
 
@@ -637,8 +653,9 @@ public final class AsyncCollections {
      * the original {@code collection} sorted by the values returned by the
      * {@code comparator} calls.
      */
-    public static <T> void sort(final Collection<T> iterable, final Comparator<T> comparator, final Handler<AsyncResult<Collection<T>>> handler) {
-        Vertx.currentContext().runOnContext(event -> {
+    @Override
+    public <T> void sort(final Collection<T> iterable, final Comparator<T> comparator, final Handler<AsyncResult<Collection<T>>> handler) {
+        context.runOnContext(event -> {
             try {
                 Stream<T> stream = iterable.parallelStream();
                 if (comparator != null) {

@@ -23,7 +23,7 @@ import io.vertx.ext.unit.junit.Repeat;
 import io.vertx.ext.unit.junit.RepeatRule;
 import io.vertx.ext.unit.junit.RunTestOnContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
-import io.zatarox.vertx.async.AsyncCollections;
+import io.zatarox.vertx.async.AsyncFactorySingleton;
 import io.zatarox.vertx.async.utils.DefaultAsyncResult;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -62,7 +62,7 @@ public final class AsyncCargoImplTest {
     @Before
     public void setUp(final TestContext context) {
         worker = (Collection<Pair<Integer, Handler<AsyncResult<Void>>>> items, Handler<AsyncResult<Void>> handler) -> {
-            AsyncCollections.each(items, (item, callback) -> {
+            AsyncFactorySingleton.getInstance().createCollections(rule.vertx().getOrCreateContext()).each(items, (item, callback) -> {
                 rule.vertx().setTimer(item.getValue0(), event -> {
                     item.getValue1().handle(DefaultAsyncResult.succeed());
                 });
@@ -154,7 +154,7 @@ public final class AsyncCargoImplTest {
     public void executeOneTaskFailedInCargo(final TestContext context) {
         final Async async = context.async();
         cargo = new AsyncCargoImpl<>((tasks, handler) -> {
-            AsyncCollections.each(tasks, (task, callback) -> {
+            AsyncFactorySingleton.getInstance().createCollections(rule.vertx().getOrCreateContext()).each(tasks, (task, callback) -> {
                 task.getValue1().handle(DefaultAsyncResult.fail(new IllegalArgumentException()));
                 callback.handle(DefaultAsyncResult.fail(new IllegalArgumentException()));
             }, handler);

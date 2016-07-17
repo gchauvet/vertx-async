@@ -23,7 +23,7 @@ import io.vertx.ext.unit.junit.Repeat;
 import io.vertx.ext.unit.junit.RepeatRule;
 import io.vertx.ext.unit.junit.RunTestOnContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
-import io.zatarox.vertx.async.AsyncFlows;
+import io.zatarox.vertx.async.AsyncFactorySingleton;
 import io.zatarox.vertx.async.utils.DefaultAsyncResult;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
@@ -77,7 +77,7 @@ public final class LoopRetryOptionsTest {
             return null;
         }).when(task).accept(any(Handler.class));
 
-        AsyncFlows.retry(options, task, result -> {
+        AsyncFactorySingleton.getInstance().createFlows(rule.vertx().getOrCreateContext()).retry(options, task, result -> {
             verify(task, times(1)).accept(any(Handler.class));
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());
@@ -98,7 +98,7 @@ public final class LoopRetryOptionsTest {
             return null;
         }).when(task).accept(any(Handler.class));
 
-        AsyncFlows.retry(options, task, result -> {
+        AsyncFactorySingleton.getInstance().createFlows(rule.vertx().getOrCreateContext()).retry(options, task, result -> {
             verify(task, times(10)).accept(any(Handler.class));
             context.assertNotNull(result);
             context.assertFalse(result.succeeded());
@@ -124,7 +124,7 @@ public final class LoopRetryOptionsTest {
             return null;
         }).when(task).accept(any(Handler.class));
 
-        AsyncFlows.retry(options, task, result -> {
+        AsyncFactorySingleton.getInstance().createFlows(rule.vertx().getOrCreateContext()).retry(options, task, result -> {
             verify(task, times(10)).accept(any(Handler.class));
             context.assertNotNull(result);
             context.assertTrue(result.succeeded());

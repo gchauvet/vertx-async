@@ -13,10 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.zatarox.vertx.async;
+package io.zatarox.vertx.async.collections;
 
 import io.vertx.core.*;
 import io.zatarox.vertx.async.utils.DefaultAsyncResult;
+import io.zatarox.vertx.async.AsyncFactorySingleton;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -25,7 +26,8 @@ public class EachMapCollection extends AbstractVerticle {
 
     @Override
     public void start(final Future<Void> startFuture) {
-        AsyncCollections.each(IntStream.iterate(0, i -> i + 1).limit(100).boxed().collect(Collectors.toMap(p -> p.toString(), Function.identity())), (item, handler) -> {
+        AsyncFactorySingleton.getInstance().createCollections(context)
+        .each(IntStream.iterate(0, i -> i + 1).limit(100).boxed().collect(Collectors.toMap(p -> p.toString(), Function.identity())), (item, handler) -> {
             System.out.println(item.getKey() + " -> " + item.getValue());
             handler.handle(DefaultAsyncResult.succeed());
         }, e -> {

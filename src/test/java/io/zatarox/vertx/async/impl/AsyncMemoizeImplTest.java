@@ -21,7 +21,7 @@ import io.vertx.ext.unit.junit.Repeat;
 import io.vertx.ext.unit.junit.RepeatRule;
 import io.vertx.ext.unit.junit.RunTestOnContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
-import io.zatarox.vertx.async.AsyncFlows;
+import io.zatarox.vertx.async.AsyncFactorySingleton;
 import io.zatarox.vertx.async.utils.DefaultAsyncResult;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.Rule;
@@ -102,7 +102,7 @@ public final class AsyncMemoizeImplTest {
         });
 
         context.assertTrue(memoize.isEmpty());
-        AsyncFlows.<Void, Void>seq((t, u) -> {
+        AsyncFactorySingleton.getInstance().createFlows(rule.vertx().getOrCreateContext()).<Void, Void>seq((t, u) -> {
             memoize.accept(1, event -> {
                 context.assertTrue(event.succeeded());
                 context.assertFalse(memoize.isEmpty());

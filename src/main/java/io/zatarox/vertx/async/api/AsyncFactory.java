@@ -13,23 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.zatarox.vertx.async;
+package io.zatarox.vertx.async.api;
 
-import io.vertx.core.*;
-import io.zatarox.vertx.async.utils.DefaultAsyncResult;
-import java.util.Arrays;
+import io.vertx.core.Context;
 
-public class EachCollection extends AbstractVerticle {
+public interface AsyncFactory {
 
-    @Override
-    public void start(final Future<Void> startFuture) {
-        AsyncCollections.each(Arrays.asList(1, 2, 3, 4, 5, 6, 7), (item, handler) -> {
-            System.out.println("get " + item);
-            handler.handle(DefaultAsyncResult.succeed());
-        }, e -> {
-            System.out.println("done.");
-            startFuture.complete(e.result());
-        });
-    }
+    AsyncCollections createCollections(final Context context);
 
+    AsyncFlows createFlows(final Context context);
+
+    AsyncUtils createUtils(final Context context);
+    
 }

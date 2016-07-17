@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.zatarox.vertx.async;
+package io.zatarox.vertx.async.impl;
 
 import io.zatarox.vertx.async.utils.DefaultAsyncResult;
 import io.vertx.core.AsyncResult;
@@ -24,13 +24,13 @@ import io.vertx.ext.unit.junit.Repeat;
 import io.vertx.ext.unit.junit.RepeatRule;
 import io.vertx.ext.unit.junit.RunTestOnContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
+import io.zatarox.vertx.async.api.AsyncUtils;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -52,12 +52,11 @@ public final class AsyncUtilsTest {
     public RunTestOnContext rule = new RunTestOnContext();
     @Rule
     public MockitoRule mockito = MockitoJUnit.rule();
+    private AsyncUtils instance;
 
-    @Test(expected = InvocationTargetException.class)
-    public void testPrivateConstructor() throws Exception {
-        final Constructor<AsyncUtils> c = AsyncUtils.class.getDeclaredConstructor();
-        c.setAccessible(true);
-        c.newInstance();
+    @Before
+    public void setUp(final TestContext context) {
+        instance = new AsyncUtilsImpl(rule.vertx().getOrCreateContext());
     }
 
     @Test(timeout = AsyncUtilsTest.TIMEOUT_LIMIT)
@@ -65,7 +64,7 @@ public final class AsyncUtilsTest {
     public void timeoutNotRaised(final TestContext context) {
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
-        AsyncUtils.<Void>timeout(handler -> {
+        instance.<Void>timeout(handler -> {
             handler.handle(DefaultAsyncResult.succeed());
         }, TimeUnit.MILLISECONDS, 100L, result -> {
             context.assertNotNull(result);
@@ -81,7 +80,7 @@ public final class AsyncUtilsTest {
     public void timeoutNotRaisedWithError(final TestContext context) {
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
-        AsyncUtils.<Void>timeout(handler -> {
+        instance.<Void>timeout(handler -> {
             handler.handle(DefaultAsyncResult.fail(new IllegalArgumentException()));
         }, TimeUnit.MILLISECONDS, 100L, result -> {
             context.assertNotNull(result);
@@ -98,7 +97,7 @@ public final class AsyncUtilsTest {
     public void timeoutRaised(final TestContext context) {
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
-        AsyncUtils.<Void>timeout(handler -> {
+        instance.<Void>timeout(handler -> {
             rule.vertx().setTimer(1000, id -> {
                 handler.handle(DefaultAsyncResult.succeed());
             });
@@ -117,7 +116,7 @@ public final class AsyncUtilsTest {
     public void timeoutRaisedWithError(final TestContext context) {
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
-        AsyncUtils.<Void>timeout(handler -> {
+        instance.<Void>timeout(handler -> {
             rule.vertx().setTimer(1000, id -> {
                 handler.handle(DefaultAsyncResult.fail(new IllegalArgumentException()));
             });
@@ -133,7 +132,7 @@ public final class AsyncUtilsTest {
 
     @Test(timeout = AsyncUtilsTest.TIMEOUT_LIMIT)
     public void createMemoize(final TestContext context) {
-        AsyncUtils.<Void, Void>memoize((item, handler) -> {
+        instance.<Void, Void>memoize((item, handler) -> {
             handler.handle(DefaultAsyncResult.succeed(item));
         });
     }
@@ -142,7 +141,7 @@ public final class AsyncUtilsTest {
     @Repeat(value = AsyncUtilsTest.REPEAT_LIMIT, silent = true)
     public void constantWithNull(final TestContext context) {
         final Long value = (long) 73;
-        final Consumer<Handler<AsyncResult<Long>>> function = AsyncUtils.constant(value);
+        final Consumer<Handler<AsyncResult<Long>>> function = instance.constant(value);
         final Async async = context.async();
         context.assertNotNull(function);
         rule.vertx().runOnContext(event -> {
@@ -158,7 +157,7 @@ public final class AsyncUtilsTest {
     @Repeat(value = AsyncUtilsTest.REPEAT_LIMIT, silent = true)
     public void asyncifyAFunction(final TestContext context) {
         final Async async = context.async();
-        final BiConsumer<Integer, Handler<AsyncResult<Integer>>> function = AsyncUtils.asyncify(t -> {
+        final BiConsumer<Integer, Handler<AsyncResult<Integer>>> function = instance.asyncify(t -> {
             return t + 1;
         });
         context.assertNotNull(function);
@@ -175,7 +174,7 @@ public final class AsyncUtilsTest {
     @Repeat(value = AsyncUtilsTest.REPEAT_LIMIT, silent = true)
     public void asyncifyAFunctionUnhandledException(final TestContext context) {
         final Async async = context.async();
-        final BiConsumer<Integer, Handler<AsyncResult<Integer>>> function = AsyncUtils.asyncify(t -> {
+        final BiConsumer<Integer, Handler<AsyncResult<Integer>>> function = instance.asyncify(t -> {
             throw new RuntimeException();
         });
         context.assertNotNull(function);

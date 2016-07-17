@@ -31,7 +31,8 @@ vertx-async snapshots are available on OSSRH repository:
 ```java
     @Override
     public void start(final Future<Void> startFuture) {
-        AsyncCollections.each(IntStream.iterate(0, i -> i + 1).limit(100).boxed().collect(Collectors.toList()), (item, handler) -> {
+        AsyncFactorySingleton.getInstance().createCollections(context)
+        .each(IntStream.iterate(0, i -> i + 1).limit(100).boxed().collect(Collectors.toList()), (item, handler) -> {
             System.out.println("get " + item);
             handler.handle(DefaultAsyncResult.succeed());
         }, e -> {
@@ -45,7 +46,8 @@ vertx-async snapshots are available on OSSRH repository:
 ```java
     @Override
     public void start(final Future<Void> startFuture) {
-        AsyncCollections.each(IntStream.iterate(0, i -> i + 1).limit(100).boxed().collect(Collectors.toMap(p -> p.toString(), Function.identity())), (item, handler) -> {
+        AsyncFactorySingleton.getInstance().createCollections(context)
+        .each(IntStream.iterate(0, i -> i + 1).limit(100).boxed().collect(Collectors.toMap(p -> p.toString(), Function.identity())), (item, handler) -> {
             System.out.println(item.getKey() + " -> " + item.getValue());
             handler.handle(DefaultAsyncResult.succeed());
         }, e -> {
