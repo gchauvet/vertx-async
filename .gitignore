@@ -15,3 +15,4 @@ mods/
 *.versionsBackup
 /nb-configuration.xml
 /nbactions.xml
+/.vertx/

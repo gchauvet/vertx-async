@@ -21,17 +21,16 @@ import io.zatarox.vertx.async.utils.DefaultAsyncResult;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public class EachCollection extends AbstractVerticle {
-
-    @Override
-    public void start(final Future<Void> startFuture) {
-        AsyncFactorySingleton.getInstance().createCollections(context)
+public final class EachCollection {
+    
+    public static void main(String[] args) {
+        AsyncFactorySingleton.getInstance().createCollections(Vertx.vertx().getOrCreateContext())
         .each(IntStream.iterate(0, i -> i + 1).limit(100).boxed().collect(Collectors.toList()), (item, handler) -> {
             System.out.println("get " + item);
             handler.handle(DefaultAsyncResult.succeed());
         }, e -> {
             System.out.println("done.");
-            startFuture.complete(e.result());
+            Vertx.currentContext().owner().close();
         });
     }
 

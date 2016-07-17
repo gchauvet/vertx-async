@@ -22,17 +22,16 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public class EachMapCollection extends AbstractVerticle {
+public final class EachMapCollection {
 
-    @Override
-    public void start(final Future<Void> startFuture) {
-        AsyncFactorySingleton.getInstance().createCollections(context)
+    public static void main(String[] args) {
+        AsyncFactorySingleton.getInstance().createCollections(Vertx.vertx().getOrCreateContext())
         .each(IntStream.iterate(0, i -> i + 1).limit(100).boxed().collect(Collectors.toMap(p -> p.toString(), Function.identity())), (item, handler) -> {
             System.out.println(item.getKey() + " -> " + item.getValue());
             handler.handle(DefaultAsyncResult.succeed());
         }, e -> {
             System.out.println("done.");
-            startFuture.complete(e.result());
+            Vertx.currentContext().owner().close();
         });
     }
 
