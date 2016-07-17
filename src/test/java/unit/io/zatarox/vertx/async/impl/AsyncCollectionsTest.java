@@ -15,7 +15,6 @@
  */
 package io.zatarox.vertx.async.impl;
 
-import io.zatarox.vertx.async.utils.DefaultAsyncResult;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import io.vertx.ext.unit.Async;
@@ -25,7 +24,10 @@ import io.vertx.ext.unit.junit.RepeatRule;
 import io.vertx.ext.unit.junit.RunTestOnContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
 import io.zatarox.vertx.async.api.AsyncCollections;
-import io.zatarox.vertx.async.fakes.*;
+import io.zatarox.vertx.async.fakes.FakeAsyncFunction;
+import io.zatarox.vertx.async.fakes.FakeFailingAsyncFunction;
+import io.zatarox.vertx.async.fakes.FakeSuccessfulAsyncFunction;
+import io.zatarox.vertx.async.utils.DefaultAsyncResult;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
