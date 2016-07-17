@@ -230,6 +230,17 @@ public interface AsyncFlows {
      */
     void whilst(final BooleanSupplier tester, final Consumer<Handler<AsyncResult<Void>>> consumer, final Handler<AsyncResult<Void>> handler);
 
+    /**
+     * Repeatedly call {@code consumer}, while {@code tester} returns
+     * {@code true}. Calls {@code handler} when stopped, or an error occurs.
+     *
+     * @param tester A asynchronous truth test to perform before each execution
+     * of {@code consumer}.
+     * @param consumer A function which is called each time {@code tester}
+     * passes.
+     * @param handler A callback which is called after the test function has
+     * failed and repeated execution of {@code consumer} has stopped.
+     */
     void whilst(final Consumer<Handler<AsyncResult<Boolean>>> tester, final Consumer<Handler<AsyncResult<Void>>> consumer, final Handler<AsyncResult<Void>> handler);
 
 }
