@@ -4,7 +4,7 @@
 [![Dependency Status](https://www.versioneye.com/user/projects/576e250f7bc681003c4900b1/badge.svg?style=flat-square)](https://www.versioneye.com/user/projects/576e250f7bc681003c4900b1)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.zatarox/vertx-async/badge.svg)](https://maven-badges.herokuapp.com/maven-central/io.zatarox/vertx-async)
 
-vertx-async is a portage of caolan/async nodejs module to [Vert.x](http://vertx.io/) module that provides helper methods for common async patterns.
+vertx-async is a portage of caolan/async nodejs module to [Vert.x](http://vertx.io/) framework that provides helpers methods for common async patterns.
 
 Async provides many methods that include the usual 'functional' suspects (`map`, `reduce`, `filter`, `each`…) as well as some common patterns for asynchronous control flow (`parallel`, `series`, `waterfall`…). All these functions assume you follow the  [vert.x convention](http://vertx.io/docs/vertx-core/java/#_don_t_call_us_we_ll_call_you).
 
@@ -14,14 +14,7 @@ Async provides many methods that include the usual 'functional' suspects (`map`,
 
 ## Installation
 
-vertx-async snapshots are available on OSSRH repository:
-```xml
-    <dependency>
-        <groupId>io.zatarox</groupId>
-        <artifactId>vertx-async</artifactId>
-        <version>1.XX.XX</version>
-    </dependency>
-```
+vertx-async is available on maven central repository and OSSRH repository:
 
 ## Quick Examples
 
@@ -57,11 +50,11 @@ vertx-async snapshots are available on OSSRH repository:
     }
 ```
 
-There are many more functions available so take a look at the wiki for a full list. This module aims to be comprehensive, so if you feel anything is missing please create a GitHub issue for it.
+There are many more functions available so take a look at the wiki for a full list (work in progress) . This README aims to be comprehensive, so if you feel anything is missing please create a GitHub issue for it.
 
 ### Multiple callbacks
 
-Make sure to always calling the callback instead of a `return` procedural programming statement style, otherwise you will cause multiple callbacks and unpredictable behavior in many cases.
+Make sure to always calling the callback handler once, instead of a `return` procedural programming statement style, otherwise you will cause multiple callbacks and unpredictable behavior in many cases.
 
 ## Documentation
 
@@ -77,3 +70,8 @@ See our wiki (:construction:).
 |---|---|---|---|---|---|---|---|
 | series  | parallel  | whilst  | until  | during | forever  | waterfall  | seq |
 | retry | queue | applyEach (each) | times | race | cargo |  |  |
+
+# Utils
+|   |   |   |   |   |   |   |   |
+|---|---|---|---|---|---|---|---|
+| asyncify | constant | memoize | timeout |   |   |   |   |
