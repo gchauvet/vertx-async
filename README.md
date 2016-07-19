@@ -14,7 +14,7 @@ Async provides many methods that include the usual 'functional' suspects (`map`,
 
 ## Installation
 
-vertx-async is available on maven central repository and OSSRH repository:
+vertx-async is available on maven central repository and OSSRH repository.
 
 ## Quick Examples
 
