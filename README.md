@@ -1,6 +1,7 @@
 # vertx-async
 [![Build Status via Travis CI](https://travis-ci.org/gchauvet/vertx-async.svg?branch=master)](https://travis-ci.org/gchauvet/vertx-async)
 [![Coverage Status](https://coveralls.io/repos/github/gchauvet/vertx-async/badge.svg?branch=master)](https://coveralls.io/github/gchauvet/vertx-async?branch=master)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/8d5ba040f44c44c48d6af3639a5aef35)](https://www.codacy.com/app/gchauvet/vertx-async?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=gchauvet/vertx-async&amp;utm_campaign=Badge_Grade)
 [![Dependency Status](https://www.versioneye.com/user/projects/576e250f7bc681003c4900b1/badge.svg?style=flat-square)](https://www.versioneye.com/user/projects/576e250f7bc681003c4900b1)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.zatarox/vertx-async/badge.svg)](https://maven-badges.herokuapp.com/maven-central/io.zatarox/vertx-async)
 
