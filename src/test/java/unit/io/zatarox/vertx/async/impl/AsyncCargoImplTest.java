@@ -128,10 +128,14 @@ public final class AsyncCargoImplTest {
     public void executeTwoTaskSucceedWithOneWorker(final TestContext context) {
         final Async async = context.async();
         @SuppressWarnings("LocalVariableHidesMemberVariable")
+        final AtomicInteger counter = new AtomicInteger();
         final AsyncCargoImpl<Integer> queue = new AsyncCargoImpl(worker, 1);
         context.assertTrue(queue.add(Arrays.asList(100, 200), event -> {
             context.assertTrue(event.succeeded());
-            async.complete();
+            context.assertTrue(counter.incrementAndGet() <= 2);
+            if (counter.get() == 2) {
+                async.complete();
+            }
         }, false));
         context.assertFalse(queue.isIdle());
     }
@@ -143,8 +147,10 @@ public final class AsyncCargoImplTest {
         final AtomicInteger counter = new AtomicInteger();
         context.assertTrue(cargo.add(Arrays.asList(100, 200), event -> {
             context.assertTrue(event.succeeded());
-            counter.incrementAndGet();
-            async.complete();
+            context.assertTrue(counter.incrementAndGet() <= 2);
+            if (counter.get() == 2) {
+                async.complete();
+            }
         }, false));
         context.assertFalse(cargo.isIdle());
     }
@@ -177,9 +183,11 @@ public final class AsyncCargoImplTest {
         context.assertTrue(cargo.isIdle());
         context.assertTrue(cargo.add(Arrays.asList(100, 200), event -> {
             context.assertTrue(event.succeeded());
-            counter.incrementAndGet();
             context.assertFalse(cargo.isPaused());
-            async.complete();
+            context.assertTrue(counter.incrementAndGet() <= 2);
+            if (counter.get() == 2) {
+                async.complete();
+            }
         }, false));
         context.assertEquals(0, cargo.getRunning());
         context.assertFalse(cargo.isIdle());
@@ -196,8 +204,8 @@ public final class AsyncCargoImplTest {
         cargo.setPaused(true);
         context.assertTrue(cargo.add(Arrays.asList(200, 100), event -> {
             context.assertTrue(event.succeeded());
-            context.assertTrue(counter.incrementAndGet() < 3);
             context.assertFalse(cargo.isPaused());
+            context.assertTrue(counter.incrementAndGet() <= 2);
             if (counter.get() == 2) {
                 async.complete();
             }
