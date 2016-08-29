@@ -6,7 +6,7 @@
     <artifactId>vertx-async</artifactId>
     <packaging>jar</packaging>
     <version>1.0.0</version>
-    <name>[Vertx] Async</name>
+    <name>vertx-async</name>
     <description>Async helpers for Vert.x</description>
     <url>https://github.com/gchauvet/vertx-async</url>
     <licenses>
