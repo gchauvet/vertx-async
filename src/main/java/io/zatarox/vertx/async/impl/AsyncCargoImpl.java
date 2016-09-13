@@ -18,28 +18,29 @@ package io.zatarox.vertx.async.impl;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
+import io.zatarox.vertx.async.api.BiHandler;
+import io.zatarox.vertx.async.api.Pair;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Deque;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.BiConsumer;
-import org.javatuples.Pair;
 
 public final class AsyncCargoImpl<T> extends AbstractWorkerImpl<Collection<T>> {
 
-    private final BiConsumer<Collection<Pair<T, Handler<AsyncResult<Void>>>>, Handler<AsyncResult<Void>>> worker;
+    private final BiHandler<Collection<Pair<T, Handler<AsyncResult<Void>>>>, Handler<AsyncResult<Void>>> worker;
     private final Deque<Pair<T, Handler<AsyncResult<Void>>>> tasks = new ConcurrentLinkedDeque();
 
-    public AsyncCargoImpl(final BiConsumer<Collection<Pair<T, Handler<AsyncResult<Void>>>>, Handler<AsyncResult<Void>>> worker, final int payload) {
+    public AsyncCargoImpl(final BiHandler<Collection<Pair<T, Handler<AsyncResult<Void>>>>, Handler<AsyncResult<Void>>> worker, final int payload) {
         super(payload);
         this.worker = worker;
     }
 
-    public AsyncCargoImpl(final BiConsumer<Collection<Pair<T, Handler<AsyncResult<Void>>>>, Handler<AsyncResult<Void>>> worker) {
+    public AsyncCargoImpl(final BiHandler<Collection<Pair<T, Handler<AsyncResult<Void>>>>, Handler<AsyncResult<Void>>> worker) {
         this(worker, Integer.MAX_VALUE);
     }
 
+    @Override
     public boolean add(final Collection<T> tasks, final Handler<AsyncResult<Void>> handler, final boolean top) {
         try {
             final AtomicBoolean result = new AtomicBoolean(true);
@@ -55,7 +56,7 @@ public final class AsyncCargoImpl<T> extends AbstractWorkerImpl<Collection<T>> {
     }
 
     private boolean addInternal(final T task, final Handler<AsyncResult<Void>> handler, final boolean top) {
-        final Pair<T, Handler<AsyncResult<Void>>> item = new Pair(task, handler);
+        final Pair<T, Handler<AsyncResult<Void>>> item = new PairImpl(task, handler);
         final boolean result;
         if (!top) {
             result = tasks.offer(item);
@@ -86,7 +87,7 @@ public final class AsyncCargoImpl<T> extends AbstractWorkerImpl<Collection<T>> {
             }
             current.incrementAndGet();
             Vertx.currentContext().runOnContext(event1 -> {
-                worker.accept(tasksToPass, event2 -> {
+                worker.handle(tasksToPass, event2 -> {
                     current.decrementAndGet();
                     this.handle(event1);
                 });

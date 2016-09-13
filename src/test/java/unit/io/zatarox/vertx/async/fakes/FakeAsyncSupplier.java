@@ -18,9 +18,8 @@ package io.zatarox.vertx.async.fakes;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 
-import java.util.function.Consumer;
 
-public abstract class FakeAsyncSupplier<T> implements Consumer<Handler<AsyncResult<T>>> {
+public abstract class FakeAsyncSupplier<T> implements Handler<Handler<AsyncResult<T>>> {
 
     private int runCount = 0;
 

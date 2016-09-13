@@ -19,7 +19,6 @@ import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.function.Consumer;
 
 public final class LoopRetryOptions<T> extends AbstractRetryOptions<T> {
 
@@ -28,13 +27,13 @@ public final class LoopRetryOptions<T> extends AbstractRetryOptions<T> {
     }
 
     @Override
-    public Handler<Void> build(final Consumer<Handler<AsyncResult<T>>> task, final Handler<AsyncResult<T>> handler) {
+    public Handler<Void> build(final Handler<Handler<AsyncResult<T>>> task, final Handler<AsyncResult<T>> handler) {
         return new Handler<Void>() {
             final AtomicLong counter = new AtomicLong(tries);
 
             @Override
             public void handle(Void event) {
-                task.accept(event1 -> {
+                task.handle(event1 -> { 
                     if (event1.failed()) {
                         if (counter.decrementAndGet() < 1) {
                             handler.handle(event1);

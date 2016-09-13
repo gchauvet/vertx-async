@@ -17,12 +17,12 @@ package io.zatarox.vertx.async.fakes;
 
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
+import io.zatarox.vertx.async.api.BiHandler;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.BiConsumer;
 
-public abstract class FakeAsyncFunction<T, R> implements BiConsumer<T, Handler<AsyncResult<R>>> {
+public abstract class FakeAsyncFunction<T, R> implements BiHandler<T, Handler<AsyncResult<R>>> {
 
     private final ArrayList<T> consumedValues = new ArrayList<>();
     private int runCount = 0;

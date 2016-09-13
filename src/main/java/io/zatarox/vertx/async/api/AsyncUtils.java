@@ -19,7 +19,6 @@ import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 import java.util.function.Function;
 
 public interface AsyncUtils {
@@ -46,7 +45,7 @@ public interface AsyncUtils {
      * @param value value of the "constant".
      * @return An handler wrapper of "constant" value.
      */
-    <T> Consumer<Handler<AsyncResult<T>>> constant(final T value);
+    <T> Handler<Handler<AsyncResult<T>>> constant(final T value);
 
     /**
      * Caches the results of an async function. When creating a hash to store
@@ -72,6 +71,6 @@ public interface AsyncUtils {
      * @param handler An handler called when function finished or timeout is
      * reached
      */
-    <T> void timeout(final Consumer<Handler<AsyncResult<T>>> function, final TimeUnit unit, final long delay, final Handler<AsyncResult<T>> handler);
+    <T> void timeout(final Handler<Handler<AsyncResult<T>>> function, final TimeUnit unit, final long delay, final Handler<AsyncResult<T>> handler);
     
 }

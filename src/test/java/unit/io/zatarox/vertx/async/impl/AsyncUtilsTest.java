@@ -29,7 +29,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -141,11 +140,11 @@ public final class AsyncUtilsTest {
     @Repeat(value = AsyncUtilsTest.REPEAT_LIMIT, silent = true)
     public void constantWithNull(final TestContext context) {
         final Long value = (long) 73;
-        final Consumer<Handler<AsyncResult<Long>>> function = instance.constant(value);
+        final Handler<Handler<AsyncResult<Long>>> function = instance.constant(value);
         final Async async = context.async();
         context.assertNotNull(function);
         rule.vertx().runOnContext(event -> {
-            function.accept(event1 -> {
+            function.handle(event1 -> {
                 context.assertTrue(event1.succeeded());
                 context.assertEquals(value, event1.result());
                 async.complete();

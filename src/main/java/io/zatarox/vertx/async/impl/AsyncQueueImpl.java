@@ -18,28 +18,28 @@ package io.zatarox.vertx.async.impl;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
+import io.zatarox.vertx.async.api.BiHandler;
+import io.zatarox.vertx.async.api.Pair;
 import java.util.Deque;
 import java.util.concurrent.ConcurrentLinkedDeque;
-import java.util.function.BiConsumer;
-import org.javatuples.Pair;
 
 public final class AsyncQueueImpl<T> extends AbstractWorkerImpl<T> {
 
-    private final BiConsumer<T, Handler<AsyncResult<Void>>> worker;
+    private final BiHandler<T, Handler<AsyncResult<Void>>> worker;
     private final Deque<Pair<T, Handler<AsyncResult<Void>>>> tasks = new ConcurrentLinkedDeque();
 
-    public AsyncQueueImpl(final BiConsumer<T, Handler<AsyncResult<Void>>> worker) {
+    public AsyncQueueImpl(final BiHandler<T, Handler<AsyncResult<Void>>> worker) {
         this(worker, 5);
     }
 
-    public AsyncQueueImpl(final BiConsumer<T, Handler<AsyncResult<Void>>> worker, final int concurrency) {
+    public AsyncQueueImpl(final BiHandler<T, Handler<AsyncResult<Void>>> worker, final int concurrency) {
         super(concurrency);
         this.worker = worker;
     }
 
     public boolean add(final T task, final Handler<AsyncResult<Void>> handler, final boolean top) {
         try {
-            final Pair<T, Handler<AsyncResult<Void>>> item = new Pair(task, handler);
+            final Pair<T, Handler<AsyncResult<Void>>> item = new PairImpl(task, handler);
             final boolean result;
             if (!top) {
                 result = tasks.offer(item);
@@ -71,8 +71,8 @@ public final class AsyncQueueImpl<T> extends AbstractWorkerImpl<T> {
             final Pair<T, Handler<AsyncResult<Void>>> task = tasks.poll();
             current.incrementAndGet();
             Vertx.currentContext().runOnContext(event1 -> {
-                worker.accept(task.getValue0(), event2 -> {
-                    task.getValue1().handle(event2);
+                worker.handle(task.getKey(), event2 -> {
+                    task.getValue().handle(event2);
                     current.decrementAndGet();
                     this.handle(event);
                 });

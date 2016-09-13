@@ -37,14 +37,14 @@ public final class AsyncUtilsImpl implements AsyncUtils {
     }
 
     @Override
-    public <T> void timeout(final Consumer<Handler<AsyncResult<T>>> function, final TimeUnit unit, final long delay, final Handler<AsyncResult<T>> handler) {
+    public <T> void timeout(final Handler<Handler<AsyncResult<T>>> function, final TimeUnit unit, final long delay, final Handler<AsyncResult<T>> handler) {
         context.executeBlocking(futur -> {
             final AtomicBoolean timeout = new AtomicBoolean(false);
             final long timerHandler = context.owner().setTimer(unit.toMillis(delay), id -> {
                 timeout.set(true);
                 futur.fail(new TimeoutException());
             });
-            function.accept(event -> {
+            function.handle(event -> {
                 context.owner().cancelTimer(timerHandler);
                 if (!timeout.get()) {
                     handler.handle(event);
@@ -59,7 +59,7 @@ public final class AsyncUtilsImpl implements AsyncUtils {
     }
 
     @Override
-    public <T> Consumer<Handler<AsyncResult<T>>> constant(final T value) {
+    public <T> Handler<Handler<AsyncResult<T>>> constant(final T value) {
         return handler -> {
             handler.handle(DefaultAsyncResult.succeed(value));
         };

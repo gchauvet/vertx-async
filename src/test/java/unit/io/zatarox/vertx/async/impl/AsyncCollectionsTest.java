@@ -24,6 +24,7 @@ import io.vertx.ext.unit.junit.RepeatRule;
 import io.vertx.ext.unit.junit.RunTestOnContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
 import io.zatarox.vertx.async.api.AsyncCollections;
+import io.zatarox.vertx.async.api.Pair;
 import io.zatarox.vertx.async.fakes.FakeAsyncFunction;
 import io.zatarox.vertx.async.fakes.FakeFailingAsyncFunction;
 import io.zatarox.vertx.async.fakes.FakeSuccessfulAsyncFunction;
@@ -35,8 +36,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
-import org.javatuples.KeyValue;
-import org.javatuples.Pair;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -191,7 +190,7 @@ public final class AsyncCollectionsTest {
     @Repeat(value = AsyncCollectionsTest.REPEAT_LIMIT, silent = true)
     public void eachOfStillExecutesWhenThereAreNoItems(final TestContext context) {
         final Map<String, Void> items = new HashMap<>();
-        final FakeFailingAsyncFunction<KeyValue<String, Void>, Void> each = new FakeFailingAsyncFunction<>(new RuntimeException("Failed"));
+        final FakeFailingAsyncFunction<Pair<String, Void>, Void> each = new FakeFailingAsyncFunction<>(new RuntimeException("Failed"));
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
 
@@ -209,7 +208,7 @@ public final class AsyncCollectionsTest {
     @Repeat(value = AsyncCollectionsTest.REPEAT_LIMIT, silent = true)
     public void eachOfExecutesForOneItem(final TestContext context) {
         final Map<String, Integer> items = new HashMap<>();
-        final FakeSuccessfulAsyncFunction<KeyValue<String, Integer>, Void> each = new FakeSuccessfulAsyncFunction<>(null);
+        final FakeSuccessfulAsyncFunction<Pair<String, Integer>, Void> each = new FakeSuccessfulAsyncFunction<>(null);
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
         items.put("One", 1);
@@ -232,7 +231,7 @@ public final class AsyncCollectionsTest {
     @Repeat(value = AsyncCollectionsTest.REPEAT_LIMIT, silent = true)
     public void eachOfExecutesForTwoItems(final TestContext context) {
         final Map<String, Integer> items = new HashMap<>();
-        final FakeSuccessfulAsyncFunction<KeyValue<String, Integer>, Void> each = new FakeSuccessfulAsyncFunction<>(null);
+        final FakeSuccessfulAsyncFunction<Pair<String, Integer>, Void> each = new FakeSuccessfulAsyncFunction<>(null);
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
         items.put("One", 1);
@@ -256,7 +255,7 @@ public final class AsyncCollectionsTest {
     @Repeat(value = AsyncCollectionsTest.REPEAT_LIMIT, silent = true)
     public void eachOfFailsWhenAnItemFails(final TestContext context) {
         final Map<String, Integer> items = new HashMap<>();
-        final FakeFailingAsyncFunction<KeyValue<String, Integer>, Void> each = new FakeFailingAsyncFunction<>(new RuntimeException("Failed"));
+        final FakeFailingAsyncFunction<Pair<String, Integer>, Void> each = new FakeFailingAsyncFunction<>(new RuntimeException("Failed"));
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
         items.put("One", 1);
@@ -280,7 +279,7 @@ public final class AsyncCollectionsTest {
     @Repeat(value = AsyncCollectionsTest.REPEAT_LIMIT, silent = true)
     public void eachOfFailsUnhandledException(final TestContext context) {
         final Map<String, Integer> items = new HashMap<>();
-        final FakeFailingAsyncFunction<KeyValue<String, Integer>, Void> each = new FakeFailingAsyncFunction<>(new RuntimeException("Failed"), false);
+        final FakeFailingAsyncFunction<Pair<String, Integer>, Void> each = new FakeFailingAsyncFunction<>(new RuntimeException("Failed"), false);
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
         items.put("One", 1);
@@ -304,7 +303,7 @@ public final class AsyncCollectionsTest {
     @Repeat(value = AsyncCollectionsTest.REPEAT_LIMIT, silent = true)
     public void eachOfFailsNoMoreThanOnce(final TestContext context) {
         final Map<String, Integer> items = new HashMap<>();
-        final FakeFailingAsyncFunction<KeyValue<String, Integer>, Void> each = new FakeFailingAsyncFunction<>(new RuntimeException("Failed"));
+        final FakeFailingAsyncFunction<Pair<String, Integer>, Void> each = new FakeFailingAsyncFunction<>(new RuntimeException("Failed"));
         final AtomicInteger resultCount = new AtomicInteger(0);
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
@@ -329,7 +328,7 @@ public final class AsyncCollectionsTest {
         final List<Integer> items = Arrays.asList();
         final FakeAsyncFunction<Integer, Integer> each = new FakeAsyncFunction<Integer, Integer>() {
             @Override
-            public void accept(Integer t, Handler<AsyncResult<Integer>> u) {
+            public void handle(Integer t, Handler<AsyncResult<Integer>> u) {
                 u.handle(DefaultAsyncResult.succeed(t * t));
             }
         };
@@ -388,7 +387,7 @@ public final class AsyncCollectionsTest {
         final List<Integer> items = Arrays.asList(1, 3, 10);
         final FakeAsyncFunction<Integer, Integer> each = new FakeAsyncFunction<Integer, Integer>() {
             @Override
-            public void accept(Integer t, Handler<AsyncResult<Integer>> u) {
+            public void handle(Integer t, Handler<AsyncResult<Integer>> u) {
                 incrementRunCount();
                 u.handle(DefaultAsyncResult.succeed(t * t));
             }
@@ -431,7 +430,7 @@ public final class AsyncCollectionsTest {
         final List<String> items = Arrays.asList("One");
         final FakeAsyncFunction<String, Boolean> filter = new FakeAsyncFunction<String, Boolean>() {
             @Override
-            public void accept(String t, Handler<AsyncResult<Boolean>> u) {
+            public void handle(String t, Handler<AsyncResult<Boolean>> u) {
                 incrementRunCount();
                 consumedValues().add(t);
                 u.handle(DefaultAsyncResult.succeed("Two".equals(t)));
@@ -457,7 +456,7 @@ public final class AsyncCollectionsTest {
         final List<String> items = Arrays.asList("One", "Two");
         final FakeAsyncFunction<String, Boolean> filter = new FakeAsyncFunction<String, Boolean>() {
             @Override
-            public void accept(String t, Handler<AsyncResult<Boolean>> u) {
+            public void handle(String t, Handler<AsyncResult<Boolean>> u) {
                 incrementRunCount();
                 consumedValues().add(t);
                 u.handle(DefaultAsyncResult.succeed("Two".equals(t)));
@@ -527,7 +526,7 @@ public final class AsyncCollectionsTest {
         final List<String> items = Arrays.asList("One", "Two", "Three");
         final FakeAsyncFunction<String, Boolean> filter = new FakeAsyncFunction<String, Boolean>() {
             @Override
-            public void accept(String t, Handler<AsyncResult<Boolean>> u) {
+            public void handle(String t, Handler<AsyncResult<Boolean>> u) {
                 incrementRunCount();
                 consumedValues().add(t);
                 u.handle(DefaultAsyncResult.succeed(false));
@@ -554,7 +553,7 @@ public final class AsyncCollectionsTest {
         final List<String> items = Arrays.asList("One", "Two", "Three");
         final FakeAsyncFunction<String, Boolean> filter = new FakeAsyncFunction<String, Boolean>() {
             @Override
-            public void accept(String t, Handler<AsyncResult<Boolean>> u) {
+            public void handle(String t, Handler<AsyncResult<Boolean>> u) {
                 incrementRunCount();
                 consumedValues().add(t);
                 u.handle(DefaultAsyncResult.succeed(true));
@@ -620,7 +619,7 @@ public final class AsyncCollectionsTest {
         final List<String> items = Arrays.asList("One");
         final FakeAsyncFunction<String, Boolean> filter = new FakeAsyncFunction<String, Boolean>() {
             @Override
-            public void accept(String t, Handler<AsyncResult<Boolean>> u) {
+            public void handle(String t, Handler<AsyncResult<Boolean>> u) {
                 incrementRunCount();
                 consumedValues().add(t);
                 u.handle(DefaultAsyncResult.succeed("One".equals(t)));
@@ -646,7 +645,7 @@ public final class AsyncCollectionsTest {
         final List<String> items = Arrays.asList("One", "Two");
         final FakeAsyncFunction<String, Boolean> filter = new FakeAsyncFunction<String, Boolean>() {
             @Override
-            public void accept(String t, Handler<AsyncResult<Boolean>> u) {
+            public void handle(String t, Handler<AsyncResult<Boolean>> u) {
                 incrementRunCount();
                 consumedValues().add(t);
                 u.handle(DefaultAsyncResult.succeed("One".equals(t)));
@@ -716,7 +715,7 @@ public final class AsyncCollectionsTest {
         final List<String> items = Arrays.asList("One", "Two", "Three");
         final FakeAsyncFunction<String, Boolean> filter = new FakeAsyncFunction<String, Boolean>() {
             @Override
-            public void accept(String t, Handler<AsyncResult<Boolean>> u) {
+            public void handle(String t, Handler<AsyncResult<Boolean>> u) {
                 incrementRunCount();
                 consumedValues().add(t);
                 u.handle(DefaultAsyncResult.succeed(false));
@@ -743,7 +742,7 @@ public final class AsyncCollectionsTest {
         final List<String> items = Arrays.asList("One", "Two", "Three");
         final FakeAsyncFunction<String, Boolean> filter = new FakeAsyncFunction<String, Boolean>() {
             @Override
-            public void accept(String t, Handler<AsyncResult<Boolean>> u) {
+            public void handle(String t, Handler<AsyncResult<Boolean>> u) {
                 incrementRunCount();
                 consumedValues().add(t);
                 u.handle(DefaultAsyncResult.succeed(false));
@@ -812,7 +811,7 @@ public final class AsyncCollectionsTest {
         final List<Integer> items = Arrays.asList();
         final FakeAsyncFunction<Integer, String> mapper = new FakeAsyncFunction<Integer, String>() {
             @Override
-            public void accept(Integer t, Handler<AsyncResult<String>> u) {
+            public void handle(Integer t, Handler<AsyncResult<String>> u) {
                 incrementRunCount();
                 consumedValues().add(t);
                 u.handle(DefaultAsyncResult.succeed(Integer.toString(t * t)));
@@ -837,7 +836,7 @@ public final class AsyncCollectionsTest {
         final List<Integer> items = Arrays.asList(1, 3, 10);
         final FakeAsyncFunction<Integer, String> mapper = new FakeAsyncFunction<Integer, String>() {
             @Override
-            public void accept(Integer t, Handler<AsyncResult<String>> u) {
+            public void handle(Integer t, Handler<AsyncResult<String>> u) {
                 incrementRunCount();
                 u.handle(DefaultAsyncResult.succeed(Integer.toString(t * t)));
             }
@@ -898,7 +897,7 @@ public final class AsyncCollectionsTest {
     @Repeat(value = AsyncCollectionsTest.REPEAT_LIMIT, silent = true)
     public void transformMapFails(final TestContext context) {
         final Map<Integer, String> items = new HashMap<>();
-        final FakeAsyncFunction<KeyValue<Integer, String>, KeyValue<String, Integer>> mapper = new FakeFailingAsyncFunction<>(new RuntimeException("Failed"));
+        final FakeAsyncFunction<Pair<Integer, String>, Pair<String, Integer>> mapper = new FakeFailingAsyncFunction<>(new RuntimeException("Failed"));
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
         items.put(1, "One");
@@ -918,7 +917,7 @@ public final class AsyncCollectionsTest {
     @Repeat(value = AsyncCollectionsTest.REPEAT_LIMIT, silent = true)
     public void transformMapUnhandledException(final TestContext context) {
         final Map<Integer, String> items = new HashMap<>();
-        final FakeAsyncFunction<KeyValue<Integer, String>, KeyValue<String, Integer>> mapper = new FakeFailingAsyncFunction<>(new RuntimeException("Failed"), false);
+        final FakeAsyncFunction<Pair<Integer, String>, Pair<String, Integer>> mapper = new FakeFailingAsyncFunction<>(new RuntimeException("Failed"), false);
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
         final Async async = context.async();
         items.put(1, "One");
@@ -938,12 +937,12 @@ public final class AsyncCollectionsTest {
     @Repeat(value = AsyncCollectionsTest.REPEAT_LIMIT, silent = true)
     public void transformMapStillExecutesWhenThereAreNoItems(final TestContext context) {
         final Map<Integer, String> items = new HashMap<>();
-        final FakeAsyncFunction<KeyValue<Integer, String>, KeyValue<String, Integer>> mapper = new FakeAsyncFunction<KeyValue<Integer, String>, KeyValue<String, Integer>>() {
+        final FakeAsyncFunction<Pair<Integer, String>, Pair<String, Integer>> mapper = new FakeAsyncFunction<Pair<Integer, String>, Pair<String, Integer>>() {
             @Override
-            public void accept(KeyValue<Integer, String> in, Handler<AsyncResult<KeyValue<String, Integer>>> out) {
+            public void handle(Pair<Integer, String> in, Handler<AsyncResult<Pair<String, Integer>>> out) {
                 incrementRunCount();
                 consumedValues().add(in);
-                out.handle(DefaultAsyncResult.succeed(new KeyValue<>(in.getValue(), in.getKey())));
+                out.handle(DefaultAsyncResult.succeed(new PairImpl<>(in.getValue(), in.getKey())));
             }
         };
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
@@ -963,12 +962,12 @@ public final class AsyncCollectionsTest {
     @Repeat(value = AsyncCollectionsTest.REPEAT_LIMIT, silent = true)
     public void transformMapStillExecutesWhenThereAreThreeItems(final TestContext context) {
         final Map<Integer, String> items = new HashMap<>();
-        final FakeAsyncFunction<KeyValue<Integer, String>, KeyValue<String, Integer>> mapper = new FakeAsyncFunction<KeyValue<Integer, String>, KeyValue<String, Integer>>() {
+        final FakeAsyncFunction<Pair<Integer, String>, Pair<String, Integer>> mapper = new FakeAsyncFunction<Pair<Integer, String>, Pair<String, Integer>>() {
             @Override
-            public void accept(KeyValue<Integer, String> in, Handler<AsyncResult<KeyValue<String, Integer>>> out) {
+            public void handle(Pair<Integer, String> in, Handler<AsyncResult<Pair<String, Integer>>> out) {
                 incrementRunCount();
                 consumedValues().add(in);
-                out.handle(DefaultAsyncResult.succeed(new KeyValue<>(in.getValue(), in.getKey())));
+                out.handle(DefaultAsyncResult.succeed(new PairImpl<>(in.getValue(), in.getKey())));
             }
         };
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
@@ -997,10 +996,10 @@ public final class AsyncCollectionsTest {
         final List<String> items = Arrays.asList();
         final FakeAsyncFunction<Pair<String, Integer>, Integer> reducer = new FakeAsyncFunction<Pair<String, Integer>, Integer>() {
             @Override
-            public void accept(Pair<String, Integer> in, Handler<AsyncResult<Integer>> out) {
+            public void handle(Pair<String, Integer> in, Handler<AsyncResult<Integer>> out) {
                 incrementRunCount();
                 consumedValues().add(in);
-                out.handle(DefaultAsyncResult.succeed(Integer.valueOf(in.getValue0()) + in.getValue1()));
+                out.handle(DefaultAsyncResult.succeed(Integer.valueOf(in.getKey()) + in.getValue()));
             }
         };
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
@@ -1022,10 +1021,10 @@ public final class AsyncCollectionsTest {
         final List<String> items = Arrays.asList("1", "2", "3");
         final FakeAsyncFunction<Pair<String, Integer>, Integer> reducer = new FakeAsyncFunction<Pair<String, Integer>, Integer>() {
             @Override
-            public void accept(Pair<String, Integer> in, Handler<AsyncResult<Integer>> out) {
+            public void handle(Pair<String, Integer> in, Handler<AsyncResult<Integer>> out) {
                 incrementRunCount();
                 consumedValues().add(in);
-                out.handle(DefaultAsyncResult.succeed(Integer.valueOf(in.getValue0()) + in.getValue1()));
+                out.handle(DefaultAsyncResult.succeed(Integer.valueOf(in.getKey()) + in.getValue()));
             }
         };
         final AtomicInteger handlerCallCount = new AtomicInteger(0);
@@ -1119,7 +1118,7 @@ public final class AsyncCollectionsTest {
         final List<String> items = Arrays.asList();
         final FakeAsyncFunction<String, Boolean> tester = new FakeAsyncFunction<String, Boolean>() {
             @Override
-            public void accept(String in, Handler<AsyncResult<Boolean>> out) {
+            public void handle(String in, Handler<AsyncResult<Boolean>> out) {
                 incrementRunCount();
                 consumedValues().add(in);
                 out.handle(DefaultAsyncResult.succeed(!"".equalsIgnoreCase(in)));
@@ -1144,7 +1143,7 @@ public final class AsyncCollectionsTest {
         final List<String> items = Arrays.asList("1", "2", "3");
         final FakeAsyncFunction<String, Boolean> tester = new FakeAsyncFunction<String, Boolean>() {
             @Override
-            public void accept(String in, Handler<AsyncResult<Boolean>> out) {
+            public void handle(String in, Handler<AsyncResult<Boolean>> out) {
                 incrementRunCount();
                 consumedValues().add(in);
                 out.handle(DefaultAsyncResult.succeed("2".equalsIgnoreCase(in)));
@@ -1168,7 +1167,7 @@ public final class AsyncCollectionsTest {
         final List<String> items = Arrays.asList("1", "2", "3");
         final FakeAsyncFunction<String, Boolean> tester = new FakeAsyncFunction<String, Boolean>() {
             @Override
-            public void accept(String in, Handler<AsyncResult<Boolean>> out) {
+            public void handle(String in, Handler<AsyncResult<Boolean>> out) {
                 incrementRunCount();
                 consumedValues().add(in);
                 out.handle(DefaultAsyncResult.succeed("".equalsIgnoreCase(in)));
@@ -1228,7 +1227,7 @@ public final class AsyncCollectionsTest {
         final List<String> items = Arrays.asList();
         final FakeAsyncFunction<String, Boolean> tester = new FakeAsyncFunction<String, Boolean>() {
             @Override
-            public void accept(String in, Handler<AsyncResult<Boolean>> out) {
+            public void handle(String in, Handler<AsyncResult<Boolean>> out) {
                 incrementRunCount();
                 consumedValues().add(in);
                 out.handle(DefaultAsyncResult.succeed(!"".equalsIgnoreCase(in)));
@@ -1253,7 +1252,7 @@ public final class AsyncCollectionsTest {
         final List<String> items = Arrays.asList("1", "2", "3");
         final FakeAsyncFunction<String, Boolean> tester = new FakeAsyncFunction<String, Boolean>() {
             @Override
-            public void accept(String in, Handler<AsyncResult<Boolean>> out) {
+            public void handle(String in, Handler<AsyncResult<Boolean>> out) {
                 incrementRunCount();
                 consumedValues().add(in);
                 out.handle(DefaultAsyncResult.succeed("2".equalsIgnoreCase(in)));
@@ -1277,7 +1276,7 @@ public final class AsyncCollectionsTest {
         final List<String> items = Arrays.asList("1", "2", "3");
         final FakeAsyncFunction<String, Boolean> tester = new FakeAsyncFunction<String, Boolean>() {
             @Override
-            public void accept(String in, Handler<AsyncResult<Boolean>> out) {
+            public void handle(String in, Handler<AsyncResult<Boolean>> out) {
                 incrementRunCount();
                 consumedValues().add(in);
                 out.handle(DefaultAsyncResult.succeed("".equalsIgnoreCase(in)));
@@ -1335,7 +1334,7 @@ public final class AsyncCollectionsTest {
         final List<String> items = Arrays.asList();
         final FakeAsyncFunction<String, Boolean> tester = new FakeAsyncFunction<String, Boolean>() {
             @Override
-            public void accept(String in, Handler<AsyncResult<Boolean>> out) {
+            public void handle(String in, Handler<AsyncResult<Boolean>> out) {
                 incrementRunCount();
                 consumedValues().add(in);
                 out.handle(DefaultAsyncResult.succeed(!"".equalsIgnoreCase(in)));
@@ -1360,7 +1359,7 @@ public final class AsyncCollectionsTest {
         final List<String> items = Arrays.asList("1", "2", "3");
         final FakeAsyncFunction<String, Boolean> tester = new FakeAsyncFunction<String, Boolean>() {
             @Override
-            public void accept(String in, Handler<AsyncResult<Boolean>> out) {
+            public void handle(String in, Handler<AsyncResult<Boolean>> out) {
                 incrementRunCount();
                 consumedValues().add(in);
                 out.handle(DefaultAsyncResult.succeed(!"".equalsIgnoreCase(in)));
@@ -1384,7 +1383,7 @@ public final class AsyncCollectionsTest {
         final List<String> items = Arrays.asList("1", "2", "3");
         final FakeAsyncFunction<String, Boolean> tester = new FakeAsyncFunction<String, Boolean>() {
             @Override
-            public void accept(String in, Handler<AsyncResult<Boolean>> out) {
+            public void handle(String in, Handler<AsyncResult<Boolean>> out) {
                 incrementRunCount();
                 consumedValues().add(in);
                 out.handle(DefaultAsyncResult.succeed(!"2".equalsIgnoreCase(in)));
@@ -1442,7 +1441,7 @@ public final class AsyncCollectionsTest {
         final List<String> items = Arrays.asList();
         final FakeAsyncFunction<String, Collection<Boolean>> tester = new FakeAsyncFunction<String, Collection<Boolean>>() {
             @Override
-            public void accept(String in, Handler<AsyncResult<Collection<Boolean>>> out) {
+            public void handle(String in, Handler<AsyncResult<Collection<Boolean>>> out) {
                 incrementRunCount();
                 consumedValues().add(in);
                 final Collection<Boolean> result = new ArrayList<>(in.length());
@@ -1472,7 +1471,7 @@ public final class AsyncCollectionsTest {
         final List<String> items = Arrays.asList("One", "Two", "Three");
         final FakeAsyncFunction<String, Collection<Boolean>> tester = new FakeAsyncFunction<String, Collection<Boolean>>() {
             @Override
-            public void accept(String in, Handler<AsyncResult<Collection<Boolean>>> out) {
+            public void handle(String in, Handler<AsyncResult<Collection<Boolean>>> out) {
                 incrementRunCount();
                 consumedValues().add(in);
                 final Collection<Boolean> result = new ArrayList<>(in.length());

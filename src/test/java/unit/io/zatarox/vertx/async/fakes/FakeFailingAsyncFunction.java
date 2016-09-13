@@ -42,7 +42,7 @@ public class FakeFailingAsyncFunction<T, R> extends FakeAsyncFunction<T, R> {
     }
 
     @Override
-    public void accept(T value, Handler<AsyncResult<R>> handler) {
+    public void handle(T value, Handler<AsyncResult<R>> handler) {
         addConsumedValue(value);
         incrementRunCount();
 

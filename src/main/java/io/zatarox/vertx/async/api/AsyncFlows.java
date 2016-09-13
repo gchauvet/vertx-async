@@ -20,9 +20,7 @@ import io.vertx.core.Handler;
 import io.zatarox.vertx.async.impl.AbstractRetryOptions;
 import java.util.Collection;
 import java.util.List;
-import java.util.function.BiConsumer;
 import java.util.function.BooleanSupplier;
-import java.util.function.Consumer;
 
 public interface AsyncFlows {
 
@@ -42,7 +40,7 @@ public interface AsyncFlows {
      * @return A cargo for processing tasks through the provided worker
      * function.
      */
-    <T> AsyncWorker createCargo(final BiConsumer<T, Handler<AsyncResult<Void>>> worker);
+    <T> AsyncWorker createCargo(final BiHandler<T, Handler<AsyncResult<Void>>> worker);
 
     /**
      * Creates a queue object with the specified concurrency. Tasks added to the
@@ -54,7 +52,7 @@ public interface AsyncFlows {
      * @param worker The worker used to process the queue
      * @return A queue of tasks for the worker function to complete.
      */
-    <T> AsyncWorker createQueue(final BiConsumer<T, Handler<AsyncResult<Void>>> worker);
+    <T> AsyncWorker createQueue(final BiHandler<T, Handler<AsyncResult<Void>>> worker);
 
     /**
      * Applies the provided arguments to each function in the array, calling
@@ -69,7 +67,7 @@ public interface AsyncFlows {
      * @param handler The final argument should be the callback, called when all
      * functions have completed processing.
      */
-    <T> void each(final Collection<BiConsumer<T, Handler<AsyncResult<Void>>>> functions, final T args, final Handler<AsyncResult<Void>> handler);
+    <T> void each(final Collection<BiHandler<T, Handler<AsyncResult<Void>>>> functions, final T args, final Handler<AsyncResult<Void>> handler);
 
     /**
      * Calls the asynchronous function {@code task} with a callback parameter
@@ -82,7 +80,7 @@ public interface AsyncFlows {
      * @param handler when {@code task} passes an error to it's callback, this
      * function will be called, and execution stops.
      */
-    <T> void forever(final Consumer<Handler<AsyncResult<T>>> task, final Handler<AsyncResult<T>> handler);
+    <T> void forever(final Handler<Handler<AsyncResult<T>>> task, final Handler<AsyncResult<T>> handler);
 
     /**
      * Run the {@code tasks} collection of functions in parallel, without
@@ -103,7 +101,7 @@ public interface AsyncFlows {
      * successfully. This function gets a results array (or object) containing
      * all the result arguments passed to the task callbacks.
      */
-    <T> void parallel(final List<Consumer<Handler<AsyncResult<T>>>> tasks, final Handler<AsyncResult<List<T>>> handler);
+    <T> void parallel(final List<Handler<Handler<AsyncResult<T>>>> tasks, final Handler<AsyncResult<List<T>>> handler);
 
     /**
      * Runs the {@code tasks} array of functions in parallel, without waiting
@@ -117,7 +115,7 @@ public interface AsyncFlows {
      * completed. This function gets an error or result from the first function
      * that completed.
      */
-    <T> void race(final List<Consumer<Handler<AsyncResult<T>>>> tasks, final Handler<AsyncResult<T>> handler);
+    <T> void race(final Collection<Handler<Handler<AsyncResult<T>>>> tasks, final Handler<AsyncResult<T>> handler);
 
     /**
      * Attempts to get a successful response from {@code task} no more than
@@ -138,7 +136,7 @@ public interface AsyncFlows {
      * and {@code result} arguments of the last attempt at completing the
      * {@code task}.
      */
-    <T> void retry(final AbstractRetryOptions options, final Consumer<Handler<AsyncResult<T>>> task, final Handler<AsyncResult<T>> handler);
+    <T> void retry(final AbstractRetryOptions options, final Handler<Handler<AsyncResult<T>>> task, final Handler<AsyncResult<T>> handler);
 
     /**
      * Creates a function which is a composition of the passed asynchronous
@@ -151,7 +149,7 @@ public interface AsyncFlows {
      * @param functions Asynchronous functions to seq
      * @return A proxy for asynchronous functions
      */
-    <I, O> BiConsumer<I, Handler<AsyncResult<O>>> seq(final BiConsumer<I, Handler<AsyncResult<O>>>... functions);
+    <I, O> BiHandler<I, Handler<AsyncResult<O>>> seq(final BiHandler<I, Handler<AsyncResult<O>>>... functions);
 
     /**
      * Run the functions in the {@code tasks} collection in series, each one
@@ -173,7 +171,7 @@ public interface AsyncFlows {
      * completed. This function gets a results array (or object) containing all
      * the result arguments passed to the {@code task} handlers.
      */
-    <T> void series(final Collection<Consumer<Handler<AsyncResult<T>>>> tasks, final Handler<AsyncResult<List<T>>> handler);
+    <T> void series(final Collection<Handler<Handler<AsyncResult<T>>>> tasks, final Handler<AsyncResult<List<T>>> handler);
 
     /**
      * Calls the {@code consumer} function {@code counter} times, and
@@ -187,7 +185,7 @@ public interface AsyncFlows {
      * @param handler A callback which is called after the test function has
      * failed and repeated execution of {@code consumer} has stopped.
      */
-    <T> void times(final int counter, final BiConsumer<Integer, Handler<AsyncResult<T>>> consumer, final Handler<AsyncResult<List<T>>> handler);
+    <T> void times(final int counter, final BiHandler<Integer, Handler<AsyncResult<T>>> consumer, final Handler<AsyncResult<List<T>>> handler);
 
     /**
      * Repeatedly call {@code consumer} until {@code tester} returns
@@ -200,7 +198,7 @@ public interface AsyncFlows {
      * @param handler A callback which is called after the test function has
      * failed and repeated execution of {@code consumer} has stopped.
      */
-    void until(final BooleanSupplier tester, final Consumer<Handler<AsyncResult<Void>>> consumer, final Handler<AsyncResult<Void>> handler);
+    void until(final BooleanSupplier tester, final Handler<Handler<AsyncResult<Void>>> consumer, final Handler<AsyncResult<Void>> handler);
 
     /**
      * Runs the {@code tasks} array of functions in series, each passing their
@@ -215,7 +213,7 @@ public interface AsyncFlows {
      * @param handler Handler to run once all the functions have completed. This
      * will be passed the results of the last task's callback.
      */
-    <I, O> void waterfall(final Iterable<BiConsumer<I, Handler<AsyncResult<O>>>> tasks, final Handler<AsyncResult<?>> handler);
+    <I, O> void waterfall(final Iterable<BiHandler<I, Handler<AsyncResult<O>>>> tasks, final Handler<AsyncResult<?>> handler);
 
     /**
      * Repeatedly call {@code consumer}, while {@code tester} returns
@@ -228,7 +226,7 @@ public interface AsyncFlows {
      * @param handler A callback which is called after the test function has
      * failed and repeated execution of {@code consumer} has stopped.
      */
-    void whilst(final BooleanSupplier tester, final Consumer<Handler<AsyncResult<Void>>> consumer, final Handler<AsyncResult<Void>> handler);
+    void whilst(final BooleanSupplier tester, final Handler<Handler<AsyncResult<Void>>> consumer, final Handler<AsyncResult<Void>> handler);
 
     /**
      * Repeatedly call {@code consumer}, while {@code tester} returns
@@ -241,6 +239,6 @@ public interface AsyncFlows {
      * @param handler A callback which is called after the test function has
      * failed and repeated execution of {@code consumer} has stopped.
      */
-    void whilst(final Consumer<Handler<AsyncResult<Boolean>>> tester, final Consumer<Handler<AsyncResult<Void>>> consumer, final Handler<AsyncResult<Void>> handler);
+    void whilst(final Handler<Handler<AsyncResult<Boolean>>> tester, final Handler<Handler<AsyncResult<Void>>> consumer, final Handler<AsyncResult<Void>> handler);
 
 }

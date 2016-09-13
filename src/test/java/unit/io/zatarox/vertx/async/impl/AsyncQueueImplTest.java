@@ -26,13 +26,13 @@ import io.vertx.ext.unit.junit.VertxUnitRunner;
 import io.zatarox.vertx.async.utils.DefaultAsyncResult;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.BiConsumer;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import io.zatarox.vertx.async.api.AsyncWorker.AsyncWorkerListener;
 import io.zatarox.vertx.async.api.AsyncWorker;
+import io.zatarox.vertx.async.api.BiHandler;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 
@@ -45,7 +45,7 @@ public final class AsyncQueueImplTest {
     private static final int TIMEOUT_LIMIT = 1000;
     private static final int REPEAT_LIMIT = 100;
 
-    private BiConsumer<Integer, Handler<AsyncResult<Void>>> worker;
+    private BiHandler<Integer, Handler<AsyncResult<Void>>> worker;
     private AsyncQueueImpl<Integer> queue;
 
     @Rule

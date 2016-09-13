@@ -121,7 +121,7 @@ public final class AsyncMemoizeImplTest {
                 context.assertTrue(memoize.isEmpty());
                 u.handle(DefaultAsyncResult.succeed());
             });
-        }).accept(null, event -> {
+        }).handle(null, event -> {
             async.complete();
         });
     }

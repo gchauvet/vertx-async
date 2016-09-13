@@ -20,13 +20,13 @@ import io.vertx.core.AsyncResult;
 import io.vertx.core.Context;
 import io.vertx.core.Handler;
 import io.zatarox.vertx.async.api.AsyncCollections;
+import io.zatarox.vertx.async.api.BiHandler;
+import io.zatarox.vertx.async.api.Pair;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.BiConsumer;
 import java.util.stream.Stream;
-import org.javatuples.*;
 
 public final class AsyncCollectionsImpl implements AsyncCollections {
     
@@ -59,17 +59,17 @@ public final class AsyncCollectionsImpl implements AsyncCollections {
      * functions have finished, or an error occurs.
      */
     @Override
-    public <T> void each(final Collection<T> iterable, final BiConsumer<T, Handler<AsyncResult<Void>>> consumer, final Handler<AsyncResult<Void>> handler) {
+    public <T> void each(final Collection<T> iterable, final BiHandler<T, Handler<AsyncResult<Void>>> consumer, final Handler<AsyncResult<Void>> handler) {
         if (iterable.isEmpty()) {
             handler.handle(DefaultAsyncResult.succeed());
         } else {
             final AtomicBoolean stop = new AtomicBoolean(false);
             final AtomicInteger counter = new AtomicInteger(iterable.size());
-            iterable.stream().forEach((item) -> {
+            iterable.stream().forEach(item -> {
                 if (!stop.get()) {
                     context.runOnContext(aVoid -> {
                         try {
-                            consumer.accept(item, result -> {
+                            consumer.handle(item, result -> {
                                 if (result.failed() || stop.get()) {
                                     if (!stop.get()) {
                                         stop.set(true);
@@ -107,16 +107,16 @@ public final class AsyncCollectionsImpl implements AsyncCollections {
      * functions have finished, or an error occurs.
      */
     @Override
-    public <K, V> void each(final Map<K, V> iterable, final BiConsumer<KeyValue<K, V>, Handler<AsyncResult<Void>>> consumer, final Handler<AsyncResult<Void>> handler) {
+    public <K, V> void each(final Map<K, V> iterable, final BiHandler<Pair<K, V>, Handler<AsyncResult<Void>>> consumer, final Handler<AsyncResult<Void>> handler) {
         if (iterable.isEmpty()) {
             handler.handle(DefaultAsyncResult.succeed());
         } else {
             final AtomicBoolean stop = new AtomicBoolean(false);
             final AtomicInteger counter = new AtomicInteger(iterable.size());
-            iterable.entrySet().stream().forEach((item) -> {
+            iterable.entrySet().stream().forEach(item -> {
                 context.runOnContext(aVoid -> {
                     try {
-                        consumer.accept(new KeyValue<>(item.getKey(), item.getValue()), result -> {
+                        consumer.handle(new PairImpl<>(item.getKey(), item.getValue()), result -> {
                             if (result.failed() || stop.get()) {
                                 if (!stop.get()) {
                                     stop.set(true);
@@ -162,7 +162,7 @@ public final class AsyncCollectionsImpl implements AsyncCollections {
      * transformed items from the {@code iterable}.
      */
     @Override
-    public <I, O> void map(final List<I> iterable, final BiConsumer<I, Handler<AsyncResult<O>>> consumer, final Handler<AsyncResult<Collection<O>>> handler) {
+    public <I, O> void map(final List<I> iterable, final BiHandler<I, Handler<AsyncResult<O>>> consumer, final Handler<AsyncResult<Collection<O>>> handler) {
         final List<O> mapped = new ArrayList<>(iterable.size());
         if (iterable.isEmpty()) {
             handler.handle(DefaultAsyncResult.succeed(mapped));
@@ -175,7 +175,7 @@ public final class AsyncCollectionsImpl implements AsyncCollections {
                 final int pos = i;
                 context.runOnContext(aVoid -> {
                     try {
-                        consumer.accept(item, result -> {
+                        consumer.handle(item, result -> {
                             if (result.failed() || stop.get()) {
                                 if (!stop.get()) {
                                     stop.set(true);
@@ -213,7 +213,7 @@ public final class AsyncCollectionsImpl implements AsyncCollections {
      * functions have finished.
      */
     @Override
-    public <T> void filter(final Collection<T> iterable, final BiConsumer<T, Handler<AsyncResult<Boolean>>> consumer, final Handler<AsyncResult<Collection<T>>> handler) {
+    public <T> void filter(final Collection<T> iterable, final BiHandler<T, Handler<AsyncResult<Boolean>>> consumer, final Handler<AsyncResult<Collection<T>>> handler) {
         final List<T> filtered = new LinkedList<>();
         if (iterable.isEmpty()) {
             handler.handle(DefaultAsyncResult.succeed(filtered));
@@ -224,7 +224,7 @@ public final class AsyncCollectionsImpl implements AsyncCollections {
             iterable.stream().forEach((item) -> {
                 context.runOnContext(aVoid -> {
                     try {
-                        consumer.accept(item, result -> {
+                        consumer.handle(item, result -> {
                             if (result.failed() || stop.get()) {
                                 if (!stop.get()) {
                                     stop.set(true);
@@ -263,9 +263,9 @@ public final class AsyncCollectionsImpl implements AsyncCollections {
      * functions have finished.
      */
     @Override
-    public <T> void reject(final Collection<T> iterable, final BiConsumer<T, Handler<AsyncResult<Boolean>>> consumer, final Handler<AsyncResult<Collection<T>>> handler) {
+    public <T> void reject(final Collection<T> iterable, final BiHandler<T, Handler<AsyncResult<Boolean>>> consumer, final Handler<AsyncResult<Collection<T>>> handler) {
         filter(iterable, (t, u) -> {
-            consumer.accept(t, event -> {
+            consumer.handle(t, event -> {
                 if (event.succeeded()) {
                     u.handle(DefaultAsyncResult.succeed(!event.result()));
                 } else {
@@ -293,7 +293,7 @@ public final class AsyncCollectionsImpl implements AsyncCollections {
      * functions have finished. Result is the transformed accumulator.
      */
     @Override
-    public <I, O> void transform(final Collection<I> iterable, final BiConsumer<I, Handler<AsyncResult<O>>> consumer, final Handler<AsyncResult<Collection<O>>> handler) {
+    public <I, O> void transform(final Collection<I> iterable, final BiHandler<I, Handler<AsyncResult<O>>> consumer, final Handler<AsyncResult<Collection<O>>> handler) {
         context.runOnContext(new Handler<Void>() {
             final Iterator<I> iterator = iterable.iterator();
             final List<O> result = new ArrayList<>(iterable.size());
@@ -304,7 +304,7 @@ public final class AsyncCollectionsImpl implements AsyncCollections {
                     handler.handle(DefaultAsyncResult.succeed(result));
                 } else {
                     try {
-                        consumer.accept(iterator.next(), event1 -> {
+                        consumer.handle(iterator.next(), event1 -> {
                             if (event1.succeeded()) {
                                 result.add(event1.result());
                                 context.runOnContext(this);
@@ -339,7 +339,7 @@ public final class AsyncCollectionsImpl implements AsyncCollections {
      * functions have finished. Result is the transformed accumulator.
      */
     @Override
-    public <K, V, T, R> void transform(final Map<K, V> iterable, final BiConsumer<KeyValue<K, V>, Handler<AsyncResult<KeyValue<T, R>>>> consumer, final Handler<AsyncResult<Map<T, R>>> handler) {
+    public <K, V, T, R> void transform(final Map<K, V> iterable, final BiHandler<Pair<K, V>, Handler<AsyncResult<Pair<T, R>>>> consumer, final Handler<AsyncResult<Map<T, R>>> handler) {
         context.runOnContext(new Handler<Void>() {
             final Iterator<Map.Entry<K, V>> iterator = iterable.entrySet().iterator();
             final Map<T, R> results = new HashMap<>(iterable.size());
@@ -351,7 +351,7 @@ public final class AsyncCollectionsImpl implements AsyncCollections {
                 } else {
                     final Map.Entry<K, V> item = iterator.next();
                     try {
-                        consumer.accept(new KeyValue<>(item.getKey(), item.getValue()), event1 -> {
+                        consumer.handle(new PairImpl<>(item.getKey(), item.getValue()), event1 -> {
                             if (event1.succeeded()) {
                                 results.put(event1.result().getKey(), event1.result().getValue());
                                 context.runOnContext(this);
@@ -390,7 +390,7 @@ public final class AsyncCollectionsImpl implements AsyncCollections {
      * functions have finished. Result is the transformed accumulator.
      */
     @Override
-    public <I, O> void reduce(final Collection<I> collection, final O memo, final BiConsumer<Pair<I, O>, Handler<AsyncResult<O>>> function, final Handler<AsyncResult<O>> handler) {
+    public <I, O> void reduce(final Collection<I> collection, final O memo, final BiHandler<Pair<I, O>, Handler<AsyncResult<O>>> function, final Handler<AsyncResult<O>> handler) {
         context.runOnContext(new Handler<Void>() {
             final Iterator<I> iterator = collection.iterator();
             final AtomicReference<O> value = new AtomicReference<>(memo);
@@ -401,7 +401,7 @@ public final class AsyncCollectionsImpl implements AsyncCollections {
                     handler.handle(DefaultAsyncResult.succeed(value.get()));
                 } else {
                     try {
-                        function.accept(new Pair<>(iterator.next(), value.get()), event1 -> {
+                        function.handle(new PairImpl<>(iterator.next(), value.get()), event1 -> {
                             if (event1.failed()) {
                                 handler.handle(DefaultAsyncResult.fail(event1));
                             } else {
@@ -435,16 +435,16 @@ public final class AsyncCollectionsImpl implements AsyncCollections {
      * (function) or the value {@code null} if none passed.
      */
     @Override
-    public <T> void detect(final Collection<T> collection, final BiConsumer<T, Handler<AsyncResult<Boolean>>> function, final Handler<AsyncResult<T>> handler) {
+    public <T> void detect(final Collection<T> collection, final BiHandler<T, Handler<AsyncResult<Boolean>>> function, final Handler<AsyncResult<T>> handler) {
         if (collection.isEmpty()) {
             handler.handle(DefaultAsyncResult.succeed(null));
         } else {
             final AtomicBoolean stop = new AtomicBoolean(false);
             final AtomicInteger counter = new AtomicInteger(collection.size());
-            collection.stream().forEach((item) -> {
+            collection.stream().forEach(item -> {
                 context.runOnContext(aVoid -> {
                     try {
-                        function.accept(item, event -> {
+                        function.handle(item, event -> {
                             if (event.succeeded()) {
                                 if (event.result() || stop.get()) {
                                     if (!stop.get()) {
@@ -485,17 +485,17 @@ public final class AsyncCollectionsImpl implements AsyncCollections {
      * the async tests.
      */
     @Override
-    public <T> void some(final Collection<T> collection, final BiConsumer<T, Handler<AsyncResult<Boolean>>> function, final Handler<AsyncResult<Boolean>> handler) {
+    public <T> void some(final Collection<T> collection, final BiHandler<T, Handler<AsyncResult<Boolean>>> function, final Handler<AsyncResult<Boolean>> handler) {
         if (collection.isEmpty()) {
             handler.handle(DefaultAsyncResult.succeed(false));
         } else {
             final AtomicBoolean stop = new AtomicBoolean(false);
             final AtomicInteger counter = new AtomicInteger(collection.size());
 
-            collection.stream().forEach((item) -> {
+            collection.stream().forEach(item -> {
                 context.runOnContext(aVoid -> {
                     try {
-                        function.accept(item, event -> {
+                        function.handle(item, event -> {
                             if (event.succeeded()) {
                                 // Prevent Unhandled exception in Netty
                                 if (null != event.result() && event.result() || stop.get()) {
@@ -536,16 +536,16 @@ public final class AsyncCollectionsImpl implements AsyncCollections {
      * {@code false} depending on the values of the async tests.
      */
     @Override
-    public <T> void every(final Collection<T> collection, final BiConsumer<T, Handler<AsyncResult<Boolean>>> function, final Handler<AsyncResult<Boolean>> handler) {
+    public <T> void every(final Collection<T> collection, final BiHandler<T, Handler<AsyncResult<Boolean>>> function, final Handler<AsyncResult<Boolean>> handler) {
         if (collection.isEmpty()) {
             handler.handle(DefaultAsyncResult.succeed(false));
         } else {
             final AtomicBoolean stop = new AtomicBoolean(false);
             final AtomicInteger counter = new AtomicInteger(collection.size());
-            collection.stream().forEach((item) -> {
+            collection.stream().forEach(item -> {
                 context.runOnContext(aVoid -> {
                     try {
-                        function.accept(item, event -> {
+                        function.handle(item, event -> {
                             if (event.succeeded()) {
                                 // Prevent Unhandled exception in Netty
                                 if (null != event.result() && !event.result() || stop.get()) {
@@ -588,7 +588,7 @@ public final class AsyncCollectionsImpl implements AsyncCollections {
      * functions have finished, or an error occurs.
      */
     @Override
-    public <I, O> void concat(final Collection<I> iterable, final BiConsumer<I, Handler<AsyncResult<Collection<O>>>> consumer, final Handler<AsyncResult<Collection<O>>> handler) {
+    public <I, O> void concat(final Collection<I> iterable, final BiHandler<I, Handler<AsyncResult<Collection<O>>>> consumer, final Handler<AsyncResult<Collection<O>>> handler) {
         final List<O> results = new ArrayList<>(iterable.size());
         if (iterable.isEmpty()) {
             handler.handle(DefaultAsyncResult.succeed(results));
@@ -596,10 +596,10 @@ public final class AsyncCollectionsImpl implements AsyncCollections {
             final AtomicBoolean stop = new AtomicBoolean(false);
             final AtomicInteger counter = new AtomicInteger(iterable.size());
 
-            iterable.stream().forEach((item) -> {
+            iterable.stream().forEach(item -> {
                 context.runOnContext(aVoid -> {
                     try {
-                        consumer.accept(item, result -> {
+                        consumer.handle(item, result -> {
                             if (result.failed() || stop.get()) {
                                 if (!stop.get()) {
                                     stop.set(true);

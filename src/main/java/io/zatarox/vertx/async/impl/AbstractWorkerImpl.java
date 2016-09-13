@@ -71,7 +71,7 @@ public abstract class AbstractWorkerImpl<T> implements AsyncWorker<T>, Handler<V
     }
 
     protected void fireEmptyPool() {
-        listeners.stream().forEach((AsyncWorkerListener listener) -> {
+        listeners.stream().forEach(listener -> {
             listener.poolEmpty(this);
         });
     }

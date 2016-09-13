@@ -21,13 +21,12 @@ import io.vertx.core.AsyncResult;
 import io.vertx.core.Context;
 import io.vertx.core.Handler;
 import io.zatarox.vertx.async.api.AsyncFlows;
+import io.zatarox.vertx.async.api.BiHandler;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.BiConsumer;
 import java.util.function.BooleanSupplier;
-import java.util.function.Consumer;
 
 public final class AsyncFlowsImpl implements AsyncFlows {
 
@@ -38,9 +37,9 @@ public final class AsyncFlowsImpl implements AsyncFlows {
     }
 
     @Override
-    public <T> void series(final Collection<Consumer<Handler<AsyncResult<T>>>> tasks, final Handler<AsyncResult<List<T>>> handler) {
+    public <T> void series(final Collection<Handler<Handler<AsyncResult<T>>>> tasks, final Handler<AsyncResult<List<T>>> handler) {
         context.runOnContext(new Handler<Void>() {
-            final Iterator<Consumer<Handler<AsyncResult<T>>>> iterator = tasks.iterator();
+            final Iterator<Handler<Handler<AsyncResult<T>>>> iterator = tasks.iterator();
             final List<T> results = new ArrayList<>(tasks.size());
 
             @Override
@@ -48,36 +47,36 @@ public final class AsyncFlowsImpl implements AsyncFlows {
                 if (!iterator.hasNext()) {
                     handler.handle(DefaultAsyncResult.succeed(results));
                 } else {
-                    final Consumer<Handler<AsyncResult<T>>> task = iterator.next();
+                    final Handler<Handler<AsyncResult<T>>> task = iterator.next();
 
                     final Handler<AsyncResult<T>> taskHandler = (result) -> {
                         if (result.failed()) {
                             handler.handle(DefaultAsyncResult.fail(result));
                         } else {
                             results.add(result.result());
-                            context.runOnContext((Void) -> {
+                            context.runOnContext(Void -> {
                                 context.runOnContext(this);
                             });
                         }
                     };
-                    task.accept(taskHandler);
+                    task.handle(taskHandler);
                 }
             }
         });
     }
 
     @Override
-    public <T> void retry(final AbstractRetryOptions options, final Consumer<Handler<AsyncResult<T>>> task, final Handler<AsyncResult<T>> handler) {
+    public <T> void retry(final AbstractRetryOptions options, final Handler<Handler<AsyncResult<T>>> task, final Handler<AsyncResult<T>> handler) {
         context.runOnContext(options.build(task, handler));
     }
 
     @Override
-    public <T> void forever(final Consumer<Handler<AsyncResult<T>>> task, final Handler<AsyncResult<T>> handler) {
+    public <T> void forever(final Handler<Handler<AsyncResult<T>>> task, final Handler<AsyncResult<T>> handler) {
         context.runOnContext(new Handler<Void>() {
             @Override
             public void handle(Void event) {
                 try {
-                    task.accept((result) -> {
+                    task.handle(result -> {
                         if (result.failed()) {
                             handler.handle(DefaultAsyncResult.fail(result));
                         } else {
@@ -92,9 +91,9 @@ public final class AsyncFlowsImpl implements AsyncFlows {
     }
 
     @Override
-    public <I, O> void waterfall(final Iterable<BiConsumer<I, Handler<AsyncResult<O>>>> tasks, final Handler<AsyncResult<?>> handler) {
+    public <I, O> void waterfall(final Iterable<BiHandler<I, Handler<AsyncResult<O>>>> tasks, final Handler<AsyncResult<?>> handler) {
         context.runOnContext(new Handler<Void>() {
-            private final Iterator<BiConsumer<I, Handler<AsyncResult<O>>>> iterator = tasks.iterator();
+            private final Iterator<BiHandler<I, Handler<AsyncResult<O>>>> iterator = tasks.iterator();
             private final AtomicBoolean stop = new AtomicBoolean();
             private I result = null;
 
@@ -102,7 +101,7 @@ public final class AsyncFlowsImpl implements AsyncFlows {
             public void handle(Void event) {
                 if (iterator.hasNext()) {
                     try {
-                        iterator.next().accept(result, event1 -> {
+                        iterator.next().handle(result, event1 -> {
                             if (event1.succeeded()) {
                                 result = (I) event1.result();
                                 context.runOnContext(this);
@@ -125,7 +124,7 @@ public final class AsyncFlowsImpl implements AsyncFlows {
     }
 
     @Override
-    public <T> void parallel(final List<Consumer<Handler<AsyncResult<T>>>> tasks, final Handler<AsyncResult<List<T>>> handler) {
+    public <T> void parallel(final List<Handler<Handler<AsyncResult<T>>>> tasks, final Handler<AsyncResult<List<T>>> handler) {
         final List<T> results = new ArrayList<>(tasks.size());
         if (tasks.isEmpty()) {
             handler.handle(DefaultAsyncResult.succeed(results));
@@ -134,11 +133,11 @@ public final class AsyncFlowsImpl implements AsyncFlows {
             final AtomicInteger counter = new AtomicInteger(tasks.size());
 
             for (int i = 0; i < tasks.size(); i++) {
-                final Consumer<Handler<AsyncResult<T>>> task = tasks.get(i);
+                final Handler<Handler<AsyncResult<T>>> task = tasks.get(i);
                 final int pos = i;
                 context.runOnContext(aVoid -> {
                     try {
-                        task.accept(result -> {
+                        task.handle(result -> {
                             if (result.failed() || stop.get()) {
                                 if (!stop.get()) {
                                     stop.set(true);
@@ -163,7 +162,7 @@ public final class AsyncFlowsImpl implements AsyncFlows {
     }
 
     @Override
-    public void whilst(final BooleanSupplier tester, final Consumer<Handler<AsyncResult<Void>>> consumer, final Handler<AsyncResult<Void>> handler) {
+    public void whilst(final BooleanSupplier tester, final Handler<Handler<AsyncResult<Void>>> consumer, final Handler<AsyncResult<Void>> handler) {
         context.runOnContext(new Handler<Void>() {
             final AtomicBoolean stop = new AtomicBoolean(false);
 
@@ -171,7 +170,7 @@ public final class AsyncFlowsImpl implements AsyncFlows {
             public void handle(Void e) {
                 try {
                     if (tester.getAsBoolean()) {
-                        consumer.accept(e1 -> {
+                        consumer.handle(e1 -> {
                             if (e1.succeeded()) {
                                 context.runOnContext(this);
                             } else {
@@ -193,18 +192,18 @@ public final class AsyncFlowsImpl implements AsyncFlows {
     }
 
     @Override
-    public void whilst(final Consumer<Handler<AsyncResult<Boolean>>> tester, final Consumer<Handler<AsyncResult<Void>>> consumer, final Handler<AsyncResult<Void>> handler) {
+    public void whilst(final Handler<Handler<AsyncResult<Boolean>>> tester, final Handler<Handler<AsyncResult<Void>>> consumer, final Handler<AsyncResult<Void>> handler) {
         context.runOnContext(new Handler<Void>() {
             final AtomicBoolean stop = new AtomicBoolean(false);
 
             @Override
             public void handle(Void e) {
                 try {
-                    tester.accept(event -> {
+                    tester.handle(event -> {
                         if (event.succeeded()) {
                             if (event.result()) {
                                 try {
-                                    consumer.accept(e1 -> {
+                                    consumer.handle(e1 -> {
                                         if (e1.succeeded()) {
                                             context.runOnContext(this);
                                         } else {
@@ -238,12 +237,12 @@ public final class AsyncFlowsImpl implements AsyncFlows {
     }
 
     @Override
-    public void until(final BooleanSupplier tester, final Consumer<Handler<AsyncResult<Void>>> consumer, final Handler<AsyncResult<Void>> handler) {
+    public void until(final BooleanSupplier tester, final Handler<Handler<AsyncResult<Void>>> consumer, final Handler<AsyncResult<Void>> handler) {
         context.runOnContext(new Handler<Void>() {
             @Override
             public void handle(Void e) {
                 try {
-                    consumer.accept(e1 -> {
+                    consumer.handle(e1 -> {
                         if (e1.succeeded()) {
                             if (tester.getAsBoolean()) {
                                 context.runOnContext(this);
@@ -262,20 +261,20 @@ public final class AsyncFlowsImpl implements AsyncFlows {
     }
 
     @Override
-    public <I, O> BiConsumer<I, Handler<AsyncResult<O>>> seq(final BiConsumer<I, Handler<AsyncResult<O>>>... functions) {
-        return new BiConsumer<I, Handler<AsyncResult<O>>>() {
-            private final Iterator<BiConsumer<I, Handler<AsyncResult<O>>>> iterator = Arrays.asList(functions).iterator();
-            private final AtomicReference<BiConsumer<I, Handler<AsyncResult<O>>>> current = new AtomicReference(null);
+    public <I, O> BiHandler<I, Handler<AsyncResult<O>>> seq(final BiHandler<I, Handler<AsyncResult<O>>>... functions) {
+        return new BiHandler<I, Handler<AsyncResult<O>>>() {
+            private final Iterator<BiHandler<I, Handler<AsyncResult<O>>>> iterator = Arrays.asList(functions).iterator();
+            private final AtomicReference<BiHandler<I, Handler<AsyncResult<O>>>> current = new AtomicReference(null);
 
             @Override
-            public void accept(final I item, final Handler<AsyncResult<O>> handler) {
+            public void handle(final I item, final Handler<AsyncResult<O>> handler) {
                 if (iterator.hasNext()) {
                     current.set(iterator.next());
                     context.runOnContext(e1 -> {
                         try {
-                            current.get().accept(item, e2 -> {
+                            current.get().handle(item, e2 -> {
                                 if (e2.succeeded()) {
-                                    this.accept((I) e2.result(), handler);
+                                    this.handle((I) e2.result(), handler);
                                 } else {
                                     handler.handle(DefaultAsyncResult.fail(e2));
                                 }
@@ -292,7 +291,7 @@ public final class AsyncFlowsImpl implements AsyncFlows {
     }
 
     @Override
-    public <T> void times(final int counter, final BiConsumer<Integer, Handler<AsyncResult<T>>> consumer, final Handler<AsyncResult<List<T>>> handler) {
+    public <T> void times(final int counter, final BiHandler<Integer, Handler<AsyncResult<T>>> consumer, final Handler<AsyncResult<List<T>>> handler) {
         final List<T> mapped = new ArrayList<>(counter);
         if (counter < 1) {
             handler.handle(DefaultAsyncResult.succeed(mapped));
@@ -304,7 +303,7 @@ public final class AsyncFlowsImpl implements AsyncFlows {
                 final int pos = i;
                 context.runOnContext(aVoid -> {
                     try {
-                        consumer.accept(pos, result -> {
+                        consumer.handle(pos, result -> {
                             if (result.failed() || stop.get()) {
                                 if (!stop.get()) {
                                     stop.set(true);
@@ -327,7 +326,7 @@ public final class AsyncFlowsImpl implements AsyncFlows {
     }
 
     @Override
-    public <T> void race(final List<Consumer<Handler<AsyncResult<T>>>> tasks, final Handler<AsyncResult<T>> handler) {
+    public <T> void race(final Collection<Handler<Handler<AsyncResult<T>>>> tasks, final Handler<AsyncResult<T>> handler) {
         if (tasks.isEmpty()) {
             handler.handle(DefaultAsyncResult.succeed(null));
         } else {
@@ -335,7 +334,7 @@ public final class AsyncFlowsImpl implements AsyncFlows {
             tasks.stream().forEach(task -> {
                 context.runOnContext(event -> {
                     try {
-                        task.accept(result -> {
+                        task.handle(result -> {
                             if (!stop.get()) {
                                 stop.set(true);
                                 handler.handle(result);
@@ -353,17 +352,17 @@ public final class AsyncFlowsImpl implements AsyncFlows {
     }
 
     @Override
-    public <T> AsyncWorker createQueue(final BiConsumer<T, Handler<AsyncResult<Void>>> worker) {
+    public <T> AsyncWorker createQueue(final BiHandler<T, Handler<AsyncResult<Void>>> worker) {
         return new AsyncQueueImpl(worker);
     }
 
     @Override
-    public <T> AsyncWorker createCargo(final BiConsumer<T, Handler<AsyncResult<Void>>> worker) {
+    public <T> AsyncWorker createCargo(final BiHandler<T, Handler<AsyncResult<Void>>> worker) {
         return new AsyncCargoImpl(worker);
     }
 
     @Override
-    public <T> void each(final Collection<BiConsumer<T, Handler<AsyncResult<Void>>>> functions, final T args, final Handler<AsyncResult<Void>> handler) {
+    public <T> void each(final Collection<BiHandler<T, Handler<AsyncResult<Void>>>> functions, final T args, final Handler<AsyncResult<Void>> handler) {
         if (functions.isEmpty()) {
             handler.handle(DefaultAsyncResult.succeed());
         } else {
@@ -373,7 +372,7 @@ public final class AsyncFlowsImpl implements AsyncFlows {
             functions.stream().forEach(function -> {
                 context.runOnContext(event -> {
                     try {
-                        function.accept(args, result -> {
+                        function.handle(args, result -> {
                             if (result.failed() || stop.get()) {
                                 if (!stop.get()) {
                                     stop.set(true);

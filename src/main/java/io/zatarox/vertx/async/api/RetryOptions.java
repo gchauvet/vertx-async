@@ -17,11 +17,10 @@ package io.zatarox.vertx.async.api;
 
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
-import java.util.function.Consumer;
 
 public interface RetryOptions<T> {
 
-    Handler<Void> build(final Consumer<Handler<AsyncResult<T>>> task, final Handler<AsyncResult<T>> handler);
+    Handler<Void> build(final Handler<Handler<AsyncResult<T>>> task, final Handler<AsyncResult<T>> handler);
 
     long getTries();
     

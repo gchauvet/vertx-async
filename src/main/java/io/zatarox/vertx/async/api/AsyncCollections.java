@@ -21,9 +21,6 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.function.BiConsumer;
-import org.javatuples.KeyValue;
-import org.javatuples.Pair;
 
 public interface AsyncCollections {
 
@@ -42,7 +39,7 @@ public interface AsyncCollections {
      * @param handler A callback which is called after all the {@code iterable}
      * functions have finished, or an error occurs.
      */
-    <I, O> void concat(final Collection<I> iterable, final BiConsumer<I, Handler<AsyncResult<Collection<O>>>> consumer, final Handler<AsyncResult<Collection<O>>> handler);
+    <I, O> void concat(final Collection<I> iterable, final BiHandler<I, Handler<AsyncResult<Collection<O>>>> consumer, final Handler<AsyncResult<Collection<O>>> handler);
 
     /**
      * Returns the first value in {@code collection} that passes an async truth
@@ -61,7 +58,7 @@ public interface AsyncCollections {
      * Result will be the first item in the array that passes the truth test
      * (function) or the value {@code null} if none passed.
      */
-    <T> void detect(final Collection<T> collection, final BiConsumer<T, Handler<AsyncResult<Boolean>>> function, final Handler<AsyncResult<T>> handler);
+    <T> void detect(final Collection<T> collection, final BiHandler<T, Handler<AsyncResult<Boolean>>> function, final Handler<AsyncResult<T>> handler);
 
     /**
      * Applies the function {@code consumer} to each item in {@code iterable},
@@ -85,7 +82,7 @@ public interface AsyncCollections {
      * @param handler A callback which is called when all {@code consumer}
      * functions have finished, or an error occurs.
      */
-    <T> void each(final Collection<T> iterable, final BiConsumer<T, Handler<AsyncResult<Void>>> consumer, final Handler<AsyncResult<Void>> handler);
+    <T> void each(final Collection<T> iterable, final BiHandler<T, Handler<AsyncResult<Void>>> consumer, final Handler<AsyncResult<Void>> handler);
 
     /**
      * Like {@code each}, except that it passes the tuple key/value as argument
@@ -102,7 +99,7 @@ public interface AsyncCollections {
      * @param handler A callback which is called when all {@code consumer}
      * functions have finished, or an error occurs.
      */
-    <K, V> void each(final Map<K, V> iterable, final BiConsumer<KeyValue<K, V>, Handler<AsyncResult<Void>>> consumer, final Handler<AsyncResult<Void>> handler);
+    <K, V> void each(final Map<K, V> iterable, final BiHandler<Pair<K, V>, Handler<AsyncResult<Void>>> consumer, final Handler<AsyncResult<Void>> handler);
 
     /**
      * Returns {@code true} if every element in {@code collection} satisfies an
@@ -117,7 +114,7 @@ public interface AsyncCollections {
      * functions have finished. Result will be either {@code true} or
      * {@code false} depending on the values of the async tests.
      */
-    <T> void every(final Collection<T> collection, final BiConsumer<T, Handler<AsyncResult<Boolean>>> function, final Handler<AsyncResult<Boolean>> handler);
+    <T> void every(final Collection<T> collection, final BiHandler<T, Handler<AsyncResult<Boolean>>> function, final Handler<AsyncResult<Boolean>> handler);
 
     /**
      * Returns a new collection of all the values in {@code iterable} which pass
@@ -132,7 +129,7 @@ public interface AsyncCollections {
      * @param handler A callback which is called after all the {@code consumer}
      * functions have finished.
      */
-    <T> void filter(final Collection<T> iterable, final BiConsumer<T, Handler<AsyncResult<Boolean>>> consumer, final Handler<AsyncResult<Collection<T>>> handler);
+    <T> void filter(final Collection<T> iterable, final BiHandler<T, Handler<AsyncResult<Boolean>>> consumer, final Handler<AsyncResult<Collection<T>>> handler);
 
     /**
      * Produces a new collection of values by mapping each value in
@@ -160,7 +157,7 @@ public interface AsyncCollections {
      * functions have finished, or an error occurs. Results is a List of the
      * transformed items from the {@code iterable}.
      */
-    <I, O> void map(final List<I> iterable, final BiConsumer<I, Handler<AsyncResult<O>>> consumer, final Handler<AsyncResult<Collection<O>>> handler);
+    <I, O> void map(final List<I> iterable, final BiHandler<I, Handler<AsyncResult<O>>> consumer, final Handler<AsyncResult<Collection<O>>> handler);
 
     /**
      * Reduces {@code collection} into a single value using an async
@@ -184,7 +181,7 @@ public interface AsyncCollections {
      * @param handler A callback which is called after all the {@code function}
      * functions have finished. Result is the transformed accumulator.
      */
-    <I, O> void reduce(final Collection<I> collection, final O memo, final BiConsumer<Pair<I, O>, Handler<AsyncResult<O>>> function, final Handler<AsyncResult<O>> handler);
+    <I, O> void reduce(final Collection<I> collection, final O memo, final BiHandler<Pair<I, O>, Handler<AsyncResult<O>>> function, final Handler<AsyncResult<O>> handler);
 
     /**
      * The opposite of {@code filter}. Removes values that pass an {@code async}
@@ -198,7 +195,7 @@ public interface AsyncCollections {
      * @param handler A callback which is called after all the {@code consumer}
      * functions have finished.
      */
-    <T> void reject(final Collection<T> iterable, final BiConsumer<T, Handler<AsyncResult<Boolean>>> consumer, final Handler<AsyncResult<Collection<T>>> handler);
+    <T> void reject(final Collection<T> iterable, final BiHandler<T, Handler<AsyncResult<Boolean>>> consumer, final Handler<AsyncResult<Collection<T>>> handler);
 
     /**
      * Returns {@code true} if at least one element in the {@code collection}
@@ -214,7 +211,7 @@ public interface AsyncCollections {
      * will be either {@code true} or {@code false} depending on the values of
      * the async tests.
      */
-    <T> void some(final Collection<T> collection, final BiConsumer<T, Handler<AsyncResult<Boolean>>> function, final Handler<AsyncResult<Boolean>> handler);
+    <T> void some(final Collection<T> collection, final BiHandler<T, Handler<AsyncResult<Boolean>>> function, final Handler<AsyncResult<Boolean>> handler);
 
     /**
      * Sorts a list by the results of running each {@code collection} value
@@ -260,7 +257,7 @@ public interface AsyncCollections {
      * @param handler A callback which is called after all the {@code consumer}
      * functions have finished. Result is the transformed accumulator.
      */
-    <I, O> void transform(final Collection<I> iterable, final BiConsumer<I, Handler<AsyncResult<O>>> consumer, final Handler<AsyncResult<Collection<O>>> handler);
+    <I, O> void transform(final Collection<I> iterable, final BiHandler<I, Handler<AsyncResult<O>>> consumer, final Handler<AsyncResult<Collection<O>>> handler);
 
     /**
      * A relative of {@code reduce}. Takes a Map, and iterates over each element
@@ -280,6 +277,6 @@ public interface AsyncCollections {
      * @param handler A callback which is called after all the {@code consumer}
      * functions have finished. Result is the transformed accumulator.
      */
-    <K, V, T, R> void transform(final Map<K, V> iterable, final BiConsumer<KeyValue<K, V>, Handler<AsyncResult<KeyValue<T, R>>>> consumer, final Handler<AsyncResult<Map<T, R>>> handler);
+    <K, V, T, R> void transform(final Map<K, V> iterable, final BiHandler<Pair<K, V>, Handler<AsyncResult<Pair<T, R>>>> consumer, final Handler<AsyncResult<Map<T, R>>> handler);
     
 }
