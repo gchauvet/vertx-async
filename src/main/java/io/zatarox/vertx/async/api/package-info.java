@@ -13,15 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+@ModuleGen(name = "async", groupPackage="io.zatarox.vertx.async")
 package io.zatarox.vertx.async.api;
 
-import io.vertx.codegen.annotations.VertxGen;
+import io.vertx.codegen.annotations.ModuleGen;
 
-@VertxGen
-public interface Pair<K, V> {
-    
-    K getKey();
-    
-    V getValue();
-    
-}

@@ -15,11 +15,14 @@
  */
 package io.zatarox.vertx.async.api;
 
+import io.vertx.codegen.annotations.*;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 
+@VertxGen
 public interface RetryOptions<T> {
 
+    @GenIgnore//@Todo
     Handler<Void> build(final Handler<Handler<AsyncResult<T>>> task, final Handler<AsyncResult<T>> handler);
 
     long getTries();

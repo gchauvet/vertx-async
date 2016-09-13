@@ -15,9 +15,11 @@
  */
 package io.zatarox.vertx.async.api;
 
+import io.vertx.codegen.annotations.VertxGen;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 
+@VertxGen
 public interface AsyncWorker<T> {
 
 

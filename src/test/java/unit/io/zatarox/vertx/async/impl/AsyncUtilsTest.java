@@ -25,10 +25,10 @@ import io.vertx.ext.unit.junit.RepeatRule;
 import io.vertx.ext.unit.junit.RunTestOnContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
 import io.zatarox.vertx.async.api.AsyncUtils;
+import io.zatarox.vertx.async.api.BiHandler;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.BiConsumer;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -156,12 +156,12 @@ public final class AsyncUtilsTest {
     @Repeat(value = AsyncUtilsTest.REPEAT_LIMIT, silent = true)
     public void asyncifyAFunction(final TestContext context) {
         final Async async = context.async();
-        final BiConsumer<Integer, Handler<AsyncResult<Integer>>> function = instance.asyncify(t -> {
+        final BiHandler<Integer, Handler<AsyncResult<Integer>>> function = instance.asyncify(t -> {
             return t + 1;
         });
         context.assertNotNull(function);
         rule.vertx().runOnContext(handler -> {
-            function.accept(72, result -> {
+            function.handle(72, result -> {
                 context.assertTrue(result.succeeded());
                 context.assertEquals(73, result.result());
                 async.complete();
@@ -173,12 +173,12 @@ public final class AsyncUtilsTest {
     @Repeat(value = AsyncUtilsTest.REPEAT_LIMIT, silent = true)
     public void asyncifyAFunctionUnhandledException(final TestContext context) {
         final Async async = context.async();
-        final BiConsumer<Integer, Handler<AsyncResult<Integer>>> function = instance.asyncify(t -> {
+        final BiHandler<Integer, Handler<AsyncResult<Integer>>> function = instance.asyncify(t -> {
             throw new RuntimeException();
         });
         context.assertNotNull(function);
         rule.vertx().runOnContext(handler -> {
-            function.accept(72, result -> {
+            function.handle(72, result -> {
                 context.assertFalse(result.succeeded());
                 context.assertTrue(result.cause() instanceof RuntimeException);
                 async.complete();

@@ -16,3 +16,6 @@ mods/
 /nb-configuration.xml
 /nbactions.xml
 /.vertx/
+/src/main/groovy/
+/src/main/generated/
+/src/main/resources/

@@ -15,6 +15,9 @@
  */
 package io.zatarox.vertx.async.api;
 
+import io.vertx.codegen.annotations.VertxGen;
+
+@VertxGen
 public interface AsyncWorkerListener {
 
     void poolEmpty(final AsyncWorker instance);

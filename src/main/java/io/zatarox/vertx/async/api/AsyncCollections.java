@@ -58,6 +58,7 @@ public interface AsyncCollections {
      * Result will be the first item in the array that passes the truth test
      * (function) or the value {@code null} if none passed.
      */
+    
     <T> void detect(final Collection<T> collection, final BiHandler<T, Handler<AsyncResult<Boolean>>> function, final Handler<AsyncResult<T>> handler);
 
     /**

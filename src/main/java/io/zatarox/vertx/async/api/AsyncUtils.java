@@ -18,7 +18,6 @@ package io.zatarox.vertx.async.api;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import java.util.concurrent.TimeUnit;
-import java.util.function.BiConsumer;
 import java.util.function.Function;
 
 public interface AsyncUtils {
@@ -35,7 +34,7 @@ public interface AsyncUtils {
      * @param function The synchronous function to manage.
      * @return An asynchronous wrapper ready to be use with Vertx.
      */
-    <I, O> BiConsumer<I, Handler<AsyncResult<O>>> asyncify(final Function<I, O> function);
+    <I, O> BiHandler<I, Handler<AsyncResult<O>>> asyncify(final Function<I, O> function);
 
     /**
      * Returns a function that when called, calls-back with the values provided.
@@ -57,7 +56,7 @@ public interface AsyncUtils {
      * @param function The function to proxy and cache results from.
      * @return A proxy cache for the function.
      */
-    <I, O> AsyncMemoize<I, O> memoize(final BiConsumer<I, Handler<AsyncResult<O>>> function);
+    <I, O> AsyncMemoize<I, O> memoize(final BiHandler<I, Handler<AsyncResult<O>>> function);
 
     /**
      * Emulate a time limit on an asynchronous function. If the function does

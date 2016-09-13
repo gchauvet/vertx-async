@@ -21,11 +21,10 @@ import io.vertx.core.AsyncResult;
 import io.vertx.core.Context;
 import io.vertx.core.Handler;
 import io.zatarox.vertx.async.api.AsyncUtils;
+import io.zatarox.vertx.async.api.BiHandler;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 import java.util.function.Function;
 
 public final class AsyncUtilsImpl implements AsyncUtils {
@@ -54,7 +53,7 @@ public final class AsyncUtilsImpl implements AsyncUtils {
     }
 
     @Override
-    public <I, O> AsyncMemoize<I, O> memoize(final BiConsumer<I, Handler<AsyncResult<O>>> function) {
+    public <I, O> AsyncMemoize<I, O> memoize(final BiHandler<I, Handler<AsyncResult<O>>> function) {
         return new AsyncMemoizeImpl(function);
     }
 
@@ -66,7 +65,7 @@ public final class AsyncUtilsImpl implements AsyncUtils {
     }
 
     @Override
-    public <I, O> BiConsumer<I, Handler<AsyncResult<O>>> asyncify(final Function<I, O> function) {
+    public <I, O> BiHandler<I, Handler<AsyncResult<O>>> asyncify(final Function<I, O> function) {
         return (item, handler) -> {
             try {
                 handler.handle(DefaultAsyncResult.succeed(function.apply(item)));

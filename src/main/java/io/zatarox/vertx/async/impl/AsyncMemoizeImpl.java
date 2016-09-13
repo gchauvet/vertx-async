@@ -19,17 +19,17 @@ import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.zatarox.vertx.async.api.AsyncMemoize;
+import io.zatarox.vertx.async.api.BiHandler;
 import io.zatarox.vertx.async.utils.DefaultAsyncResult;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.BiConsumer;
 
 public final class AsyncMemoizeImpl<I, O> implements AsyncMemoize<I, O> {
 
     private final Map<I, O> cache = new ConcurrentHashMap<>();
-    private final BiConsumer<I, Handler<AsyncResult<O>>> consumer;
+    private final BiHandler<I, Handler<AsyncResult<O>>> consumer;
 
-    public AsyncMemoizeImpl(final BiConsumer<I, Handler<AsyncResult<O>>> consumer) {
+    public AsyncMemoizeImpl(final BiHandler<I, Handler<AsyncResult<O>>> consumer) {
         this.consumer = consumer;
     }
 
@@ -58,7 +58,7 @@ public final class AsyncMemoizeImpl<I, O> implements AsyncMemoize<I, O> {
             handler.handle(DefaultAsyncResult.succeed(cache.get(item)));
         } else {
             Vertx.currentContext().runOnContext(event -> {
-                consumer.accept(item, event1 -> {
+                consumer.handle(item, event1 -> {
                     if (event1.succeeded()) {
                         cache.put(item, event1.result());
                     }
