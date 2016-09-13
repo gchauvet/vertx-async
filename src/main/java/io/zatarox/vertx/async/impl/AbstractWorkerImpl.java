@@ -22,6 +22,7 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import io.zatarox.vertx.async.api.AsyncWorker;
+import io.zatarox.vertx.async.api.AsyncWorkerListener;
 
 public abstract class AbstractWorkerImpl<T> implements AsyncWorker<T>, Handler<Void> {
 
@@ -71,7 +72,7 @@ public abstract class AbstractWorkerImpl<T> implements AsyncWorker<T>, Handler<V
     }
 
     protected void fireEmptyPool() {
-        listeners.stream().forEach(listener -> {
+        listeners.stream().forEach((io.zatarox.vertx.async.api.AsyncWorkerListener listener) -> {
             listener.poolEmpty(this);
         });
     }

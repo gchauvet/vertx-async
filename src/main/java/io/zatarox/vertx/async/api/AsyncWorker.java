@@ -20,11 +20,6 @@ import io.vertx.core.Handler;
 
 public interface AsyncWorker<T> {
 
-    public interface AsyncWorkerListener {
-
-        void poolEmpty(final AsyncWorker instance);
-
-    };
 
     /**
      * Add a consumer in the pool
