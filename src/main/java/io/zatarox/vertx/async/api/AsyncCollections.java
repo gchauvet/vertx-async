@@ -15,6 +15,7 @@
  */
 package io.zatarox.vertx.async.api;
 
+import io.vertx.codegen.annotations.*;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import java.util.Collection;
@@ -22,6 +23,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
+@VertxGen
 public interface AsyncCollections {
 
     /**
