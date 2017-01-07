@@ -95,6 +95,11 @@ public final class AsyncQueueImplTest {
                 context.assertFalse(instance.remove(this));
                 async.complete();
             }
+
+            @Override
+            public void poolFull(AsyncWorker instance) {
+                context.asyncAssertFailure();
+            }
         };
         context.assertTrue(queue.add(listener));
         context.assertFalse(queue.add(listener));

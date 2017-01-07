@@ -102,6 +102,11 @@ public final class AsyncCargoImplTest {
                 context.assertFalse(instance.remove(this));
                 async.complete();
             }
+
+            @Override
+            public void poolFull(AsyncWorker instance) {
+                context.asyncAssertFailure();
+            }
         };
         context.assertTrue(cargo.add(listener));
         context.assertFalse(cargo.add(listener));

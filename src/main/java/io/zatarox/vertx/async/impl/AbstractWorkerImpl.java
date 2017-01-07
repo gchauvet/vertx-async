@@ -72,9 +72,8 @@ public abstract class AbstractWorkerImpl<T> implements AsyncWorker<T>, Handler<V
     }
 
     protected void fireEmptyPool() {
-        listeners.stream().forEach((io.zatarox.vertx.async.api.AsyncWorkerListener listener) -> {
+        listeners.stream().forEach(listener -> {
             listener.poolEmpty(this);
         });
-    }
-
+    }   
 }
