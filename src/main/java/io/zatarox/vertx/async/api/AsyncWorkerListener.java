@@ -20,6 +20,16 @@ import io.vertx.codegen.annotations.VertxGen;
 @VertxGen
 public interface AsyncWorkerListener {
 
+    /**
+     * When the processing pool become empty
+     * @param instance Object who raised the notification 
+     */
     void poolEmpty(final AsyncWorker instance);
+    
+    /**
+     * When the processing pool become full
+     * @param instance Object who raised the notification
+     */
+    void poolFull(final AsyncWorker instance);
     
 }

@@ -93,6 +93,7 @@ public final class AsyncCargoImplTest {
     public void testListeners(final TestContext context) {
         final Async async = context.async();
         final AtomicBoolean empty = new AtomicBoolean(false);
+        final AtomicBoolean full = new AtomicBoolean(false);
         final AsyncWorkerListener listener = new AsyncWorkerListener() {
             @Override
             public void poolEmpty(AsyncWorker instance) {
@@ -102,12 +103,18 @@ public final class AsyncCargoImplTest {
                 context.assertFalse(instance.remove(this));
                 async.complete();
             }
+
+            @Override
+            public void poolFull(AsyncWorker instance) {
+                full.set(true);
+            }
         };
         context.assertTrue(cargo.add(listener));
         context.assertFalse(cargo.add(listener));
         cargo.add(Arrays.asList(100), event -> {
             context.assertTrue(event.succeeded());
             context.assertTrue(empty.get());
+            context.assertTrue(full.get());
         }, false);
         context.assertFalse(cargo.isIdle());
     }

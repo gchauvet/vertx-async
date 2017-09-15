@@ -7,7 +7,7 @@ install:
   - mvn install -DskipTests=true -DskipPkg=true
 
 script:
-  - mvn clean test jacoco:report coveralls:report
+  - mvn clean test jacoco:report
 
 before_install:
   - sudo add-apt-repository ppa:openjdk-r/ppa -y

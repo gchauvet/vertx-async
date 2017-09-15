@@ -76,6 +76,7 @@ public final class AsyncCargoImpl<T> extends AbstractWorkerImpl<Collection<T>> {
         tasks.clear();
     }
 
+    @Override
     public void handle(Void event) {
         if (tasks.isEmpty()) {
             fireEmptyPool();
@@ -86,6 +87,9 @@ public final class AsyncCargoImpl<T> extends AbstractWorkerImpl<Collection<T>> {
                 tasksToPass.add(tasks.poll());
             }
             current.incrementAndGet();
+            if (size == tasksToPass.size()) {
+                fireFullPool();
+            }
             Vertx.currentContext().runOnContext(event1 -> {
                 worker.handle(tasksToPass, event2 -> {
                     current.decrementAndGet();
@@ -95,4 +99,9 @@ public final class AsyncCargoImpl<T> extends AbstractWorkerImpl<Collection<T>> {
         }
     }
 
+    protected void fireFullPool() {
+        listeners.stream().forEach(listener -> {
+            listener.poolFull(this);
+        });
+    }
 }
